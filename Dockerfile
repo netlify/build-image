@@ -43,7 +43,6 @@ RUN npm install -g bower
 # User
 #
 ################################################################################
-RUN adduser --disabled-password --uid 2500 --quiet buildbot
-RUN echo "{\"analytics\": false}" > /home/buildbot/.bowerrc
+RUN adduser --system --disabled-password --uid 2500 --quiet buildbot
 
 USER buildbot

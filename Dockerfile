@@ -36,6 +36,7 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.29 && nvm use v0.10.29 && 
 
 RUN npm install -g sm
 RUN npm install -g grunt-cli
+RUN npm install -g bower
 
 ################################################################################
 #

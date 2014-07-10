@@ -50,7 +50,7 @@ RUN npm install -g bower
 
 RUN easy_install virtualenv
 RUN virtualenv -p python2.7 --no-site-packages /usr/local/python2.7
-RUN source /usr/local/python2.7/bin/activate && easy_install pip
+RUN /bin/bash -c 'source /usr/local/python2.7/bin/activate && easy_install pip'
 
 
 ################################################################################

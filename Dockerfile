@@ -49,7 +49,8 @@ RUN npm install -g bower
 ################################################################################
 
 RUN easy_install virtualenv
-RUN virtualenv -p python2.7.3 --no-site-packages /usr/local/python2.7.3
+RUN virtualenv -p python2.7 --no-site-packages /usr/local/python2.7
+RUN /usr/local/python2.7/bin/activate && easy_install pip
 
 
 ################################################################################

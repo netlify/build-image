@@ -3,13 +3,15 @@ FROM ubuntu:14.04
 MAINTAINER BitBalloon
 
 RUN apt-get -y update
-RUN apt-get install -y git-core build-essential g++ libssl-dev curl wget apache2-utils libxml2-dev
+RUN apt-get install -y git-core build-essential g++ libssl-dev curl wget apache2-utils libxml2-dev python-setuptools
+
 
 ################################################################################
 #
 # Ruby
 #
 ################################################################################
+
 RUN curl -L https://get.rvm.io | bash -s stable
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -28,6 +30,7 @@ RUN gem install bundler
 # Node.js
 #
 ################################################################################
+
 RUN git clone https://github.com/creationix/nvm.git /.nvm
 RUN echo ". /.nvm/nvm.sh" >> /etc/bash.bashrc
 
@@ -38,11 +41,23 @@ RUN npm install -g sm
 RUN npm install -g grunt-cli
 RUN npm install -g bower
 
+
+################################################################################
+#
+# Python
+#
+################################################################################
+
+RUN easy_install virtualenv
+RUN virtualenv -p python2.7.3 --no-site-packages /usr/local/python2.7.3
+
+
 ################################################################################
 #
 # User
 #
 ################################################################################
+
 RUN adduser --system --disabled-password --uid 2500 --quiet buildbot
 
 USER buildbot

@@ -3,7 +3,7 @@ FROM ubuntu:14.04
 MAINTAINER BitBalloon
 
 RUN apt-get -y update
-RUN apt-get install -y git-core build-essential g++ libssl-dev curl wget apache2-utils libxml2-dev libxslt-dev lpython-setuptools mercurial bzr imagemagick
+RUN apt-get install -y git-core build-essential g++ libssl-dev curl wget apache2-utils libxml2-dev libxslt-dev python-setuptools mercurial bzr imagemagick
 
 
 ################################################################################

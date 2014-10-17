@@ -76,7 +76,7 @@ RUN go get github.com/spf13/hugo
 #
 ################################################################################
 
-RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /home/buildbot
+RUN adduser --system --disabled-password --uid 2500 --quiet buildbot 
 
 USER buildbot
 
@@ -87,6 +87,7 @@ USER buildbot
 #
 ################################################################################
 
+RUN mkdir /home/buildbot
 RUN virtualenv -p python2.7 --no-site-packages /home/buildbot/python2.7
 RUN /bin/bash -c 'source /home/buildbot/python2.7/bin/activate && easy_install pip'
 RUN chown -R buildbot /home/buildbot

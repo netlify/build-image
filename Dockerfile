@@ -89,4 +89,4 @@ USER buildbot
 
 RUN virtualenv -p python2.7 --no-site-packages /home/buildbot/python2.7
 RUN /bin/bash -c 'source /home/buildbot/python2.7/bin/activate && easy_install pip'
-RUN chown -R buildbot /home/buildbot/.pip && chown -R buildbot /home/buildbot/python2.7
+RUN chown -R buildbot /home/buildbot

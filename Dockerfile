@@ -81,7 +81,6 @@ RUN go get github.com/spf13/hugo
 
 
 RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt/buildhome
-RUN chmod a+rwx /opt/buildhome # chown has no effect so we're going for bust to get a working home
-
+RUN chmod -R a+rwx /opt/buildhome # chown has no effect so we're going for bust to get a working home
 
 USER buildbot

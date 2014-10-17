@@ -89,4 +89,4 @@ USER buildbot
 ################################################################################
 
 RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7
-RUN /bin/bash -c 'source /opt/buildhome/buildbot/python2.7/bin/activate && easy_install pip'
+RUN /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate && easy_install pip'

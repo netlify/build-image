@@ -76,7 +76,7 @@ RUN go get github.com/spf13/hugo
 #
 ################################################################################
 
-RUN adduser --system --disabled-password --uid 2500 --quiet buildbot -m
+RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /home/buildbot
 
 USER buildbot
 

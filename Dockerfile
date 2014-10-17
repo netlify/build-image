@@ -85,13 +85,3 @@ RUN chmod a+rwx /opt/buildhome # chown has no effect so we're going for bust to 
 
 
 USER buildbot
-
-
-################################################################################
-#
-# Python for buildbot user
-#
-################################################################################
-
-RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7
-RUN /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate && easy_install pip'

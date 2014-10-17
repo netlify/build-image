@@ -49,9 +49,6 @@ RUN npm install -g bower
 ################################################################################
 
 RUN easy_install virtualenv
-RUN virtualenv -p python2.7 --no-site-packages /usr/local/python2.7
-RUN /bin/bash -c 'source /usr/local/python2.7/bin/activate && easy_install pip'
-RUN echo "source /usr/local/python2.7/bin/activate" >> /etc/bash.bashrc
 
 
 ################################################################################
@@ -79,6 +76,17 @@ RUN go get github.com/spf13/hugo
 #
 ################################################################################
 
-RUN adduser --system --disabled-password --uid 2500 --quiet buildbot
+RUN adduser --system --disabled-password --uid 2500 --quiet buildbot -m
 
 USER buildbot
+
+
+################################################################################
+#
+# Python for buildbot user
+#
+################################################################################
+
+RUN virtualenv -p python2.7 --no-site-packages /home/buildbot/python2.7
+RUN /bin/bash -c 'source /home/buildbot/python2.7/bin/activate && easy_install pip'
+

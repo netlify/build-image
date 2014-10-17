@@ -77,6 +77,7 @@ RUN go get github.com/spf13/hugo
 ################################################################################
 
 
+RUN mkdir /opt/buildhome && chown -R 2500 /opt/buildhome
 RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt/buildhome
 
 USER buildbot

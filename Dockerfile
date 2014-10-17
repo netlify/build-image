@@ -48,7 +48,11 @@ RUN npm install -g bower
 #
 ################################################################################
 
-RUN apt get install -y python python-dev python-pip python-virtualenv
+RUN easy_install virtualenv
+RUN virtualenv -p python2.7 --no-site-packages /usr/local/python2.7
+RUN /bin/bash -c 'source /usr/local/python2.7/bin/activate && easy_install pip'
+RUN echo "source /usr/local/python2.7/bin/activate" >> /etc/bash.bashrc
+
 
 ################################################################################
 #

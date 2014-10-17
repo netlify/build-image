@@ -5,6 +5,8 @@ MAINTAINER BitBalloon
 RUN apt-get -y update
 RUN apt-get install -y git-core build-essential g++ libssl-dev curl wget apache2-utils libxml2-dev libxslt-dev python-setuptools mercurial bzr imagemagick
 
+# Prepare homedir
+RUN mkdir /opt/buildhome
 
 ################################################################################
 #
@@ -49,7 +51,8 @@ RUN npm install -g bower
 ################################################################################
 
 RUN easy_install virtualenv
-
+RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7
+RUN /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate && easy_install pip'
 
 ################################################################################
 #
@@ -77,8 +80,9 @@ RUN go get github.com/spf13/hugo
 ################################################################################
 
 
-RUN mkdir /opt/buildhome && chown -R 2500 /opt/buildhome
 RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt/buildhome
+RUN chmod a+rwx /opt/buildhome # chown has no effect so we're going for bust to get a working home
+
 
 USER buildbot
 

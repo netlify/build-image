@@ -5,6 +5,13 @@ MAINTAINER BitBalloon
 RUN apt-get -y update
 RUN apt-get install -y git-core build-essential g++ libssl-dev curl wget apache2-utils libxml2-dev libxslt-dev python-setuptools mercurial bzr imagemagick python2.7-dev
 
+# Set a default language
+RUN echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language
+RUN echo 'LANG="en_US.UTF-8"' > /etc/default/locale
+RUN echo 'LANGUAGE="en_US:en"' >> /etc/default/locale
+RUN locale-gen en_US.UTF-8
+RUN update-locale en_US.UTF-8
+
 # Prepare homedir
 RUN mkdir /opt/buildhome
 

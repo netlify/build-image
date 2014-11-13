@@ -68,14 +68,14 @@ RUN /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate && easy_install p
 #
 ################################################################################
 
-RUN curl -s https://go.googlecode.com/files/go1.2.src.tar.gz | tar -v -C /usr/local -xz
-RUN cd /usr/local/go/src && ./make.bash --no-clean 2>&1
-ENV PATH /usr/local/go/bin:/go/bin:$PATH
-ENV GOPATH /go
+# RUN curl -s https://go.googlecode.com/files/go1.2.src.tar.gz | tar -v -C /usr/local -xz
+# RUN cd /usr/local/go/src && ./make.bash --no-clean 2>&1
+# ENV PATH /usr/local/go/bin:/go/bin:$PATH
+# ENV GOPATH /go
 
 # we're using godep to save / restore dependancies
-RUN go get github.com/kr/godep
-RUN go get github.com/spf13/hugo
+# RUN go get github.com/kr/godep
+# RUN go get github.com/spf13/hugo
 
 # Hugo install doesn't seem to install bin
 # RUN curl -L https://github.com/spf13/hugo/releases/download/v0.11/hugo_0.11_linux_386.tar.gz | tar xvfz -C /usr/local

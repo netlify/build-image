@@ -4,7 +4,8 @@ MAINTAINER BitBalloon
 
 RUN apt-get -y update
 RUN apt-get install -y git-core build-essential g++ libssl-dev curl wget apache2-utils libxml2-dev libxslt-dev python-setuptools mercurial bzr imagemagick python2.7-dev
-
+# Image optimization
+RUN apt-get install -y advancecomp gifsicle jpegoptim libjpeg-progs optipng pngcrush fontconfig fontconfig-config libfontconfig1
 # Prepare homedir
 RUN mkdir /opt/buildhome
 

@@ -6,6 +6,14 @@ RUN apt-get -y update
 RUN apt-get install -y git-core build-essential g++ libssl-dev curl wget apache2-utils libxml2-dev libxslt-dev python-setuptools mercurial bzr imagemagick python2.7-dev
 # Image optimization
 RUN apt-get install -y advancecomp gifsicle jpegoptim libjpeg-progs optipng pngcrush fontconfig fontconfig-config libfontconfig1
+
+# Set a default language
+RUN echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language
+RUN echo 'LANG="en_US.UTF-8"' > /etc/default/locale
+RUN echo 'LANGUAGE="en_US:en"' >> /etc/default/locale
+RUN locale-gen en_US.UTF-8
+RUN update-locale en_US.UTF-8
+
 # Prepare homedir
 RUN mkdir /opt/buildhome
 
@@ -15,6 +23,7 @@ RUN mkdir /opt/buildhome
 #
 ################################################################################
 
+RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3
 RUN curl -L https://get.rvm.io | bash -s stable
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -61,14 +70,14 @@ RUN /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate && easy_install p
 #
 ################################################################################
 
-RUN curl -s https://go.googlecode.com/files/go1.2.src.tar.gz | tar -v -C /usr/local -xz
-RUN cd /usr/local/go/src && ./make.bash --no-clean 2>&1
-ENV PATH /usr/local/go/bin:/go/bin:$PATH
-ENV GOPATH /go
+# RUN curl -s https://go.googlecode.com/files/go1.2.src.tar.gz | tar -v -C /usr/local -xz
+# RUN cd /usr/local/go/src && ./make.bash --no-clean 2>&1
+# ENV PATH /usr/local/go/bin:/go/bin:$PATH
+# ENV GOPATH /go
 
 # we're using godep to save / restore dependancies
-RUN go get github.com/kr/godep
-RUN go get github.com/spf13/hugo
+# RUN go get github.com/kr/godep
+# RUN go get github.com/spf13/hugo
 
 # Hugo install doesn't seem to install bin
 # RUN curl -L https://github.com/spf13/hugo/releases/download/v0.11/hugo_0.11_linux_386.tar.gz | tar xvfz -C /usr/local

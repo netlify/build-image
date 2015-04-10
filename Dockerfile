@@ -33,7 +33,7 @@ ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
 
 RUN /usr/local/rvm/bin/rvm-shell && rvm requirements && \
     rvm install 2.1.2 && rvm install 2.2.1 && \
-    rvm use 2.2.1 --default && rvm cleanup all
+    rvm use 2.1.2 --default && rvm cleanup all
 
 ENV PATH /usr/local/rvm/rubies/ruby-2.2.1/bin:/usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 

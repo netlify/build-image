@@ -2,14 +2,28 @@ FROM ubuntu:14.04
 
 MAINTAINER Netlify
 
+################################################################################
+#
+# Dependencies
+#
+################################################################################
+
 RUN apt-get -y update && \
     apt-get install -y git-core build-essential g++ libssl-dev curl wget \
                       apache2-utils libxml2-dev libxslt-dev python-setuptools \
                       mercurial bzr imagemagick libmagickwand-dev python2.7-dev \
                       advancecomp gifsicle jpegoptim libjpeg-progs optipng \
-                      pngcrush fontconfig fontconfig-config libfontconfig1 && \
+                      pngcrush fontconfig fontconfig-config libfontconfig1 \
+                      gawk libreadline6-dev libyaml-dev libsqlite3-dev sqlite3 \
+                      autoconf libgdbm-dev libncurses5-dev automake bison libffi-dev && \
     apt-get clean
 
+
+################################################################################
+#
+# Locale and UTF-8
+#
+################################################################################
 
 # Set a default language
 RUN echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
@@ -21,7 +35,12 @@ ENV LANGUAGE en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
-# Prepare user and homedir
+################################################################################
+#
+# User
+#
+################################################################################
+
 RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt/buildhome
 
 ################################################################################
@@ -30,17 +49,17 @@ RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt
 #
 ################################################################################
 
+USER buildbot
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
-    curl -L https://get.rvm.io | bash -s stable
+    curl -L https://get.rvm.io | bash -s stable --with-gems="bundler" --autolibs=read-fail
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-RUN /usr/local/rvm/bin/rvm-shell && rvm requirements && \
-    rvm install 2.1.2 && rvm install 2.2.1 && \
-    rvm use 2.1.2 --default && rvm cleanup all
+RUN $HOME/.rvm/bin/rvm install 2.1.2 && $HOME/.rvm/bin/rvm install 2.2.1 && \
+    $HOME/.rvm/bin/rvm use 2.1.2 --default && $HOME/.rvm/bin/rvm cleanup all
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
+USER root
 
 ################################################################################
 #
@@ -64,17 +83,13 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.29 && nvm use v0.10.29 && 
 #
 ################################################################################
 
-RUN easy_install virtualenv && \
-    virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
-    /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate && easy_install pip'
+RUN easy_install virtualenv
 
+USER buildbot
+    RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
+    /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate'
 
-################################################################################
-#
-# User
-#
-################################################################################
-
+USER root
 
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

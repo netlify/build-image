@@ -17,6 +17,10 @@ RUN echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && update-locale en_US.UTF-8
 
+ENV LANGUAGE en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+
 # Prepare user and homedir
 RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt/buildhome
 
@@ -36,8 +40,6 @@ RUN /usr/local/rvm/bin/rvm-shell && rvm requirements && \
     rvm use 2.1.2 --default && rvm cleanup all
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-RUN gem install bundler
 
 
 ################################################################################

@@ -99,6 +99,11 @@ RUN git clone https://github.com/creationix/nvm.git /.nvm && \
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.29 && nvm use v0.10.29 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
+
+# Install node.js
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.36 && nvm use v0.10.36 && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.12.2 && nvm use v0.12.2 && \
     nvm alias default v0.12.2 && npm install -g sm && npm install -g grunt-cli && \
     npm install -g bower'

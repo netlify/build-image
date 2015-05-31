@@ -123,6 +123,21 @@ USER buildbot
 
 USER root
 
+
+################################################################################
+#
+# Hugo
+#
+################################################################################
+
+RUN mkdir /opt/hugo && cd /opt/hugo && \
+    curl -L https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_linux_386.tar.gz | tar zxvf - && \
+    ln -s /opt/hugo/hugo_0.13_linux_386/hugo_0.13_linux_386 /usr/local/bin/hugo_0.13 && \
+    curl -L https://github.com/spf13/hugo/releases/download/v0.14/hugo_0.14_linux_386.tar.gz | tar zxvf - && \
+    ln -s /opt/hugo/hugo_0.14_linux_386/hugo_0.14_linux_386 /usr/local/bin/hugo_0.14 && \
+    ln -s /opt/hugo/hugo_0.14_linux_386/hugo_0.14_linux_386 /usr/local/bin/hugo
+
+
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

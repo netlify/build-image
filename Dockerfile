@@ -18,7 +18,7 @@ RUN apt-get -y update && \
                       autoconf libgdbm-dev libncurses5-dev automake bison libffi-dev \
                       gobject-introspection gtk-doc-tools libglib2.0-dev \
                       libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
-                      libexif-dev swig && \
+                      libexif-dev swig python3 libgd-dev && \
     apt-get clean
 
 
@@ -118,8 +118,14 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.12.2 && nvm use v0.12.2 && \
 RUN easy_install virtualenv
 
 USER buildbot
-    RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
-    /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate'
+
+RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
+    /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
+    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.4
+
+RUN virtualenv -p python3.4 --no-site-packages /opt/buildhome/python3.4 && \
+    /bin/bash -c 'source /opt/buildhome/python3.4/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.4.0 /opt/buildhome/python3.4.0
 
 USER root
 

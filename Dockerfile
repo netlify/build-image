@@ -18,7 +18,7 @@ RUN apt-get -y update && \
                       autoconf libgdbm-dev libncurses5-dev automake bison libffi-dev \
                       gobject-introspection gtk-doc-tools libglib2.0-dev \
                       libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
-                      libexif-dev swig python3 libgd-dev && \
+                      libexif-dev swig python3 libgd-dev default-jdk && \
     apt-get clean
 
 
@@ -143,6 +143,22 @@ RUN mkdir /opt/hugo && cd /opt/hugo && \
     ln -s /opt/hugo/hugo_0.14_linux_386/hugo_0.14_linux_386 /usr/local/bin/hugo_0.14 && \
     ln -s /opt/hugo/hugo_0.14_linux_386/hugo_0.14_linux_386 /usr/local/bin/hugo
 
+################################################################################
+#
+# Leiningen
+#
+################################################################################
+
+RUN mkdir /opt/leiningen && cd /opt/leiningen && \
+    curl -L https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein > lein && \
+    chmod +x lein && \
+    ln -s /opt/leiningen/lein /usr/local/bin/lein
+
+USER buildbot
+
+RUN lein
+
+USER root
 
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

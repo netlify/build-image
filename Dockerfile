@@ -163,6 +163,7 @@ USER root
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Add buildscript for local testing
 ADD run-build.sh /usr/local/bin/build
 
 USER buildbot

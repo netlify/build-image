@@ -12,9 +12,8 @@ set -e
 cd /opt/buildhome
 if [ ! -d repo ]; then
   git clone /opt/repo repo
-else
-  cd repo
 fi
+cd repo
 
 if [ -f runtime.txt ]
 then
@@ -68,8 +67,8 @@ export JAVA_VERSION=default_sdk
 if [ -f Gemfile ]
 then
   echo "Installing gem bundle"
-  if bundle install --path /opt/build/cache/bundle --deployment --binstubs=/opt/build/cache/binstubs; then
-  	export PATH=/opt/build/cache/binstubs:$PATH
+  if bundle install --path $HOME/bundle --deployment --binstubs=$HOME/binstubs; then
+  	export PATH=$HOME/binstubs:$PATH
 		echo "Gem bundle installed"
 	fi
 fi

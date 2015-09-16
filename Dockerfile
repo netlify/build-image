@@ -147,4 +147,6 @@ RUN mkdir /opt/hugo && cd /opt/hugo && \
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+ADD run-build.sh /usr/local/bin/build
+
 USER buildbot

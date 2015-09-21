@@ -9,7 +9,7 @@ MAINTAINER Netlify
 ################################################################################
 
 RUN apt-get -y update && \
-    apt-get install -y git-core build-essential g++ libssl-dev curl wget \
+    apt-get install -y git-core build-essential g++ libssl-dev curl wget zip \
                       apache2-utils libxml2-dev libxslt-dev python-setuptools \
                       mercurial bzr imagemagick libmagickwand-dev python2.7-dev \
                       advancecomp gifsicle jpegoptim libjpeg-progs optipng \

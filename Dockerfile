@@ -80,7 +80,8 @@ RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys D39DC0E3 && \
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-RUN $HOME/.rvm/bin/rvm install 2.1.2 && $HOME/.rvm/bin/rvm install 2.2.1 && \
+RUN $HOME/.rvm/bin/rvm install 2.1.2 && $HOME/.rvm/bin/rvm use 2.1.2 && gem install bundler && \
+    $HOME/.rvm/bin/rvm install 2.2.1 && $HOME/.rvm/bin/rvm use 2.2.1 && gem install bundler && \
     $HOME/.rvm/bin/rvm use 2.1.2 --default && $HOME/.rvm/bin/rvm cleanup all
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

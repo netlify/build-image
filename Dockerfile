@@ -149,7 +149,7 @@ RUN mkdir /opt/hugo && cd /opt/hugo && \
 
 ################################################################################
 #
-# Leiningen
+# Clojure
 #
 ################################################################################
 
@@ -157,6 +157,11 @@ RUN mkdir /opt/leiningen && cd /opt/leiningen && \
     curl -L https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein > lein && \
     chmod +x lein && \
     ln -s /opt/leiningen/lein /usr/local/bin/lein
+
+RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
+    curl -L https://github.com/boot-clj/boot-bin/releases/download/2.4.2/boot.sh > boot && \
+    chmod +x boot && \
+    ln -s /opt/boot-clj/lein /usr/local/bin/boot
 
 USER buildbot
 

@@ -104,6 +104,13 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.36 && nvm use v0.10.36 && 
 
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.1.1 && nvm use v4.1.1 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+    
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.2 && nvm use v4.2.2 && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v5.1.0 && nvm use v5.1.0 && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+
 
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.12.2 && nvm use v0.12.2 && \
     nvm alias default v0.12.2 && npm install -g sm && npm install -g grunt-cli && \
@@ -141,11 +148,13 @@ USER root
 ################################################################################
 
 RUN mkdir /opt/hugo && cd /opt/hugo && \
-    curl -L https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_linux_386.tar.gz | tar zxvf - && \
-    ln -s /opt/hugo/hugo_0.13_linux_386/hugo_0.13_linux_386 /usr/local/bin/hugo_0.13 && \
-    curl -L https://github.com/spf13/hugo/releases/download/v0.14/hugo_0.14_linux_386.tar.gz | tar zxvf - && \
-    ln -s /opt/hugo/hugo_0.14_linux_386/hugo_0.14_linux_386 /usr/local/bin/hugo_0.14 && \
-    ln -s /opt/hugo/hugo_0.14_linux_386/hugo_0.14_linux_386 /usr/local/bin/hugo
+    curl -L https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_linux_amd64.tar.gz | tar zxvf - && \
+    ln -s /opt/hugo/hugo_0.13_linux_amd64/hugo_0.13_linux_amd64 /usr/local/bin/hugo_0.13 && \
+    curl -L https://github.com/spf13/hugo/releases/download/v0.14/hugo_0.14_linux_amd64.tar.gz | tar zxvf - && \
+    ln -s /opt/hugo/hugo_0.14_linux_amd64/hugo_0.14_linux_amd64 /usr/local/bin/hugo_0.14 && \
+    curl -L https://github.com/spf13/hugo/releases/download/v0.15/hugo_0.15_linux_amd64.tar.gz | tar zxvf - && \
+    ln -s /opt/hugo/hugo_0.15_linux_amd64/hugo_0.15_linux_amd64 /usr/local/bin/hugo_0.15 && \
+    ln -s /opt/hugo/hugo_0.15_linux_amd64/hugo_0.15_linux_amd64 /usr/local/bin/hugo
 
 ################################################################################
 #

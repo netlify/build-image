@@ -75,7 +75,7 @@ RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt
 ################################################################################
 
 USER buildbot
-RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
+RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys D39DC0E3 && \
     curl -L https://get.rvm.io | bash -s stable --with-gems="bundler" --autolibs=read-fail
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -104,7 +104,7 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.36 && nvm use v0.10.36 && 
 
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.1.1 && nvm use v4.1.1 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-    
+
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.2 && nvm use v4.2.2 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 

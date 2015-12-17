@@ -106,6 +106,9 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.29 && nvm use v0.10.29 && 
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.36 && nvm use v0.10.36 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.0.0 && nvm use v4.0.0 && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.1.1 && nvm use v4.1.1 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 

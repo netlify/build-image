@@ -18,7 +18,7 @@ RUN apt-get -y update && \
                       autoconf libgdbm-dev libncurses5-dev automake bison libffi-dev \
                       gobject-introspection gtk-doc-tools libglib2.0-dev \
                       libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
-                      pandoc libgmp-dev \
+                      pandoc libsm6 libxrender1 libfontconfig1 \
                       libexif-dev swig python3 python3-dev libgd-dev default-jdk && \
     apt-get clean
 

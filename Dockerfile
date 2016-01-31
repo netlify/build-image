@@ -18,7 +18,7 @@ RUN apt-get -y update && \
                       autoconf libgdbm-dev libncurses5-dev automake bison libffi-dev \
                       gobject-introspection gtk-doc-tools libglib2.0-dev \
                       libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
-                      pandoc libgmp-dev \
+                      pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev \
                       libexif-dev swig python3 python3-dev libgd-dev default-jdk && \
     apt-get clean
 
@@ -112,6 +112,9 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.1.1 && nvm use v4.1.1 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.2 && nvm use v4.2.2 && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+    
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.3 && nvm use v4.2.3 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.6 && nvm use v4.2.6 && \

@@ -22,7 +22,6 @@ RUN apt-get -y update && \
                       libexif-dev swig python3 python3-dev libgd-dev default-jdk && \
     apt-get clean
 
-
 ################################################################################
 #
 # Libvips
@@ -115,9 +114,14 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.1.1 && nvm use v4.1.1 && \
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.2 && nvm use v4.2.2 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.6 && nvm use v4.2.6 && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v5.1.0 && nvm use v5.1.0 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v5.5.0 && nvm use v5.5.0 && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.12.2 && nvm use v0.12.2 && \
     nvm alias default v0.12.2 && npm install -g sm && npm install -g grunt-cli && \

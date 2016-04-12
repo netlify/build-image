@@ -205,7 +205,8 @@ RUN cd /usr/local/bin && curl -L -O https://github.com/phpbrew/phpbrew/raw/maste
 
 USER buildbot
 
-RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.6 +default'
+RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.6 +default && \
+    phpbrew app get composer'
 
 USER root
 

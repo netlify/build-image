@@ -19,7 +19,8 @@ RUN apt-get -y update && \
                       gobject-introspection gtk-doc-tools libglib2.0-dev \
                       libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
                       pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev \
-                      libexif-dev swig python3 python3-dev libgd-dev default-jdk && \
+                      libexif-dev swig python3 python3-dev libgd-dev default-jdk \
+                      php5-cli php5-cgi && \
     apt-get clean
 
 ################################################################################
@@ -114,7 +115,7 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.1.1 && nvm use v4.1.1 && \
 
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.2 && nvm use v4.2.2 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-    
+
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.3 && nvm use v4.2.3 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
@@ -190,6 +191,21 @@ RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
 USER buildbot
 
 RUN lein
+
+################################################################################
+#
+# PHP
+#
+################################################################################
+
+USER root
+
+RUN cd /usr/local/bin && curl -L -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew && \
+    chmod a+x phpbrew
+
+USER buildbot
+
+RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.6 +default'
 
 USER root
 

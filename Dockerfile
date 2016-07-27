@@ -133,6 +133,9 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v5.5.0 && nvm use v5.5.0 && \
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v6.1.0 && nvm use v6.1.0 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install node && nvm use node && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.12.2 && nvm use v0.12.2 && \
     nvm alias default v0.12.2 && npm install -g sm && npm install -g grunt-cli && \
     npm install -g bower'

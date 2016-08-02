@@ -25,8 +25,8 @@ RUN apt-get -y update && \
 
 RUN curl -sSOL https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh && \
 	bash script.deb.sh && \
-	apt-get install -y git-lfs && \
-	git lfs install
+	rm script.deb.sh && \
+	apt-get install -y git-lfs
 
 ################################################################################
 #

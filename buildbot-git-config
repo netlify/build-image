@@ -1,0 +1,6 @@
+[lfs]
+	fetchinclude = *.jpg,*.png,*.svg,*.gif,*.pdf,*.mp4
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	required = true

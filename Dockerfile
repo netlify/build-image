@@ -228,5 +228,6 @@ RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add buildscript for local testing
 ADD run-build.sh /usr/local/bin/build
+ADD buildbot-git-config /opt/buildhome/.gitconfig
 
 USER buildbot

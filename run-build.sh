@@ -34,13 +34,15 @@ source /.nvm/nvm.sh
 export NODE_VERSION=0.12.2
 if [ -f .nvmrc ]
 then
-	if nvm use; then
-		echo "Set node from .nvmrc"
-		export NODE_VERSION=$(cat .nvmrc)
-	else
-		echo "Error setting node version from .nvmrc file. Unsupported version?"
-		echo "Will use default version ($NODE_VERSION)"
-	fi
+    if nvm use; then
+        echo "Set node from .nvmrc"
+        export NODE_VERSION=$(cat .nvmrc)
+    else
+        echo "Error setting node version from '.nvmrc' file. Unsupported version: $(cat .nvmrc)"
+        echo "If you're attempting to use the latest version of node or lts please use 'node' or 'lts/*' to stay with the latest version"
+        echo "Otherwise please submit a PR to https://github.com/netlify/build-image with your specific node version."
+        echo "Will use default version ($NODE_VERSION)"
+    fi
 fi
 
 # Ruby version

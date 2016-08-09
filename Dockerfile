@@ -148,6 +148,11 @@ RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.12.2 && nvm use v0.12.2 && \
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.12.7 && nvm use v0.12.7 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install node && nvm use node && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+   
+RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install --lts && nvm use --lts && \
+    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
 ################################################################################
 #

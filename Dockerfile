@@ -227,7 +227,7 @@ RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.
 USER root
 
 # Cleanup
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && apt-get autoremove -y
 
 # Add buildscript for local testing
 ADD run-build.sh /usr/local/bin/build

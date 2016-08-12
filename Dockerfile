@@ -104,50 +104,14 @@ USER root
 #
 ################################################################################
 
-RUN git clone https://github.com/creationix/nvm.git /.nvm && \
-    echo ". /.nvm/nvm.sh" >> /etc/bash.bashrc
-
 # Install node.js
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.29 && nvm use v0.10.29 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.10.36 && nvm use v0.10.36 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
+USER buildbot
+RUN git clone https://github.com/creationix/nvm.git ~/.nvm
 
 RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.0.0 && nvm use v4.0.0 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.1.1 && nvm use v4.1.1 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.2 && nvm use v4.2.2 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.3 && nvm use v4.2.3 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v4.2.6 && nvm use v4.2.6 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v5.1.0 && nvm use v5.1.0 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v5.5.0 && nvm use v5.5.0 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v6.1.0 && nvm use v6.1.0 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v6.3.1 && nvm use v6.3.1 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.12.2 && nvm use v0.12.2 && \
-    nvm alias default v0.12.2 && npm install -g sm && npm install -g grunt-cli && \
-    npm install -g bower'
-
-RUN /bin/bash -c '. /.nvm/nvm.sh && nvm install v0.12.7 && nvm use v0.12.7 && \
-    npm install -g sm && npm install -g grunt-cli && npm install -g bower'
-
+USER root
 
 ################################################################################
 #

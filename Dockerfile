@@ -12,7 +12,7 @@ RUN apt-get -y update && \
     apt-get install -y git-core build-essential g++ libssl-dev curl wget zip \
                       apache2-utils libxml2-dev libxslt-dev python-setuptools \
                       mercurial bzr imagemagick libmagickwand-dev python2.7-dev \
-                      advancecomp gifsicle jpegoptim libjpeg-progs optipng \
+                      advancecomp gifsicle jpegoptim libjpeg-progs optipng libgif-dev \
                       pngcrush fontconfig fontconfig-config libfontconfig1 \
                       gawk libreadline6-dev libyaml-dev libsqlite3-dev sqlite3 \
                       autoconf libgdbm-dev libncurses5-dev automake bison libffi-dev \

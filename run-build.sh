@@ -30,18 +30,17 @@ else
 fi
 
 # Node version
-source /.nvm/nvm.sh
-export NODE_VERSION=0.12.2
-if [ -f .nvmrc ]
-then
-	if nvm use; then
-		echo "Set node from .nvmrc"
-		export NODE_VERSION=$(cat .nvmrc)
-	else
-		echo "Error setting node version from .nvmrc file. Unsupported version?"
-		echo "Will use default version ($NODE_VERSION)"
-	fi
+source $HOME/.nvm/nvm.sh
+export NODE_VERSION=4
+if [ -f .nvmrc ]; then
+  nvm install $(cat .nvmrc)
+  if [ $? -ne 0 ]; then
+    echo "Failed to set version of node to '$(cat .nvmrc)' from .nvmrc. Falling back to version $NODE_VERSION"
+  else
+    NODE_VERSION=$(nvm current)
+  fi
 fi
+export NODE_VERSION=$NODE_VERSION
 
 # Ruby version
 source $HOME/.rvm/scripts/rvm

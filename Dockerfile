@@ -108,7 +108,7 @@ USER root
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm
 
-RUN /bin/bash -c '. ~/.nvm/nvm.sh && nvm install 4 && nvm use 4 && \
+RUN /bin/bash -c '. ~/.nvm/nvm.sh && nvm install 6 && nvm use 6 && \
     npm install -g sm && npm install -g grunt-cli && npm install -g bower'
 
 USER root

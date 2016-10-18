@@ -23,11 +23,6 @@ RUN apt-get -y update && \
                       php5-cli php5-cgi libmcrypt-dev && \
     apt-get clean
 
-RUN curl -sSOL https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh && \
-	bash script.deb.sh && \
-	rm script.deb.sh && \
-	apt-get install -y git-lfs
-
 ################################################################################
 #
 # Libvips
@@ -73,6 +68,20 @@ ENV LC_ALL en_US.UTF-8
 ################################################################################
 
 RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt/buildhome
+
+################################################################################
+#
+# Git LFS
+#
+################################################################################
+
+RUN curl -sSOL https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh && \
+	bash script.deb.sh && \
+	rm script.deb.sh && \
+	apt-get install -y git-lfs
+
+USER buildbot
+RUN git lfs install
 
 ################################################################################
 #

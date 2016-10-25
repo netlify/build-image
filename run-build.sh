@@ -31,7 +31,7 @@ fi
 
 # Node version
 source $HOME/.nvm/nvm.sh
-export NODE_VERSION=4
+export NODE_VERSION=6
 if [ -f .nvmrc ]; then
   nvm install $(cat .nvmrc)
   if [ $? -ne 0 ]; then
@@ -84,18 +84,25 @@ fi
 # NPM Dependencies
 if [ -f package.json ]
 then
-  echo "Installing npm modules"
-  if npm install; then
-  	export PATH=$(npm bin):$PATH
-		echo "NPM modules installed"
+	echo "Installing npm modules"
+	if [ -f yarn.lock ]; then
+		if yarn install; then
+			export PATH=$(yarn bin):$PATH
+			echo "NPM modules installed"
+		fi
+	else
+		if npm install; then
+			export PATH=$(npm bin):$PATH
+			echo "NPM modules installed"
+		fi
 	fi
 fi
 
 # Bower Dependencies
 if [ -f bower.json ]
 then
-  echo "Installing bower components"
-  if bower install --config.interactive=false; then
+	echo "Installing bower components"
+	if bower install --config.interactive=false; then
 		echo "Bower components installed"
 	fi
 fi

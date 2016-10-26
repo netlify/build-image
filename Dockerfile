@@ -28,6 +28,16 @@ RUN curl -sSOL https://packagecloud.io/install/repositories/github/git-lfs/scrip
 	rm script.deb.sh && \
 	apt-get install -y git-lfs
 
+RUN wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz && \
+    tar -xf Python-3.5.2.tar.xz && \
+    cd Python-3.5.2 && \
+    ./configure && \
+    make && \
+    make install && \
+    ln -fs /opt/Python-3.5.2/Python /usr/bin/python3.5 && \
+    cd .. && \
+    rm -r Python-3.5.2.tar.xz Python-3.5.2
+
 ################################################################################
 #
 # Libvips
@@ -132,6 +142,10 @@ RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
 RUN virtualenv -p python3.4 --no-site-packages /opt/buildhome/python3.4 && \
     /bin/bash -c 'source /opt/buildhome/python3.4/bin/activate' && \
     ln -nfs /opt/buildhome/python3.4.0 /opt/buildhome/python3.4.0
+
+RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
+    /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.5.2 /opt/buildhome/python3.5.2
 
 USER root
 

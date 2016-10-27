@@ -40,7 +40,7 @@ ENV LIBVIPS_VERSION_MINOR 42
 ENV LIBVIPS_VERSION_PATCH 3
 ENV LIBVIPS_VERSION $LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR.$LIBVIPS_VERSION_PATCH
 RUN \
-  curl -O http://www.vips.ecs.soton.ac.uk/supported/$LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR/vips-$LIBVIPS_VERSION.tar.gz && \
+  curl -sO http://www.vips.ecs.soton.ac.uk/supported/$LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR/vips-$LIBVIPS_VERSION.tar.gz && \
   tar zvxf vips-$LIBVIPS_VERSION.tar.gz && \
   cd vips-$LIBVIPS_VERSION && \
   ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
@@ -82,7 +82,7 @@ RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt
 
 USER buildbot
 RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys D39DC0E3 && \
-    curl -L https://get.rvm.io | bash -s stable --with-gems="bundler" --autolibs=read-fail
+    curl -sL https://get.rvm.io | bash -s stable --with-gems="bundler" --autolibs=read-fail
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -143,17 +143,17 @@ USER root
 ################################################################################
 
 RUN mkdir /opt/hugo && cd /opt/hugo && \
-    curl -L https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_linux_amd64.tar.gz | tar zxvf - && \
+    curl -sL https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_linux_amd64.tar.gz | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.13_linux_amd64/hugo_0.13_linux_amd64 /usr/local/bin/hugo_0.13 && \
-    curl -L https://github.com/spf13/hugo/releases/download/v0.14/hugo_0.14_linux_amd64.tar.gz | tar zxvf - && \
+    curl -sL https://github.com/spf13/hugo/releases/download/v0.14/hugo_0.14_linux_amd64.tar.gz | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.14_linux_amd64/hugo_0.14_linux_amd64 /usr/local/bin/hugo_0.14 && \
-    curl -L https://github.com/spf13/hugo/releases/download/v0.15/hugo_0.15_linux_amd64.tar.gz | tar zxvf - && \
+    curl -sL https://github.com/spf13/hugo/releases/download/v0.15/hugo_0.15_linux_amd64.tar.gz | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.15_linux_amd64/hugo_0.15_linux_amd64 /usr/local/bin/hugo_0.15 && \
     mkdir /opt/hugo/hugo_0.16 && cd /opt/hugo/hugo_0.16 && \
-    curl -L https://github.com/spf13/hugo/releases/download/v0.16/hugo_0.16_linux-64bit.tgz | tar zxvf - && \
+    curl -sL https://github.com/spf13/hugo/releases/download/v0.16/hugo_0.16_linux-64bit.tgz | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.16/hugo /usr/local/bin/hugo_0.16 && \
     mkdir /opt/hugo/hugo_0.17 && cd /opt/hugo/hugo_0.17 && \
-    curl -L https://github.com/spf13/hugo/releases/download/v0.17/hugo_0.17_Linux-64bit.tar.gz  | tar zxvf - && \
+    curl -sL https://github.com/spf13/hugo/releases/download/v0.17/hugo_0.17_Linux-64bit.tar.gz  | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.17/hugo_0.17_linux_amd64/hugo_0.17_linux_amd64 /opt/hugo/hugo_0.17/hugo  && \
     ln -s /opt/hugo/hugo_0.17/hugo /usr/local/bin/hugo_0.17 && \
     ln -s /opt/hugo/hugo_0.17/hugo /usr/local/bin/hugo
@@ -165,12 +165,12 @@ RUN mkdir /opt/hugo && cd /opt/hugo && \
 ################################################################################
 
 RUN mkdir /opt/leiningen && cd /opt/leiningen && \
-    curl -L https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein > lein && \
+    curl -sL https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein > lein && \
     chmod +x lein && \
     ln -s /opt/leiningen/lein /usr/local/bin/lein
 
 RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
-    curl -L https://github.com/boot-clj/boot-bin/releases/download/2.4.2/boot.sh > boot && \
+    curl -sL https://github.com/boot-clj/boot-bin/releases/download/2.4.2/boot.sh > boot && \
     chmod +x boot && \
     ln -s /opt/boot-clj/lein /usr/local/bin/boot
 
@@ -186,7 +186,7 @@ RUN lein
 
 USER root
 
-RUN cd /usr/local/bin && curl -L -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew && \
+RUN cd /usr/local/bin && curl -sL -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew && \
     chmod a+x phpbrew
 
 USER buildbot

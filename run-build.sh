@@ -2,7 +2,7 @@
 
 export CMD=$*
 
-if [ -z "$CMD" ]; then
+if [[ -z "$CMD" ]]; then
   echo "Usage: $0 <your build cmd>"
   exit 1
 fi
@@ -10,15 +10,13 @@ fi
 set -e
 
 cd /opt/buildhome
-if [ ! -d repo ]; then
+if [[ ! -d repo ]]; then
   git clone /opt/repo repo
 fi
 cd repo
 
-if [ -f runtime.txt ]
-then
-	if source $HOME/python$(cat runtime.txt)/bin/activate
-	then
+if [[ -f runtime.txt ]]; then
+	if source $HOME/python$(cat runtime.txt)/bin/activate; then
 		echo "Python version set to $(cat runtime.txt)"
 	else
 		echo "Error setting python version from runtime.txt"
@@ -32,9 +30,9 @@ fi
 # Node version
 source $HOME/.nvm/nvm.sh
 export NODE_VERSION=6
-if [ -f .nvmrc ]; then
+if [[ -f .nvmrc ]]; then
   nvm install $(cat .nvmrc)
-  if [ $? -ne 0 ]; then
+  if [[ $? -ne 0 ]]; then
     echo "Failed to set version of node to '$(cat .nvmrc)' from .nvmrc. Falling back to version $NODE_VERSION"
   else
     NODE_VERSION=$(nvm current)
@@ -45,8 +43,7 @@ export NODE_VERSION=$NODE_VERSION
 # Ruby version
 source $HOME/.rvm/scripts/rvm
 export RUBY_VERSION=2.1.2
-if [ -f .ruby-version ]
-then
+if [[ -f .ruby-version ]]; then
 	if rvm use $(cat .ruby-version); then
 		echo "Set ruby from .ruby-version"
 		export RUBY_VERSION=$(cat .ruby-version)
@@ -63,18 +60,16 @@ fi
 export JAVA_VERSION=default_sdk
 
 # Rubygems
-if [ -f Gemfile ]
-then
+if [[ -f Gemfile ]]; then
   echo "Installing gem bundle"
   if bundle install --path $HOME/bundle --deployment --binstubs=$HOME/binstubs; then
-  	export PATH=$HOME/binstubs:$PATH
+		export PATH=$HOME/binstubs:$PATH
 		echo "Gem bundle installed"
 	fi
 fi
 
 # PIP dependencies
-if [ -f requirements.txt ]
-then
+if [[ -f requirements.txt ]]; then
 	echo "Installing pip dependencies"
 	if pip install -r requirements.txt; then
 		echo "Pip dependencies installed"
@@ -82,10 +77,9 @@ then
 fi
 
 # NPM Dependencies
-if [ -f package.json ]
-then
+if [[ -f package.json ]]; then
 	echo "Installing npm modules"
-	if [ -f yarn.lock ]; then
+	if [[ -f yarn.lock ]]; then
 		if yarn install; then
 			export PATH=$(yarn bin):$PATH
 			echo "NPM modules installed"
@@ -99,8 +93,7 @@ then
 fi
 
 # Bower Dependencies
-if [ -f bower.json ]
-then
+if [[ -f bower.json ]]; then
 	echo "Installing bower components"
 	if bower install --config.interactive=false; then
 		echo "Bower components installed"
@@ -108,8 +101,7 @@ then
 fi
 
 # Leiningen
-if [ -f project.clj ]
-then
+if [[ -f project.clj ]]; then
   if lein deps; then
 		echo "Leiningen dependencies installed"
 	fi

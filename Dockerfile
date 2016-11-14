@@ -20,7 +20,7 @@ RUN apt-get -y update && \
                       libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
                       pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev \
                       libexif-dev swig python3 python3-dev libgd-dev default-jdk \
-                      php5-cli php5-cgi libmcrypt-dev && \
+                      php5-cli php5-cgi libmcrypt-dev strace && \
     apt-get clean
 
 RUN curl -sSOL https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh && \

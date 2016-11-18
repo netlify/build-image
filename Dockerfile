@@ -98,15 +98,14 @@ RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys D39DC0E3 && \
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.0.0-p247 && rvm use 2.0.0-p247 && gem install bundler && \
-                  rvm install 2.1.2 && rvm use 2.1.2 && gem install bundler && \
-                  rvm install 2.2.1 && rvm use 2.2.1 && gem install bundler && \
-                  rvm install 2.2.3 && rvm use 2.2.3 && gem install bundler && \
-                  rvm install 2.3.0 && rvm use 2.3.0 && gem install bundler && \
-                  rvm install 2.3.1 && rvm use 2.3.1 && gem install bundler && \
+                  rvm install 2.1.9 && rvm use 2.1.9 && gem install bundler && \
+                  rvm install 2.1.10 && rvm use 2.1.10 && gem install bundler && \
+                  rvm install 2.2.5 && rvm use 2.2.5 && gem install bundler && \
+                  rvm install 2.2.6 && rvm use 2.2.6 && gem install bundler && \
+                  rvm install 2.3.2 && rvm use 2.3.2 && gem install bundler && \
                   rvm install 2.3.3 && rvm use 2.3.3 && gem install bundler && \
                   rvm install 2.4.0 && rvm use 2.4.0 && gem install bundler && \
-                  rvm use 2.1.2 --default && rvm cleanup all"
+                  rvm use 2.1.10 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 USER root

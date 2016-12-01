@@ -118,9 +118,12 @@ USER root
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm
 
+ENV ELM_VERSION=0.17.1
+ENV YARN_VERSION=0.17.10
+
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
-		  nvm install 4 && nvm use 4 && npm install -g sm grunt-cli bower elm yarn && \
-		  nvm install 6 && nvm use 6 && npm install -g sm grunt-cli bower elm yarn && \
+		  nvm install 4 && nvm use 4 && npm install -g sm grunt-cli bower elm@$ELM_VERSION yarn@$YARN_VERSION && \
+		  nvm install 6 && nvm use 6 && npm install -g sm grunt-cli bower elm@$ELM_VERSION yarn@$YARN_VERSION && \
 		  nvm alias default node && nvm cache clear"
 
 USER root

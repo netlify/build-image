@@ -45,7 +45,7 @@ source $HOME/.rvm/scripts/rvm
 export RUBY_VERSION=2.1.10
 if [[ -f .ruby-version ]]; then
 	desired_ruby_version=$(cat .ruby-version)
-	if rvm install "$desired_ruby_version" && rvm use "$desired_ruby_version"; then
+	if rvm use "$desired_ruby_version" --install --binary --fuzzy; then
 		echo "Using Ruby ${desired_ruby_version} specified in .ruby-version"
 		export RUBY_VERSION="$desired_ruby_version"
 	else

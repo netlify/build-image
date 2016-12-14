@@ -187,9 +187,9 @@ RUN mkdir /opt/leiningen && cd /opt/leiningen && \
     ln -s /opt/leiningen/lein /usr/local/bin/lein
 
 RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
-    curl -sL https://github.com/boot-clj/boot-bin/releases/download/2.4.2/boot.sh > boot && \
+    curl -sL https://github.com/boot-clj/boot-bin/releases/download/2.5.2/boot.sh > boot && \
     chmod +x boot && \
-    ln -s /opt/boot-clj/lein /usr/local/bin/boot
+    ln -s /opt/boot-clj/boot /usr/local/bin/boot
 
 USER buildbot
 

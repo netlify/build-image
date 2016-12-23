@@ -114,22 +114,24 @@ USER root
 #
 ################################################################################
 
+
+RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
+
 # Install node.js
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm
 
 ENV ELM_VERSION=0.17.1
-ENV YARN_VERSION=0.17.10
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
-		  nvm install 4 && nvm use 4 && npm install -g sm grunt-cli bower elm@$ELM_VERSION yarn@$YARN_VERSION && \
-		  nvm install 6 && nvm use 6 && npm install -g sm grunt-cli bower elm@$ELM_VERSION yarn@$YARN_VERSION && \
+		  nvm install 4 && nvm use 4 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+		  nvm install 6 && nvm use 6 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
 		  nvm alias default node && nvm cache clear"
 
+ENV YARN_VERSION=0.18.1
+RUN bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION
+
 USER root
-
-RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
-
 
 ################################################################################
 #

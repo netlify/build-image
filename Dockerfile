@@ -122,7 +122,7 @@ USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm
 
 ENV ELM_VERSION=0.17.1
-ENV YARN_VERSION=0.18.1
+ENV YARN_VERSION=0.19.1
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
 		  nvm install 4 && nvm use 4 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \

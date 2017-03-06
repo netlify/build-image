@@ -183,7 +183,11 @@ RUN mkdir /opt/hugo && cd /opt/hugo && \
     mkdir /opt/hugo/hugo_0.18 && cd /opt/hugo/hugo_0.18 && \
     curl -sL https://github.com/spf13/hugo/releases/download/v0.18/hugo_0.18_Linux-64bit.tar.gz  | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.18/hugo_0.18_linux_amd64/hugo_0.18_linux_amd64 /opt/hugo/hugo_0.18/hugo  && \
-    ln -s /opt/hugo/hugo_0.18/hugo /usr/local/bin/hugo_0.18
+    ln -s /opt/hugo/hugo_0.18/hugo /usr/local/bin/hugo_0.18 && \
+    mkdir /opt/hugo/hugo_0.19 && cd /opt/hugo/hugo_0.19 && \
+    curl -sL https://github.com/spf13/hugo/releases/download/v0.19/hugo_0.19_Linux-64bit.tar.gz  | tar zxvf - && \
+    ln -s /opt/hugo/hugo_0.19/hugo_0.19_linux_amd64/hugo_0.19_linux_amd64 /opt/hugo/hugo_0.19/hugo  && \
+    ln -s /opt/hugo/hugo_0.19/hugo /usr/local/bin/hugo_0.19
 
 ################################################################################
 #

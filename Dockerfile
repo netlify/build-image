@@ -104,6 +104,8 @@ RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install 2.2.3 && rvm use 2.2.3 && gem install bundler && \
                   rvm install 2.3.0 && rvm use 2.3.0 && gem install bundler && \
                   rvm install 2.3.1 && rvm use 2.3.1 && gem install bundler && \
+                  rvm install 2.3.3 && rvm use 2.3.3 && gem install bundler && \
+                  rvm install 2.4.0 && rvm use 2.4.0 && gem install bundler && \
                   rvm use 2.1.2 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -183,7 +185,11 @@ RUN mkdir /opt/hugo && cd /opt/hugo && \
     mkdir /opt/hugo/hugo_0.18 && cd /opt/hugo/hugo_0.18 && \
     curl -sL https://github.com/spf13/hugo/releases/download/v0.18/hugo_0.18_Linux-64bit.tar.gz  | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.18/hugo_0.18_linux_amd64/hugo_0.18_linux_amd64 /opt/hugo/hugo_0.18/hugo  && \
-    ln -s /opt/hugo/hugo_0.18/hugo /usr/local/bin/hugo_0.18
+    ln -s /opt/hugo/hugo_0.18/hugo /usr/local/bin/hugo_0.18 && \
+    mkdir /opt/hugo/hugo_0.19 && cd /opt/hugo/hugo_0.19 && \
+    curl -sL https://github.com/spf13/hugo/releases/download/v0.19/hugo_0.19_Linux-64bit.tar.gz  | tar zxvf - && \
+    ln -s /opt/hugo/hugo_0.19/hugo_0.19_linux_amd64/hugo_0.19_linux_amd64 /opt/hugo/hugo_0.19/hugo  && \
+    ln -s /opt/hugo/hugo_0.19/hugo /usr/local/bin/hugo_0.19
 
 ################################################################################
 #

@@ -152,11 +152,11 @@ RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
 
 RUN virtualenv -p python3.4 --no-site-packages /opt/buildhome/python3.4 && \
     /bin/bash -c 'source /opt/buildhome/python3.4/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.4.0 /opt/buildhome/python3.4.0
+    ln -nfs /opt/buildhome/python3.4 /opt/buildhome/python3.4.0
 
 RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
     /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.5.2 /opt/buildhome/python3.5.2
+    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.2
 
 USER root
 

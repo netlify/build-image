@@ -1,6 +1,6 @@
 # Netlify Build Image
 
-This Dockerfile is the build image used for executing build tools when using netlify for continuous deployment.
+This repository contains the tols to make the build image Netlify uses to build a site from git (for continuous deployment.)
 
 Use this image to test locally if you're having build issues.
 
@@ -11,7 +11,7 @@ the dependencies that are relevant to your project, and then run your build comm
 
 ```
 cd path/to/my/repo
-docker run -t -i -v $PWD:/opt/repo netlify/build /bin/bash
+docker run -t -i -v ${PWD}:/opt/repo netlify/build /bin/bash
 build jekyll build
 ```
 
@@ -20,3 +20,7 @@ Replace `jekyll build` with your build command of choice.
 ## Contributing
 
 Pull requests welcome, as long as they're not overly specific to a niche use-case.
+
+## More info
+
+How we use this and some best practices are documented here: https://www.netlify.com/blog/2016/10/18/how-our-build-bots-build-sites/

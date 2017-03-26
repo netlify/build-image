@@ -102,8 +102,17 @@ fi
 
 # Leiningen
 if [[ -f project.clj ]]; then
-  if lein deps; then
+	if lein deps; then
 		echo "Leiningen dependencies installed"
+	fi
+fi
+
+# Hugo
+if [[ -n "$HUGO_VERSION" ]]; then
+	hugoPath=$(binrc install hugo)
+	if [[ $? -eq 0 ]]; then
+		export PATH=$(dirname $hugoPath):$PATH
+		echo "Hugo ${HUGO_VERSION} installed"
 	fi
 fi
 

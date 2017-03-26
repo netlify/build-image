@@ -167,6 +167,12 @@ USER root
 #
 ################################################################################
 
+ENV BINRC_VERSION 0.1.1
+
+RUN mkdir /opt/binrc && cd /opt/binrc && \
+    curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
+    ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
+
 RUN mkdir /opt/hugo && cd /opt/hugo && \
     curl -sL https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_linux_amd64.tar.gz | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.13_linux_amd64/hugo_0.13_linux_amd64 /usr/local/bin/hugo_0.13 && \

@@ -72,7 +72,8 @@ RUN apt-get -y install \
   language-pack-fi language-pack-fil language-pack-fr language-pack-he  language-pack-hi language-pack-it \
   language-pack-ja language-pack-ka  language-pack-ko language-pack-nan language-pack-nn language-pack-pl \
   language-pack-pt language-pack-ro  language-pack-ru  language-pack-sa language-pack-sv language-pack-ta \
-  language-pack-th language-pack-tr  language-pack-uk  language-pack-vi language-pack-yi language-pack-zh-hans language-pack-zh-hant
+  language-pack-th language-pack-tr  language-pack-uk  language-pack-vi language-pack-yi language-pack-zh-hans language-pack-zh-hant \
+  && apt-get clean
 
 # Set a default language
 RUN echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \

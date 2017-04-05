@@ -42,14 +42,15 @@ export NODE_VERSION=$NODE_VERSION
 
 # Ruby version
 source $HOME/.rvm/scripts/rvm
-export RUBY_VERSION=2.1.2
+export RUBY_VERSION=2.2.7
 if [[ -f .ruby-version ]]; then
-	if rvm use $(cat .ruby-version); then
-		echo "Set ruby from .ruby-version"
-		export RUBY_VERSION=$(cat .ruby-version)
+	desired_ruby_version=$(cat .ruby-version)
+	if rvm use "$desired_ruby_version" --install --binary --fuzzy; then
+		echo "Using Ruby ${desired_ruby_version} specified in .ruby-version"
+		export RUBY_VERSION="$desired_ruby_version"
 	else
-		echo "Error setting ruby version from .ruby-version file. Unsupported version?"
-		echo "Will use default version (2.1.2)"
+		echo "Failed to install/use Ruby ${desired_ruby_version} specified in .ruby-version"
+		echo "Will use default version (${RUBY_VERSION})"
 		rvm use $RUBY_VERSION
 	fi
 else

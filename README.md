@@ -17,6 +17,16 @@ build jekyll build
 
 Replace `jekyll build` with your build command of choice.
 
+If you'd like to run a similar process as our buildbots you can run the embedded scripts
+
+```
+cd path/to/this/repo
+./test-build.sh path/to/your/repo 'your build command'
+```
+
+This will create a tmp directory that will have the repo we cloned, the cache (with hidden files), and the scripts we ran.
+You can run also run with that cache by prepending `T=tmp/tmp.XXXXX` to the build command.
+
 ## Contributing
 
 Pull requests welcome, as long as they're not overly specific to a niche use-case.

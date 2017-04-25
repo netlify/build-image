@@ -175,7 +175,7 @@ USER root
 #
 ################################################################################
 
-ENV BINRC_VERSION 0.1.1
+ENV BINRC_VERSION 0.2.0
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \

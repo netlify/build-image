@@ -10,7 +10,6 @@
 
 set -e
 
-
 NODE_VERSION="6"
 RUBY_VERSION="2.3"
 YARN_VERSION="0.18.0"

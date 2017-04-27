@@ -10,8 +10,7 @@ Run the image in interactive mode, and make sure to mount your repo as a volume,
 the dependencies that are relevant to your project, and then run your build command:
 
 ```
-cd path/to/my/repo
-docker run -t -i -v ${PWD}:/opt/repo netlify/build /bin/bash
+test-tools/start-image.sh path/to/my/repo
 build jekyll build
 ```
 
@@ -21,7 +20,7 @@ If you'd like to run a similar process as our buildbots you can run the embedded
 
 ```
 cd path/to/this/repo
-./test-build.sh path/to/your/repo 'your build command'
+test-tools/test-build.sh path/to/your/repo 'your build command'
 ```
 
 This will create a tmp directory that will have the repo we cloned, the cache (with hidden files), and the scripts we ran.

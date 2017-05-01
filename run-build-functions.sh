@@ -1,5 +1,5 @@
 #!/bin/bash
-# helper to heck if we need to install deps
+# helper to check if we need to install deps
 # install_deps configuration_file version shasum_file
 
 if [ $NETLIFY_VERBOSE ]
@@ -113,6 +113,8 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
+
+  echo "node=$defaultNodeVersion ruby=$defaultRubyVersion yarn=$defaultYarnVersion"
 
   # Python Version
   if [ -f runtime.txt ]

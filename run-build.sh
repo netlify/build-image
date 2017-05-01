@@ -26,7 +26,11 @@ cd $NETLIFY_REPO_DIR
 
 . "$dir/run-build-functions.sh"
 
-echo "Installing dependencies"
+: ${NODE_VERSION="6.10.2"}
+: ${RUBY_VERSION="2.1.2"}
+: ${YARN_VERSION="0.18.1"}
+
+echo "Installing dependencies: node=$NODE_VERSION ruby=$RUBY_VERSION yarn=$YARN_VERSION"
 install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION
 
 echo "Installing missing commands"

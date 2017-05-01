@@ -37,7 +37,7 @@ echo "Installing missing commands"
 install_missing_commands
 
 echo "Executing user command: $cmd"
-`$cmd` > out.log 2> err.log
+$cmd
 CODE=$?
 
 echo "Caching artifacts"

@@ -114,8 +114,6 @@ install_dependencies() {
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
 
-  echo "node=$defaultNodeVersion ruby=$defaultRubyVersion yarn=$defaultYarnVersion"
-
   # Python Version
   if [ -f runtime.txt ]
   then

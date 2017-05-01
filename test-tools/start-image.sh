@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BASE_PATH=$(readlink -f $(dirname $(dirname $0)))
-REPO_PATH=$(readlink -f $1)
+BASE_PATH=$(PWD)
+REPO_PATH=$(cd $1 &&  pwd)
 
 docker run --rm -t -i \
 	-v ${REPO_PATH}:/opt/repo \

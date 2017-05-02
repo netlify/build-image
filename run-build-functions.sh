@@ -1,5 +1,5 @@
 #!/bin/bash
-# helper to heck if we need to install deps
+# helper to check if we need to install deps
 # install_deps configuration_file version shasum_file
 
 if [ $NETLIFY_VERBOSE ]

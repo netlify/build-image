@@ -28,7 +28,7 @@ cd $NETLIFY_REPO_DIR
 
 : ${NODE_VERSION="6.10.2"}
 : ${RUBY_VERSION="2.1.2"}
-: ${YARN_VERSION="0.18.1"}
+: ${YARN_VERSION="0.23.4"}
 
 echo "Installing dependencies: node=$NODE_VERSION ruby=$RUBY_VERSION yarn=$YARN_VERSION"
 install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION

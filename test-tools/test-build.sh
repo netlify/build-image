@@ -12,7 +12,7 @@ set -e
 
 NODE_VERSION="6"
 RUBY_VERSION="2.3"
-YARN_VERSION="0.18.0"
+YARN_VERSION="0.23.4"
 REPO_URL=$1
 
 mkdir -p tmp
@@ -46,4 +46,4 @@ SCRIPT="mkdir /opt/build && \
 SCRIPT="/opt/buildhome/scripts/run-build.sh $2"
 
 
-docker run --rm -e "NETLIFY_VERBOSE=1" -e "NODE_VERSION=\"6\""  -e "RUBY_VERSION=\"2.3\""  -e "YARN_VERSION=\"0.18.0\""  -v $PWD/$T/scripts:/opt/buildhome/scripts -v $PWD/$T/repo:/opt/buildhome/repo -v $PWD/$T/cache:/opt/buildhome/cache  -w /opt/build -it  netlify/build $SCRIPT
+docker run --rm -e "NETLIFY_VERBOSE=1" -e "NODE_VERSION=\"6\""  -e "RUBY_VERSION=\"2.3\""  -e "YARN_VERSION=\"0.23.4\""  -v $PWD/$T/scripts:/opt/buildhome/scripts -v $PWD/$T/repo:/opt/buildhome/repo -v $PWD/$T/cache:/opt/buildhome/cache  -w /opt/build -it  netlify/build $SCRIPT

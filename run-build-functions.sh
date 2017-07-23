@@ -326,6 +326,16 @@ install_dependencies() {
       export PATH=$(dirname $hugoPath):$PATH
     fi
   fi
+
+  # Cask
+  if [ -n "Cask" ]
+  then
+    cask install
+    if [ $? -eq 0 ]
+    then
+      echo "Emacs packages installed"
+    fi
+  fi
 }
 
 #
@@ -373,6 +383,11 @@ cache_artifacts() {
     rm -rf $NETLIFY_CACHE_DIR/node_version
     mkdir $NETLIFY_CACHE_DIR/node_version
     mv $NVM_DIR/versions/node/$NODE_VERSION $NETLIFY_CACHE_DIR/node_version/
+  fi
+
+  if [ -d .cask ]
+  then
+    mv $NETLIFY_BUILD_BASE/.cask $NETLIFY_CACHE_DIR/.cask
   fi
 }
 

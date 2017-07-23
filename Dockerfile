@@ -245,9 +245,21 @@ USER buildbot
 RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.6 +default && \
     phpbrew app get composer'
 
+################################################################################
+#
+# Emacs Cask
+#
+################################################################################
 USER root
+RUN add-apt-repository ppa:kelleyk/emacs
+RUN apt-get -y update
+RUN apt-get -y install emacs25-nox
+USER buildbot
+RUN rm -rf /opt/buildhome/.cask && git clone https://github.com/cask/cask.git /opt/buildhome/.cask
+ENV PATH "$PATH:/opt/buildhome/.cask/bin"
 
 # Cleanup
+USER root
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && apt-get autoremove -y
 
 # Add buildscript for local testing

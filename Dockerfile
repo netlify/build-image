@@ -131,7 +131,6 @@ USER root
 
 
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
-RUN curl -o- -L https://npmjs.com/install.sh > /usr/local/bin/npm-installer.sh
 
 # Install node.js
 USER buildbot

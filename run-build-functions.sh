@@ -95,23 +95,19 @@ run_npm_set_temp() {
 }
 
 run_npm() {
-  npm_version=$1
-
-  if [ $(which npm) ] && ! [ "$(npm --version)" == "$npm_version" ]
+  if [ -n "$NPM_VERSION" ]
   then
-    echo "Found npm version ($(npm --version)) that doesn't match expected ($npm_version)"
-    npm uninstall npm -g
-  fi
-
-  if ! [ $(which npm) ]
-  then
-    echo "Installing npm at version $npm_version"
-    npm_install=$npm_version bash /usr/local/bin/npm-installer.sh 
+    if ! [ "$(npm --version)" == "$NPM_VERSION" ]
+    then
+      echo "Found npm version ($(npm --version)) that doesn't match expected ($NPM_VERSION)"
+      echo "Installing npm at version $NPM_VERSION"
+      npm install -g npm@$NPM_VERSION
+    fi
   fi
 
   if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then
-    echo "Installing NPM modules"
+    echo "Installing NPM modules using NPM version $(npm --version)"
     run_npm_set_temp
     if npm install "$NPM_FLAGS"; then
       echo "NPM modules installed"
@@ -129,7 +125,6 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
-  local defaultNPMVersion=$4
 
   # Python Version
   if [ -f runtime.txt ]
@@ -250,7 +245,6 @@ install_dependencies() {
 
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
-  : ${NPM_VERSION="$defaultNPMVersion"}
 
   if [ -f package.json ]
   then
@@ -264,7 +258,7 @@ install_dependencies() {
     then
       run_yarn $YARN_VERSION
     else
-      run_npm $NPM_VERSION
+      run_npm
     fi
   fi
 

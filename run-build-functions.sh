@@ -17,6 +17,7 @@ mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.cache
 
 : ${YARN_FLAGS="--ignore-optional"}
+: ${NPM_FLAGS=""}
 
 install_deps() {
   if [ ! -f $1 ]
@@ -59,6 +60,7 @@ run_yarn() {
   if ! [ $(which yarn) ]
   then
     echo "Installing yarn at version $yarn_version"
+    rm -rf $HOME/.yarn
     bash /usr/local/bin/yarn-installer.sh --version $yarn_version
     mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
     export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
@@ -93,11 +95,25 @@ run_npm_set_temp() {
 }
 
 run_npm() {
+  npm_version=$1
+
+  if [ $(which npm) ] && ! [ "$(npm --version)" == "$npm_version" ]
+  then
+    echo "Found npm version ($(npm --version)) that doesn't match expected ($npm_version)"
+    npm uninstall npm -g
+  fi
+
+  if ! [ $(which npm) ]
+  then
+    echo "Installing npm at version $npm_version"
+    npm_install=$npm_version bash /usr/local/bin/npm-installer.sh 
+  fi
+
   if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then
     echo "Installing NPM modules"
     run_npm_set_temp
-    if npm install; then
+    if npm install "$NPM_FLAGS"; then
       echo "NPM modules installed"
     else
       echo "Error during NPM install"
@@ -113,6 +129,7 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
+  local defaultNPMVersion=$4
 
   # Python Version
   if [ -f runtime.txt ]
@@ -142,20 +159,19 @@ install_dependencies() {
 
   if [ -f .nvmrc ]
   then
-    nvm install $(cat .nvmrc) > /dev/null
-    if [ $? -ne 0 ]
-    then
-      echo "Failed to set version of node to '$(cat .nvmrc)' from .nvmrc. Falling back to $NODE_VERSION."
-      nvm install $NODE_VERSION
-    else
-      NODE_VERSION=$(nvm current)
-    fi
-  else
-    nvm install  $NODE_VERSION
-    NODE_VERSION=$(nvm current)
+    NODE_VERSION=$(cat .nvmrc)
+    echo "Using node version '$NODE_VERSION' from .nvmrc"
   fi
-  echo "Using version $NODE_VERSION of node"
-  export NODE_VERSION=$NODE_VERSION
+
+  if nvm install $NODE_VERSION
+  then 
+    NODE_VERSION=$(nvm current)
+    echo "Using version $NODE_VERSION of node"
+    export NODE_VERSION=$NODE_VERSION
+  else
+    echo "Failed to install node version '$NODE_VERSION'"
+    exit 1
+  fi
 
   if [ -n "$NPM_TOKEN" ]
   then
@@ -234,6 +250,7 @@ install_dependencies() {
 
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
+  : ${NPM_VERSION="$defaultNPMVersion"}
 
   if [ -f package.json ]
   then
@@ -246,9 +263,9 @@ install_dependencies() {
     if [ -f yarn.lock ]
     then
       run_yarn $YARN_VERSION
-      else
-      run_npm
-      fi
+    else
+      run_npm $NPM_VERSION
+    fi
   fi
 
   # Bower Dependencies
@@ -320,10 +337,14 @@ install_dependencies() {
   # Hugo
   if [ -n "$HUGO_VERSION" ]
   then
-    hugoPath=$(binrc install -c $NETLIFY_CACHE_DIR/.binrc hugo)
+    echo "Installing Hugo $HUGO_VERSION"
+    hugoOut=$(binrc install -c $NETLIFY_CACHE_DIR/.binrc hugo)
     if [ $? -eq 0 ]
     then
-      export PATH=$(dirname $hugoPath):$PATH
+      export PATH=$(dirname $hugoOut):$PATH
+    else
+      echo "Error during Hugo $HUGO_VERSION install: $hugoOut"
+      exit 1
     fi
   fi
 }
@@ -363,8 +384,8 @@ cache_artifacts() {
   if [ -d .cache ]
   then
     rm -rf $NETLIFY_CACHE_DIR/.cache
-    mv .yarn_cache $NETLIFY_CACHE_DIR/.cache
-    echo "Saved Pip cache"
+    mv .cache $NETLIFY_CACHE_DIR/.cache
+    echo "Saved Cache Directory"
   fi
 
   # cache the version of node installed

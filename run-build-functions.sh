@@ -101,7 +101,13 @@ run_npm() {
     then
       echo "Found npm version ($(npm --version)) that doesn't match expected ($NPM_VERSION)"
       echo "Installing npm at version $NPM_VERSION"
-      npm install -g npm@$NPM_VERSION
+      if npm install -g npm@$NPM_VERSION
+      then
+        echo "NPM installed successfully"
+      else
+        echo "Error installing NPM"
+        exit 1
+      fi
     fi
   fi
 

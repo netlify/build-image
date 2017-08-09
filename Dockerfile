@@ -42,6 +42,16 @@ RUN wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz && \
     cd .. && \
     rm -r Python-3.5.2.tar.xz Python-3.5.2
 
+RUN wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz && \
+    tar -xf Python-3.6.2.tar.xz && \
+    cd Python-3.6.2 && \
+    ./configure && \
+    make && \
+    make install && \
+    ln -fs /opt/Python-3.6.2/Python /usr/bin/python3.6 && \
+    cd .. && \
+    rm -r Python-3.6.2.tar.xz Python-3.6.2
+
 ################################################################################
 #
 # Libvips
@@ -169,6 +179,10 @@ RUN virtualenv -p python3.4 --no-site-packages /opt/buildhome/python3.4 && \
 RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
     /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
     ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.2
+
+RUN virtualenv -p python3.6 --no-site-packages /opt/buildhome/python3.6 && \
+    /bin/bash -c 'source /opt/buildhome/python3.6/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.6 /opt/buildhome/python3.6.2
 
 USER root
 

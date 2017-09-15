@@ -144,7 +144,10 @@ RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.s
 
 # Install node.js
 USER buildbot
-RUN git clone https://github.com/creationix/nvm.git ~/.nvm
+RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
+    cd ~/.nvm && \
+    git checkout v0.33.4 && \
+    cd /
 
 ENV ELM_VERSION=0.17.1
 ENV YARN_VERSION=0.18.1

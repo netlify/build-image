@@ -22,7 +22,7 @@ cd $NETLIFY_BUILD_BASE
 if [[ ! -d $NETLIFY_REPO_DIR ]]; then
   git clone $NETLIFY_REPO_URL $NETLIFY_REPO_DIR
 fi
-cd $NETLIFY_REPO_DIR
+cd $NETLIFY_REPO_DIR/$NETLIFY_APP_DIR
 
 . "$dir/run-build-functions.sh"
 

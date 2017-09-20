@@ -225,6 +225,9 @@ RUN mkdir /opt/hugo && cd /opt/hugo && \
     curl -sL https://github.com/spf13/hugo/releases/download/v0.19/hugo_0.19_Linux-64bit.tar.gz  | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.19/hugo_0.19_linux_amd64/hugo_0.19_linux_amd64 /opt/hugo/hugo_0.19/hugo  && \
     ln -s /opt/hugo/hugo_0.19/hugo /usr/local/bin/hugo_0.19
+    mkdir /opt/hugo/hugo_0.27.1 && cd /opt/hugo/hugo_0.27.1 && \
+    curl -sL https://github.com/gohugoio/hugo/releases/download/v0.27.1/hugo_0.27.1_Linux-64bit.tar.gz  | tar zxvf - && \
+    ln -s /opt/hugo/hugo_0.27.1/hugo /usr/local/bin/hugo_0.27.1
 
 ################################################################################
 #

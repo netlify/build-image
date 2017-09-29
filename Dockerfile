@@ -18,7 +18,7 @@ RUN apt-get -y update && \
                       autoconf libgdbm-dev libncurses5-dev automake bison libffi-dev \
                       gobject-introspection gtk-doc-tools libglib2.0-dev \
                       libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
-                      pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev \
+                      pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev libimage-exiftool-perl \
                       libexif-dev swig python3 python3-dev libgd-dev software-properties-common \
                       php5-cli php5-cgi libmcrypt-dev strace libgtk2.0-0 libgconf-2-4 \
                       libasound2 libxtst6 libxss1 libnss3 xvfb graphviz && \

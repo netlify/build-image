@@ -59,18 +59,18 @@ RUN wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz && \
 ################################################################################
 
 WORKDIR /tmp
-ENV LIBVIPS_VERSION_MAJOR 7
-ENV LIBVIPS_VERSION_MINOR 42
-ENV LIBVIPS_VERSION_PATCH 3
-ENV LIBVIPS_VERSION $LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR.$LIBVIPS_VERSION_PATCH
+
+# this actually builds v7.42.4 off of the 7.42 branch
 RUN \
-  curl -sO http://www.vips.ecs.soton.ac.uk/supported/$LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR/vips-$LIBVIPS_VERSION.tar.gz && \
-  tar zvxf vips-$LIBVIPS_VERSION.tar.gz && \
-  cd vips-$LIBVIPS_VERSION && \
+  curl -sLo libvips-7.42.zip https://github.com/jcupitt/libvips/archive/7.42.zip && \
+  unzip libvips-7.42.zip && \
+  cd libvips-7.42 && \
+  ./bootstrap.sh && \
   ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
   make && \
   make install && \
   ldconfig
+
 
 WORKDIR /
 
@@ -202,6 +202,7 @@ RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
     ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
 
+
 RUN mkdir /opt/hugo && cd /opt/hugo && \
     curl -sL https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_linux_amd64.tar.gz | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.13_linux_amd64/hugo_0.13_linux_amd64 /usr/local/bin/hugo_0.13 && \
@@ -225,6 +226,7 @@ RUN mkdir /opt/hugo && cd /opt/hugo && \
     curl -sL https://github.com/spf13/hugo/releases/download/v0.19/hugo_0.19_Linux-64bit.tar.gz  | tar zxvf - && \
     ln -s /opt/hugo/hugo_0.19/hugo_0.19_linux_amd64/hugo_0.19_linux_amd64 /opt/hugo/hugo_0.19/hugo  && \
     ln -s /opt/hugo/hugo_0.19/hugo /usr/local/bin/hugo_0.19
+
 
 ################################################################################
 #
@@ -253,6 +255,9 @@ RUN lein
 ################################################################################
 
 USER root
+
+# these were installed on the existing image but are missing from fresh builds (possible breaking change in ubuntu:14.04?)
+RUN apt-get install -y libcurl3 libcurl3-gnutls libcurl3-openssl-dev
 
 RUN cd /usr/local/bin && curl -sL -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew && \
     chmod a+x phpbrew

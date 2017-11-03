@@ -7,7 +7,7 @@ then
   set -x
 fi
 
-NVM_DIR="$HOME/.nvm"
+export NVM_DIR="$HOME/.nvm"
 
 mkdir -p $NETLIFY_CACHE_DIR/node_version
 mkdir -p $NETLIFY_CACHE_DIR/node_modules
@@ -169,6 +169,12 @@ install_dependencies() {
     NODE_VERSION=$(nvm current)
     echo "Using version $NODE_VERSION of node"
     export NODE_VERSION=$NODE_VERSION
+
+    if [ "$NODE_VERSION" == "none" ]
+    then
+      nvm debug
+      env
+    fi
   else
     echo "Failed to install node version '$NODE_VERSION'"
     exit 1
@@ -344,6 +350,20 @@ install_dependencies() {
       export PATH=$(dirname $hugoOut):$PATH
     else
       echo "Error during Hugo $HUGO_VERSION install: $hugoOut"
+      exit 1
+    fi
+  fi
+
+  # Gutenberg
+  if [ -n "$GUTENBERG_VERSION" ]
+  then
+    echo "Installing Gutenberg $GUTENBERG_VERSION"
+    gutenbergOut=$(binrc install -c $NETLIFY_CACHE_DIR/.binrc gutenberg)
+    if [ $? -eq 0 ]
+    then
+      export PATH=$(dirname $gutenbergOut):$PATH
+    else
+      echo "Error during Gutenberg $GUTENBERG_VERSION install: $gutenbergOut"
       exit 1
     fi
   fi

@@ -18,10 +18,11 @@ RUN apt-get -y update && \
                       autoconf libgdbm-dev libncurses5-dev automake bison libffi-dev \
                       gobject-introspection gtk-doc-tools libglib2.0-dev \
                       libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
-                      pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev \
+                      pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev libimage-exiftool-perl \
                       libexif-dev swig python3 python3-dev libgd-dev software-properties-common \
-                      php5-cli php5-cgi libmcrypt-dev strace libgtk2.0-0 libgconf-2-4 \
+                      php5-cli php5-cgi libmcrypt-dev strace libgtk2.0-0 libgtk-3-0 libgconf-2-4 \
                       libasound2 libxtst6 libxss1 libnss3 xvfb graphviz jq && \
+
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get -y update && \
     apt-get install -y openjdk-8-jdk && \
@@ -42,6 +43,16 @@ RUN wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz && \
     cd .. && \
     rm -r Python-3.5.2.tar.xz Python-3.5.2
 
+RUN wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz && \
+    tar -xf Python-3.6.2.tar.xz && \
+    cd Python-3.6.2 && \
+    ./configure && \
+    make && \
+    make install && \
+    ln -fs /opt/Python-3.6.2/Python /usr/bin/python3.6 && \
+    cd .. && \
+    rm -r Python-3.6.2.tar.xz Python-3.6.2
+
 ################################################################################
 #
 # Libvips
@@ -49,18 +60,18 @@ RUN wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz && \
 ################################################################################
 
 WORKDIR /tmp
-ENV LIBVIPS_VERSION_MAJOR 7
-ENV LIBVIPS_VERSION_MINOR 42
-ENV LIBVIPS_VERSION_PATCH 3
-ENV LIBVIPS_VERSION $LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR.$LIBVIPS_VERSION_PATCH
+
+# this actually builds v7.42.4 off of the 7.42 branch
 RUN \
-  curl -sO http://www.vips.ecs.soton.ac.uk/supported/$LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR/vips-$LIBVIPS_VERSION.tar.gz && \
-  tar zvxf vips-$LIBVIPS_VERSION.tar.gz && \
-  cd vips-$LIBVIPS_VERSION && \
+  curl -sLo libvips-7.42.zip https://github.com/jcupitt/libvips/archive/7.42.zip && \
+  unzip libvips-7.42.zip && \
+  cd libvips-7.42 && \
+  ./bootstrap.sh && \
   ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
   make && \
   make install && \
   ldconfig
+
 
 WORKDIR /
 
@@ -117,7 +128,8 @@ RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install 2.3.1 && rvm use 2.3.1 && gem install bundler && \
                   rvm install 2.3.3 && rvm use 2.3.3 && gem install bundler && \
                   rvm install 2.4.0 && rvm use 2.4.0 && gem install bundler && \
-      		  rvm install 2.4.1 && rvm use 2.4.1 && gem install bundler && \
+                  rvm install 2.4.1 && rvm use 2.4.1 && gem install bundler && \
+                  rvm install 2.4.2 && rvm use 2.4.2 && gem install bundler && \
                   rvm use 2.1.2 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -134,7 +146,10 @@ RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.s
 
 # Install node.js
 USER buildbot
-RUN git clone https://github.com/creationix/nvm.git ~/.nvm
+RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
+    cd ~/.nvm && \
+    git checkout v0.33.4 && \
+    cd /
 
 ENV ELM_VERSION=0.17.1
 ENV YARN_VERSION=0.18.1
@@ -170,6 +185,10 @@ RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
     /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
     ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.2
 
+RUN virtualenv -p python3.6 --no-site-packages /opt/buildhome/python3.6 && \
+    /bin/bash -c 'source /opt/buildhome/python3.6/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.6 /opt/buildhome/python3.6.2
+
 USER root
 
 
@@ -179,11 +198,12 @@ USER root
 #
 ################################################################################
 
-ENV BINRC_VERSION 0.2.0
+ENV BINRC_VERSION 0.2.2
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
     ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
+
 
 RUN mkdir /opt/hugo && cd /opt/hugo && \
     curl -sL https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_linux_amd64.tar.gz | tar zxvf - && \
@@ -209,6 +229,7 @@ RUN mkdir /opt/hugo && cd /opt/hugo && \
     ln -s /opt/hugo/hugo_0.19/hugo_0.19_linux_amd64/hugo_0.19_linux_amd64 /opt/hugo/hugo_0.19/hugo  && \
     ln -s /opt/hugo/hugo_0.19/hugo /usr/local/bin/hugo_0.19
 
+
 ################################################################################
 #
 # Clojure
@@ -229,6 +250,8 @@ USER buildbot
 
 RUN lein
 
+RUN boot -u
+
 ################################################################################
 #
 # PHP
@@ -236,6 +259,9 @@ RUN lein
 ################################################################################
 
 USER root
+
+# these were installed on the existing image but are missing from fresh builds (possible breaking change in ubuntu:14.04?)
+RUN apt-get install -y libcurl3 libcurl3-gnutls libcurl3-openssl-dev
 
 RUN cd /usr/local/bin && curl -sL -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew && \
     chmod a+x phpbrew

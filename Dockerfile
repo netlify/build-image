@@ -20,7 +20,7 @@ RUN apt-get -y update && \
                       libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
                       pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev \
                       libexif-dev swig python3 python3-dev libgd-dev software-properties-common \
-                      php5-cli php5-cgi libmcrypt-dev strace libgtk2.0-0 libgconf-2-4 \
+                      php5-cli php5-cgi libmcrypt-dev strace libgtk2.0-0 libgtk-3-0 libgconf-2-4 \
                       libasound2 libxtst6 libxss1 libnss3 xvfb graphviz && \
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get -y update && \

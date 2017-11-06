@@ -21,12 +21,18 @@ RUN apt-get -y update && \
                       pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev libimage-exiftool-perl \
                       libexif-dev swig python3 python3-dev libgd-dev software-properties-common \
                       php5-cli php5-cgi libmcrypt-dev strace libgtk2.0-0 libgtk-3-0 libgconf-2-4 \
-                      libasound2 libxtst6 libxss1 libnss3 xvfb graphviz jq && \
-
+                      libasound2 libxtst6 libxss1 libnss3 xvfb graphviz jq pandoc && \
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get -y update && \
     apt-get install -y openjdk-8-jdk && \
     apt-get clean
+
+
+RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
+    tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar && \
+    cd wkhtmltox && \
+    cp -r ./ /usr/ && \
+    wkhtmltopdf -V
 
 RUN curl -sSOL https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh && \
 	bash script.deb.sh && \

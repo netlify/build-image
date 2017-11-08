@@ -370,14 +370,14 @@ install_dependencies() {
   fi
 
   # PHP version
-  if [ -n "$PHP_VERSION" ]
+  if [ ! -n "$PHP_VERSION" ]
   then
     : ${PHP_VERSION="$defaultPhpVersion"}
-    echo "Switching to PHP $PHP_VERSION"
-    source ~/.phpbrew/bashrc
-    phpbrew switch $PHP_VERSION
-    #php -v
   fi
+  echo "Switching to PHP $PHP_VERSION"
+  source ~/.phpbrew/bashrc
+  phpbrew switch $PHP_VERSION
+  php -v
 
   # Composer dependencies
   if [ -f composer.json ]

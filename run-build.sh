@@ -29,7 +29,7 @@ cd $NETLIFY_REPO_DIR
 : ${NODE_VERSION="6.10.2"}
 : ${RUBY_VERSION="2.1.2"}
 : ${YARN_VERSION="0.18.1"}
-: ${PHP_VERSION="5.6.30"}
+: ${PHP_VERSION="5.6.32"}
 
 echo "Installing dependencies: node=$NODE_VERSION ruby=$RUBY_VERSION yarn=$YARN_VERSION php=$PHP_VERSION"
 install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION

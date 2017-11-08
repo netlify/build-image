@@ -468,4 +468,12 @@ install_missing_commands() {
       export PATH=$(npm bin):$PATH
     fi
   fi
+
+  # PHPoole
+  if [[ $BUILD_COMMAND_PARSER == *"phpoole"* ]]
+  then
+      echo "Downloading PHPoole"
+      curl -sSOL https://phpoole.org/phpoole.phar
+      php phpoole.phar --version
+  fi
 }

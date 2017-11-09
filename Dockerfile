@@ -29,7 +29,7 @@ RUN apt-get -y update && \
 
 
 RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
-    tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar && \
+    tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
     cd wkhtmltox && \
     cp -r ./ /usr/ && \
     wkhtmltopdf -V

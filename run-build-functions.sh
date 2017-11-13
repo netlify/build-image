@@ -397,10 +397,6 @@ install_dependencies() {
     then
       mv $NETLIFY_CACHE_DIR/.composer $HOME/.composer
     fi
-    if [ -d $NETLIFY_CACHE_DIR/vendor ]
-    then
-      mv $NETLIFY_CACHE_DIR/vendor $NETLIFY_REPO_DIR/vendor
-    fi
     composer install
   fi
 }
@@ -463,14 +459,6 @@ cache_artifacts() {
     rm -rf $NETLIFY_CACHE_DIR/.composer
       mv $HOME/.composer $NETLIFY_CACHE_DIR/.composer
       echo "Saved Composer Directory"
-  fi
-
-  # Cache vendor
-  if [ -d $NETLIFY_REPO_DIR/vendor ]
-  then
-    rm -rf $NETLIFY_CACHE_DIR/vendor
-      mv $NETLIFY_REPO_DIR/vendor $NETLIFY_CACHE_DIR/vendor
-      echo "Saved Vendor Directory"
   fi
 }
 

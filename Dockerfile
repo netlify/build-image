@@ -21,7 +21,9 @@ RUN apt-get -y update && \
                       pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev libimage-exiftool-perl \
                       libexif-dev swig python3 python3-dev libgd-dev software-properties-common \
                       php5-cli php5-cgi libmcrypt-dev strace libgtk2.0-0 libgtk-3-0 libgconf-2-4 \
-                      libasound2 libxtst6 libxss1 libnss3 xvfb graphviz jq pandoc && \
+                      libasound2 libxtst6 libxss1 libnss3 xvfb graphviz jq pandoc \
+                      libcurl3 libcurl3-gnutls libcurl3-openssl-dev \
+                      && \
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get -y update && \
     apt-get install -y openjdk-8-jdk && \
@@ -265,9 +267,6 @@ RUN boot -u
 ################################################################################
 
 USER root
-
-# these were installed on the existing image but are missing from fresh builds (possible breaking change in ubuntu:14.04?)
-RUN apt-get install -y libcurl3 libcurl3-gnutls libcurl3-openssl-dev
 
 RUN cd /usr/local/bin && curl -sL -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew && \
     chmod a+x phpbrew

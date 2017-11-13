@@ -21,7 +21,9 @@ RUN apt-get -y update && \
                       pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev libimage-exiftool-perl \
                       libexif-dev swig python3 python3-dev libgd-dev software-properties-common \
                       php5-cli php5-cgi libmcrypt-dev strace libgtk2.0-0 libgtk-3-0 libgconf-2-4 \
-                      libasound2 libxtst6 libxss1 libnss3 xvfb graphviz jq pandoc && \
+                      libasound2 libxtst6 libxss1 libnss3 xvfb graphviz jq pandoc \
+                      libcurl3 libcurl3-gnutls libcurl3-openssl-dev \
+                      && \
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get -y update && \
     apt-get install -y openjdk-8-jdk && \
@@ -29,7 +31,7 @@ RUN apt-get -y update && \
 
 
 RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
-    tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar && \
+    tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
     cd wkhtmltox && \
     cp -r ./ /usr/ && \
     wkhtmltopdf -V
@@ -266,9 +268,6 @@ RUN boot -u
 
 USER root
 
-# these were installed on the existing image but are missing from fresh builds (possible breaking change in ubuntu:14.04?)
-RUN apt-get install -y libcurl3 libcurl3-gnutls libcurl3-openssl-dev
-
 RUN cd /usr/local/bin && curl -sL -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew && \
     chmod a+x phpbrew
 
@@ -277,9 +276,27 @@ USER buildbot
 RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.6 +default && \
     phpbrew app get composer'
 
+################################################################################
+#
+# Emacs and Cask
+#
+################################################################################
 USER root
+ENV EMACS_VERSION 25.3
+RUN wget http://ftpmirror.gnu.org/emacs/emacs-${EMACS_VERSION}.tar.gz && \
+    tar -xf emacs-${EMACS_VERSION}.tar.gz && \
+    cd emacs-${EMACS_VERSION} && \
+    env CANNOT_DUMP=yes ./configure --without-x && \
+    make install && \
+    make clean && \
+    cd .. && rm -rf emacs-${EMACS_VERSION} emacs-${EMACS_VERSION}.tar.gz
+
+USER buildbot
+RUN rm -rf /opt/buildhome/.cask && git clone https://github.com/cask/cask.git /opt/buildhome/.cask
+ENV PATH "$PATH:/opt/buildhome/.cask/bin"
 
 # Cleanup
+USER root
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && apt-get autoremove -y
 
 # Add buildscript for local testing

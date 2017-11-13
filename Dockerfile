@@ -276,9 +276,27 @@ USER buildbot
 RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.6 +default && \
     phpbrew app get composer'
 
+################################################################################
+#
+# Emacs and Cask
+#
+################################################################################
 USER root
+ENV EMACS_VERSION 25.3
+RUN wget http://ftpmirror.gnu.org/emacs/emacs-${EMACS_VERSION}.tar.gz && \
+    tar -xf emacs-${EMACS_VERSION}.tar.gz && \
+    cd emacs-${EMACS_VERSION} && \
+    env CANNOT_DUMP=yes ./configure --without-x && \
+    make install && \
+    make clean && \
+    cd .. && rm -rf emacs-${EMACS_VERSION} emacs-${EMACS_VERSION}.tar.gz
+
+USER buildbot
+RUN rm -rf /opt/buildhome/.cask && git clone https://github.com/cask/cask.git /opt/buildhome/.cask
+ENV PATH "$PATH:/opt/buildhome/.cask/bin"
 
 # Cleanup
+USER root
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && apt-get autoremove -y
 
 # Add buildscript for local testing

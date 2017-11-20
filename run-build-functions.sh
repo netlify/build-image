@@ -369,10 +369,9 @@ install_dependencies() {
   fi
 
   # Cask
-  if [ -n "Cask" ]
+  if [ -f Cask ]
   then
-    cask install
-    if [ $? -eq 0 ]
+    if cask install
     then
       echo "Emacs packages installed"
     fi

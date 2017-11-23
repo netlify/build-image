@@ -18,6 +18,8 @@ to get the latest version we've published, pre-built for your testing pleasure. 
 2. Using our tool from the base of a checkout of our build-image repository, Run the image in interactive mode, mounting your repository as a volume: `./test-tools/start-image.sh path/to/my/repo`
 3. Within the container, use our 'build' script to simulate your build in our environment, using your own build command:  `build jekyll build` (Replace `jekyll build` with your build command of choice.)
 
+## Testing locally with cache
+
 If you'd like to run a debugging build using our caching mechanisms, with verbose shell output, you can instead use `test-tools/test-build.sh path/to/your/repo 'your build command'`
 
 This will create a tmp directory that will have the repo we cloned, the cache (with hidden files), and the scripts we ran.

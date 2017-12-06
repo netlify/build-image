@@ -295,6 +295,17 @@ USER buildbot
 RUN rm -rf /opt/buildhome/.cask && git clone https://github.com/cask/cask.git /opt/buildhome/.cask
 ENV PATH "$PATH:/opt/buildhome/.cask/bin"
 
+###
+# LZ4 Compression
+###
+
+ENV LZ4_VERSION 1.8.0
+RUN curl -sL https://github.com/lz4/lz4/archive/v${LZ4_VERSION}.tar.gz | tar xzvf - && \
+    cd lz4-${LZ4_VERSION} && \
+    make && \
+    make install && \
+    cd .. && rm -rf lz4-${LZ4_VERSION}
+
 # Cleanup
 USER root
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && apt-get autoremove -y

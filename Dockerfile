@@ -299,6 +299,7 @@ ENV PATH "$PATH:/opt/buildhome/.cask/bin"
 # LZ4 Compression
 ###
 
+USER root
 ENV LZ4_VERSION 1.8.0
 RUN curl -sL https://github.com/lz4/lz4/archive/v${LZ4_VERSION}.tar.gz | tar xzvf - && \
     cd lz4-${LZ4_VERSION} && \

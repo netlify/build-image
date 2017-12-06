@@ -22,7 +22,7 @@ RUN apt-get -y update && \
                       libexif-dev swig python3 python3-dev libgd-dev software-properties-common \
                       php5-cli php5-cgi libmcrypt-dev strace libgtk2.0-0 libgtk-3-0 libgconf-2-4 \
                       libasound2 libxtst6 libxss1 libnss3 xvfb graphviz jq pandoc \
-                      libcurl3 libcurl3-gnutls libcurl3-openssl-dev cmake\
+                      libcurl3 libcurl3-gnutls libcurl3-openssl-dev cmake \
                       && \
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get -y update && \

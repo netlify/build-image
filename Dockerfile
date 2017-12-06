@@ -268,7 +268,7 @@ RUN boot -u
 
 USER root
 
-RUN cd /usr/local/bin && curl -sL -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew && \
+RUN cd /usr/local/bin && curl -sL -O https://github.com/phpbrew/phpbrew/raw/1.23.0/phpbrew && \
     chmod a+x phpbrew
 
 USER buildbot

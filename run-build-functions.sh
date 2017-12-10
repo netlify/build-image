@@ -50,7 +50,7 @@ run_yarn() {
     mv $NETLIFY_CACHE_DIR/.yarn_cache $NETLIFY_BUILD_BASE/.yarn_cache
   fi
 
-  if [ $(which yarn) ] && ! [ "$(yarn --version)" == "$yarn_version" ]
+  if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]
   then
     echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
     rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
@@ -97,7 +97,7 @@ run_npm_set_temp() {
 run_npm() {
   if [ -n "$NPM_VERSION" ]
   then
-    if ! [ "$(npm --version)" == "$NPM_VERSION" ]
+    if [ "$(npm --version)" != "$NPM_VERSION" ]
     then
       echo "Found npm version ($(npm --version)) that doesn't match expected ($NPM_VERSION)"
       echo "Installing npm at version $NPM_VERSION"

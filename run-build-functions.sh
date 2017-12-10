@@ -20,14 +20,9 @@ mkdir -p $NETLIFY_CACHE_DIR/.cache
 : ${NPM_FLAGS=""}
 
 install_deps() {
-  if [ ! -f $1 ]
-  then
-    return 0
-  fi
-  if [ ! -f $3 ]
-  then
-     return 0
-  fi
+  [ -f $1 ] || return 0
+  [ -f $3 ] || return 0
+ 
   SHA1="$(shasum $1)-$2"
   SHA2="$(cat $3)"
   if [ "$SHA1" == "$SHA2" ]

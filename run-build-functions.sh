@@ -106,9 +106,7 @@ run_npm() {
     fi
   fi
 
-  if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha || \
-     install_deps package-lock.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-lock-sha || \
-     install_deps npm-shrinkwrap.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-shrinkwrap-sha
+  if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then
     echo "Installing NPM modules using NPM version $(npm --version)"
     run_npm_set_temp
@@ -120,14 +118,6 @@ run_npm() {
     fi
 
     echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
-    if [ -f package-lock.json ]
-    then
-      echo "$(shasum package-lock.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-lock-sha
-    fi
-    if [ -f npm-shrinkwrap.json ]
-    then
-      echo "$(shasum npm-shrinkwrap.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-shrinkwrap-sha
-    fi
   fi
   export PATH=$(npm bin):$PATH
 }

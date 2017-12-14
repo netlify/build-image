@@ -22,7 +22,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.cache
 install_deps() {
   [ -f $1 ] || return 0
   [ -f $3 ] || return 0
- 
+
   SHA1="$(shasum $1)-$2"
   SHA2="$(cat $3)"
   if [ "$SHA1" == "$SHA2" ]
@@ -170,7 +170,7 @@ install_dependencies() {
   fi
 
   if nvm install $NODE_VERSION
-  then 
+  then
     NODE_VERSION=$(nvm current)
     echo "Using version $NODE_VERSION of node"
     export NODE_VERSION=$NODE_VERSION
@@ -374,7 +374,7 @@ install_dependencies() {
   fi
 
   # Emacs Cache
-  if [ -f $NETLIFY_CACHE_DIR/.emacs.d ]
+  if [ -d $NETLIFY_CACHE_DIR/.emacs.d ]
   then
     mv $NETLIFY_CACHE_DIR/.emacs.d $NETLIFY_BUILD_BASE/.emacs.d
   fi

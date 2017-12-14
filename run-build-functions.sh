@@ -373,9 +373,20 @@ install_dependencies() {
     fi
   fi
 
+  # Emacs Cache
+  if [ -f $NETLIFY_CACHE_DIR/.emacs.d ]
+  then
+    mv $NETLIFY_CACHE_DIR/.emacs.d $NETLIFY_BUILD_BASE/.emacs.d
+  fi
+
   # Cask
   if [ -f Cask ]
   then
+    if [ -d $NETLIFY_CACHE_DIR/.cask ]
+    then
+      rm -rf $NETLIFY_REPO_DIR/.cask
+      mv $NETLIFY_CACHE_DIR/.cask $NETLIFY_REPO_DIR/.cask
+    fi
     if cask install
     then
       echo "Emacs packages installed"
@@ -434,6 +445,12 @@ cache_artifacts() {
   then
     mv $NETLIFY_BUILD_BASE/.cask $NETLIFY_CACHE_DIR/.cask
   fi
+
+  if [ -d $NETLIFY_BUILD_BASE/.emacs.d ]
+  then
+    mv $NETLIFY_BUILD_BASE/.emacs.d $NETLIFY_CACHE_DIR/.emacs.d
+  fi
+
 }
 
 install_missing_commands() {

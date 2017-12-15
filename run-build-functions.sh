@@ -15,6 +15,8 @@ mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
 mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.cache
+mkdir -p $NETLIFY_CACHE_DIR/.m2
+mkdir -p $NETLIFY_CACHE_DIR/.boot
 
 : ${YARN_FLAGS="--ignore-optional"}
 : ${NPM_FLAGS=""}
@@ -306,11 +308,14 @@ install_dependencies() {
   # Leiningen
   if [ -f project.clj ]
   then
-    mkdir -p $NETLIFY_CACHE_DIR/m2
-    ln -nfs $NETLIFY_CACHE_DIR/m2 ~/.m2
+    if [ -d $NETLIFY_CACHE_DIR/.m2 ];
+    then
+      rm -rf $NETLIFY_BUILD_BASE/.m2
+      mv $NETLIFY_CACHE_DIR/.m2 $NETLIFY_BUILD_BASE/.m2
+    fi
     if install_deps project.clj $JAVA_VERSION $NETLIFY_CACHE_DIR/project-clj-sha
     then
-      echo "Installing leiningen dependencies"
+      echo "Installing Leiningen dependencies"
       if lein deps
       then
         echo "Leiningen dependencies installed"
@@ -327,8 +332,16 @@ install_dependencies() {
   # Boot
   if [ -f build.boot ]
   then
-    mkdir -p $NETLIFY_CACHE_DIR/m2
-    ln -nfs $NETLIFY_CACHE_DIR/m2 ~/.m2
+    if [ -d $NETLIFY_CACHE_DIR/.m2 ];
+    then
+      rm -rf $NETLIFY_BUILD_BASE/.m2
+      mv $NETLIFY_CACHE_DIR/.m2 $NETLIFY_BUILD_BASE/.m2
+    fi
+    if [ -d $NETLIFY_CACHE_DIR/.boot ];
+    then
+      rm -rf $NETLIFY_BUILD_BASE/.boot
+      mv $NETLIFY_CACHE_DIR/.boot $NETLIFY_BUILD_BASE/.boot
+    fi
     if install_deps build.boot $JAVA_VERSION $NETLIFY_CACHE_DIR/project-boot-sha
     then
       echo "Installing Boot dependencies"
@@ -433,6 +446,20 @@ cache_artifacts() {
   if [ -d .cask ]
   then
     mv $NETLIFY_BUILD_BASE/.cask $NETLIFY_CACHE_DIR/.cask
+  fi
+
+  if [ -d $NETLIFY_BUILD_BASE/.m2 ]
+  then
+    rm -rf $NETLIFY_CACHE_DIR/.m2
+    mv $NETLIFY_BUILD_BASE/.m2 $NETLIFY_CACHE_DIR/.m2
+    echo "Cached Maven dependencies"
+  fi
+
+  if [ -d $NETLIFY_BUILD_BASE/.boot ]
+  then
+    rm -rf $NETLIFY_CACHE_DIR/.boot
+    mv $NETLIFY_BUILD_BASE/.boot $NETLIFY_CACHE_DIR/.boot
+    echo "Cached Boot dependencies"
   fi
 }
 

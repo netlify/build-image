@@ -69,12 +69,12 @@ RUN wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz && \
 
 WORKDIR /tmp
 
-# this actually builds v7.42.4 off of the 7.42 branch
+# this actually builds v8.6.2
 RUN \
-  curl -sLo libvips-7.42.zip https://github.com/jcupitt/libvips/archive/7.42.zip && \
-  unzip libvips-7.42.zip && \
-  cd libvips-7.42 && \
-  ./bootstrap.sh && \
+  curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/releases/download/v8.6.2/vips-8.6.2.tar.gz && \
+  tar xvf vips-8.6.2.tar.gz && \
+  cd vips-8.6.2 && \
+  sh autogen.sh && \
   ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
   make && \
   make install && \

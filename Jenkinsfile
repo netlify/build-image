@@ -13,18 +13,11 @@ pipeline {
       when {
         branch 'master'
       }
-      failFast true
-      parallel {
-          stage("Push Squash") {
-              steps {
-                  sh "docker push netlify/build:squash"
-              }
-          }
-          stage("Push Latest") {
-              steps {
-                  sh "docker push netlify/build:squash"
-              }
-          }
+      steps {
+        script {
+          docker.image('netlify/build:latest').push()
+          docker.image('netlify/build:squash'.push()
+        }
       }
     }
   }

@@ -16,7 +16,7 @@ pipeline {
       steps {
         script {
           docker.image('netlify/build:latest').push()
-          docker.image('netlify/build:squash'.push()
+          docker.image('netlify/build:squash').push()
         }
       }
     }

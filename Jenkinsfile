@@ -15,7 +15,7 @@ pipeline {
       }
       steps {
         script {
-          docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-ci') {}
+          docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-ci') {
             docker.image('netlify/build:latest').push()
             docker.image('netlify/build:squash').push()
           }

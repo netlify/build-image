@@ -308,7 +308,7 @@ install_dependencies() {
   # Leiningen
   if [ -f project.clj ]
   then
-    if [ -d $NETLIFY_CACHE_DIR/.m2 ];
+    if [ -d $NETLIFY_CACHE_DIR/.m2 ]
     then
       rm -rf $NETLIFY_BUILD_BASE/.m2
       mv $NETLIFY_CACHE_DIR/.m2 $NETLIFY_BUILD_BASE/.m2
@@ -332,12 +332,12 @@ install_dependencies() {
   # Boot
   if [ -f build.boot ]
   then
-    if [ -d $NETLIFY_CACHE_DIR/.m2 ];
+    if [ -d $NETLIFY_CACHE_DIR/.m2 ]
     then
       rm -rf $NETLIFY_BUILD_BASE/.m2
       mv $NETLIFY_CACHE_DIR/.m2 $NETLIFY_BUILD_BASE/.m2
     fi
-    if [ -d $NETLIFY_CACHE_DIR/.boot ];
+    if [ -d $NETLIFY_CACHE_DIR/.boot ]
     then
       rm -rf $NETLIFY_BUILD_BASE/.boot
       mv $NETLIFY_CACHE_DIR/.boot $NETLIFY_BUILD_BASE/.boot

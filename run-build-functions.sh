@@ -22,7 +22,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.cache
 install_deps() {
   [ -f $1 ] || return 0
   [ -f $3 ] || return 0
- 
+
   SHA1="$(shasum $1)-$2"
   SHA2="$(cat $3)"
   if [ "$SHA1" == "$SHA2" ]
@@ -160,7 +160,7 @@ install_dependencies() {
   fi
 
   if nvm install $NODE_VERSION
-  then 
+  then
     NODE_VERSION=$(nvm current)
     echo "Using version $NODE_VERSION of node"
     export NODE_VERSION=$NODE_VERSION
@@ -363,9 +363,20 @@ install_dependencies() {
     fi
   fi
 
+  # Emacs Cache
+  if [ -d $NETLIFY_CACHE_DIR/.emacs.d ]
+  then
+    mv $NETLIFY_CACHE_DIR/.emacs.d $NETLIFY_BUILD_BASE/.emacs.d
+  fi
+
   # Cask
   if [ -f Cask ]
   then
+    if [ -d $NETLIFY_CACHE_DIR/.cask ]
+    then
+      rm -rf $NETLIFY_REPO_DIR/.cask
+      mv $NETLIFY_CACHE_DIR/.cask $NETLIFY_REPO_DIR/.cask
+    fi
     if cask install
     then
       echo "Emacs packages installed"
@@ -424,6 +435,12 @@ cache_artifacts() {
   then
     mv $NETLIFY_BUILD_BASE/.cask $NETLIFY_CACHE_DIR/.cask
   fi
+
+  if [ -d $NETLIFY_BUILD_BASE/.emacs.d ]
+  then
+    mv $NETLIFY_BUILD_BASE/.emacs.d $NETLIFY_CACHE_DIR/.emacs.d
+  fi
+
 }
 
 install_missing_commands() {

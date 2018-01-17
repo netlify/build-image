@@ -126,6 +126,7 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
+  local defaultPhpVersion=$4
 
   # Python Version
   if [ -f runtime.txt ]
@@ -371,6 +372,27 @@ install_dependencies() {
       echo "Emacs packages installed"
     fi
   fi
+
+  # PHP version
+  if [ ! -n "$PHP_VERSION" ]
+  then
+    : ${PHP_VERSION="$defaultPhpVersion"}
+  fi
+  echo "Switching to PHP $PHP_VERSION"
+  source ~/.phpbrew/bashrc
+  phpbrew switch $PHP_VERSION
+  php -v
+
+  # Composer dependencies
+  if [ -f composer.json ]
+  then
+    phpbrew app get composer
+    if [ -d $NETLIFY_CACHE_DIR/.composer ]
+    then
+      mv $NETLIFY_CACHE_DIR/.composer $HOME/.composer
+    fi
+    composer install
+  fi
 }
 
 #
@@ -424,6 +446,14 @@ cache_artifacts() {
   then
     mv $NETLIFY_BUILD_BASE/.cask $NETLIFY_CACHE_DIR/.cask
   fi
+
+  # Cache .composer
+  if [ -d $HOME/.composer ]
+  then
+    rm -rf $NETLIFY_CACHE_DIR/.composer
+      mv $HOME/.composer $NETLIFY_CACHE_DIR/.composer
+      echo "Saved Composer Directory"
+  fi
 }
 
 install_missing_commands() {
@@ -434,5 +464,13 @@ install_missing_commands() {
       npm install grunt-cli
       export PATH=$(npm bin):$PATH
     fi
+  fi
+
+  # PHPoole
+  if [[ $BUILD_COMMAND_PARSER == *"phpoole"* ]]
+  then
+      echo "Downloading PHPoole"
+      curl -sSOL https://phpoole.org/phpoole.phar
+      php phpoole.phar --version
   fi
 }

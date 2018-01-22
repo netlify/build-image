@@ -157,6 +157,12 @@ install_dependencies() {
   then
     NODE_VERSION=$(cat .nvmrc)
     echo "Using node version '$NODE_VERSION' from .nvmrc"
+  else
+    if [ -f .node-version ]
+    then
+      NODE_VERSION=$(cat .node-version)
+      echo "Using node version '$NODE_VERSION' from .node-version"
+    fi
   fi
 
   if nvm install $NODE_VERSION

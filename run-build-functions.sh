@@ -15,6 +15,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
 mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.cache
+mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.m2
 mkdir -p $NETLIFY_CACHE_DIR/.boot
 
@@ -24,7 +25,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.boot
 install_deps() {
   [ -f $1 ] || return 0
   [ -f $3 ] || return 0
- 
+
   SHA1="$(shasum $1)-$2"
   SHA2="$(cat $3)"
   if [ "$SHA1" == "$SHA2" ]
@@ -379,6 +380,12 @@ install_dependencies() {
   # Cask
   if [ -f Cask ]
   then
+    if [ -d $NETLIFY_CACHE_DIR/.cask ]
+    then
+      rm -rf $NETLIFY_BUILD_BASE/.cask
+      mv $NETLIFY_CACHE_DIR/.cask $NETLIFY_BUILD_BASE/.cask
+    fi
+
     if cask install
     then
       echo "Emacs packages installed"
@@ -393,8 +400,8 @@ cache_artifacts() {
   if [ -d .bundle ]
   then
     rm -rf $NETLIFY_CACHE_DIR/.bundle
-      mv .bundle $NETLIFY_CACHE_DIR/.bundle
-      echo "Cached ruby gems"
+    mv .bundle $NETLIFY_CACHE_DIR/.bundle
+    echo "Cached ruby gems"
   fi
 
   if [ -d bower_components ]
@@ -407,15 +414,15 @@ cache_artifacts() {
   if [ -d node_modules ]
   then
     rm -rf $NETLIFY_CACHE_DIR/node_modules
-      mv node_modules $NETLIFY_CACHE_DIR/node_modules
-      echo "Cached NPM modules"
+    mv node_modules $NETLIFY_CACHE_DIR/node_modules
+    echo "Cached NPM modules"
   fi
 
   if [ -d $NETLIFY_BUILD_BASE/.yarn_cache ]
   then
     rm -rf $NETLIFY_CACHE_DIR/.yarn_cache
     mv $NETLIFY_BUILD_BASE/.yarn_cache $NETLIFY_CACHE_DIR/.yarn_cache
-      echo "Saved Yarn cache"
+    echo "Saved Yarn cache"
   fi
 
   if [ -d .cache ]

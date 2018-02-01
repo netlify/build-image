@@ -15,7 +15,7 @@ set -e
 : ${YARN_VERSION="0.18.0"}
 : ${NPM_VERSION=""}
 : ${HUGO_VERSION="0.20"}
-: ${PHP_VERSION="5.6.32"}
+: ${PHP_VERSION="5.6.33"}
 
 REPO_URL=$1
 

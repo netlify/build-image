@@ -18,7 +18,6 @@ EOF
 mkdir -p $NETLIFY_CACHE_DIR
 rm -rf $NETLIFY_BUILD_BASE/.yarn
 
-cd $NETLIFY_BUILD_BASE
 if [[ ! -d $NETLIFY_REPO_DIR ]]; then
   git clone $NETLIFY_REPO_URL $NETLIFY_REPO_DIR
 fi

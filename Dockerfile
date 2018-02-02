@@ -312,6 +312,7 @@ USER root
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && apt-get autoremove -y
 
 # Add buildscript for local testing
+ADD run-build-functions.sh /usr/local/bin/run-build-functions.sh
 ADD run-build.sh /usr/local/bin/build
 ADD buildbot-git-config /opt/buildhome/.gitconfig
 

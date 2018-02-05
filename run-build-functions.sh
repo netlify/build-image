@@ -8,10 +8,15 @@ then
 fi
 
 export NVM_DIR="$HOME/.nvm"
+export RVM_DIR="$HOME/.rvm"
+
+YELLOW=`tput setaf 3`
+NC=`tput sgr0` # No Color
 
 mkdir -p $NETLIFY_CACHE_DIR/node_version
 mkdir -p $NETLIFY_CACHE_DIR/node_modules
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
+mkdir -p $NETLIFY_CACHE_DIR/ruby_version
 mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.cache
@@ -159,7 +164,7 @@ install_dependencies() {
   if [ -f .nvmrc ]
   then
     NODE_VERSION=$(cat .nvmrc)
-    echo "Using node version '$NODE_VERSION' from .nvmrc"
+    echo "Attempting node version '$NODE_VERSION' from .nvmrc"
   fi
 
   if nvm install $NODE_VERSION
@@ -188,22 +193,61 @@ install_dependencies() {
 
   # Ruby version
   source $HOME/.rvm/scripts/rvm
-  : ${RUBY_VERSION="$defaultRubyVersion"}
+  # rvm will overwrite RUBY_VERSION, so we must control it
+  RUBY_VERSION="$defaultRubyVersion"
   export RUBY_VERSION
 
+  local druby=$RUBY_VERSION
   if [ -f .ruby-version ]
   then
-    if rvm use $(cat .ruby-version)
-    then
-      echo "Set ruby from .ruby-version"
-      export RUBY_VERSION=$(cat .ruby-version)
-    else
-      echo "Error setting ruby version from .ruby-version file. Unsupported version?"
-      echo "Will use default version ($RUBY_VERSION)"
-      rvm use $RUBY_VERSION
-    fi
+    druby=$(cat .ruby-version)
+    echo "Attempting ruby version ${druby}, read from .ruby-version file"
   else
-    rvm use $RUBY_VERSION
+    echo "Attempting ruby version ${druby}, read from environment"
+  fi
+
+  rvm use ${druby} > /dev/null 2>&1
+  export CUSTOM_RUBY=$?
+  local rvs=($(rvm list strings))
+
+  local fulldruby="ruby-${druby}"
+  if [ -d $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} ]
+  then
+    rm -rf $RVM_DIR/rubies/${fulldruby}
+    cp -p -r $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} $RVM_DIR/rubies/
+  fi
+
+  rvm --create use ${druby} > /dev/null 2>&1
+  if [ $? -eq 0 ]
+  then
+    local crv=$(rvm current)
+    export RUBY_VERSION=${crv#ruby-}
+    echo "Using ruby version ${RUBY_VERSION}"
+  else
+    echo -e "${YELLOW}"
+    echo -e "** WARNING **"
+    echo -e "Using custom ruby version ${druby}, this will slow down the build."
+    echo -e "To ensure fast builds, set the RUBY_VERSION environment variable, or .ruby-version file, to an included ruby version."
+    echo -e "Included versions: ${rvs[@]#ruby-}"
+    echo -e "${NC}"
+    if rvm_install_on_use_flag=1 rvm --create use ${druby}
+    then
+      local crv=$(rvm current)
+      export RUBY_VERSION=${crv#ruby-}
+      echo "Using ruby version ${RUBY_VERSION}"
+    else
+      echo "Failed to install ruby version '${druby}'"
+      exit 1
+    fi
+  fi
+  
+  if ! gem list -i "^bundler$" > /dev/null 2>&1
+  then
+    if ! gem install bundler
+    then
+      echo "Error installing bundler"
+      exit 1
+    fi
   fi
 
   # Java version
@@ -429,7 +473,7 @@ cache_artifacts() {
   then
     rm -rf $NETLIFY_CACHE_DIR/.cache
     mv .cache $NETLIFY_CACHE_DIR/.cache
-    echo "Saved Cache Directory"
+    echo "Saved pip cache Directory"
   fi
 
   # cache the version of node installed
@@ -438,11 +482,27 @@ cache_artifacts() {
     rm -rf $NETLIFY_CACHE_DIR/node_version
     mkdir $NETLIFY_CACHE_DIR/node_version
     mv $NVM_DIR/versions/node/$NODE_VERSION $NETLIFY_CACHE_DIR/node_version/
+    echo "Cached node version $NODE_VERSION"
+  fi
+
+  # cache the version of ruby installed
+  if [ "$CUSTOM_RUBY" -ne "0" ]
+  then
+    if ! [ -d $NETLIFY_CACHE_DIR/ruby_version/ruby-$RUBY_VERSION ]
+    then
+      rm -rf $NETLIFY_CACHE_DIR/ruby_version
+      mkdir $NETLIFY_CACHE_DIR/ruby_version
+      mv $RVM_DIR/rubies/ruby-$RUBY_VERSION $NETLIFY_CACHE_DIR/ruby_version/
+      echo "Cached ruby version $RUBY_VERSION"
+    fi
+  else
+    rm -rf $NETLIFY_CACHE_DIR/ruby_version
   fi
 
   if [ -d .cask ]
   then
     mv $NETLIFY_BUILD_BASE/.cask $NETLIFY_CACHE_DIR/.cask
+    echo "Cached Emacs Cask dependencies"
   fi
 
   if [ -d $NETLIFY_BUILD_BASE/.m2 ]

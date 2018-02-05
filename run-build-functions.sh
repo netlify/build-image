@@ -19,7 +19,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.m2
 mkdir -p $NETLIFY_CACHE_DIR/.boot
 
-: ${YARN_FLAGS="--ignore-optional"}
+: ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
 
 install_deps() {

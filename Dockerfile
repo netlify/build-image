@@ -269,6 +269,7 @@ RUN cd /usr/local/bin && curl -sL -O https://github.com/phpbrew/phpbrew/raw/1.23
 USER buildbot
 
 RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.6 +default && \
+    phpbrew install 7.0 +default && phpbrew install 7.1 +default && \
     phpbrew app get composer'
 
 ################################################################################

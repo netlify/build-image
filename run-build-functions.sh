@@ -270,7 +270,7 @@ install_dependencies() {
   : ${PHP_VERSION="$defaultPHPVersion"}
   if [ -f /usr/bin/php$PHP_VERSION ]
   then
-    if ln -sf /usr/bin/php$PHP_VERSION ~/.php/php
+    if ln -sf /usr/bin/php$PHP_VERSION $HOME/.php/php
     then
       echo "Using PHP version $PHP_VERSION"
     else

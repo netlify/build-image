@@ -356,8 +356,8 @@ RUN update-alternatives --set php /usr/bin/php5.6 && \
 
 USER buildbot
 
-RUN mkdir -p ~/.php && ln -s /usr/bin/php5.6 ~/.php/php
-ENV PATH "$HOME/.php:$PATH"
+RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php5.6 /opt/buildhome/.php/php
+ENV PATH "/opt/buildhome/.php:$PATH"
 
 ################################################################################
 #

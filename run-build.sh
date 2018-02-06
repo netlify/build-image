@@ -26,7 +26,7 @@ cd $NETLIFY_REPO_DIR
 . "$dir/run-build-functions.sh"
 
 : ${NODE_VERSION="8"}
-: ${RUBY_VERSION="2.2.3"}
+: ${RUBY_VERSION="2.3.6"}
 : ${YARN_VERSION="1.3.2"}
 
 echo "Installing dependencies: node=$NODE_VERSION ruby=$RUBY_VERSION yarn=$YARN_VERSION"

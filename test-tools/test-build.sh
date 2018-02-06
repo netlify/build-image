@@ -11,7 +11,7 @@
 set -e
 
 : ${NODE_VERSION="8"}
-: ${RUBY_VERSION="2.2.3"}
+: ${RUBY_VERSION="2.3.6"}
 : ${YARN_VERSION="1.3.2"}
 : ${NPM_VERSION=""}
 : ${HUGO_VERSION="0.20"}
@@ -39,12 +39,11 @@ git clone $REPO_URL $T/repo
 SCRIPT="/opt/buildhome/scripts/run-build.sh $2"
 
 docker run --rm \
-	-e "NETLIFY_VERBOSE=1" \
-	-e "NODE_VERSION=\"$NODE_VERSION\"" \
-	-e "RUBY_VERSION=\"$RUBY_VERSION\"" \
-	-e "YARN_VERSION=\"$YARN_VERSION\"" \
-	-e "NPM_VERSION=\"$NPM_VERSION\"" \
-	-e "HUGO_VERSION=\"$HUGO_VERSION\"" \
+	-e "NODE_VERSION=$NODE_VERSION" \
+	-e "RUBY_VERSION=$RUBY_VERSION" \
+	-e "YARN_VERSION=$YARN_VERSION" \
+	-e "NPM_VERSION=$NPM_VERSION" \
+	-e "HUGO_VERSION=$HUGO_VERSION" \
 	-v $PWD/$T/scripts:/opt/buildhome/scripts \
 	-v $PWD/$T/repo:/opt/buildhome/repo \
 	-v $PWD/$T/cache:/opt/buildhome/cache \

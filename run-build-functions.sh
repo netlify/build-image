@@ -291,8 +291,8 @@ install_dependencies() {
     echo "Installing pip dependencies"
     if [ -d $NETLIFY_CACHE_DIR/.cache ]
     then
-      rm -rf $NETLIFY_REPO_DIR/.cache
-      mv $NETLIFY_CACHE_DIR/.cache $NETLIFY_REPO_DIR/.cache
+      rm -rf $NETLIFY_BUILD_BASE/.cache
+      mv $NETLIFY_CACHE_DIR/.cache $NETLIFY_BUILD_BASE/.cache
     fi
     if pip install -r requirements.txt
     then
@@ -481,10 +481,10 @@ cache_artifacts() {
     echo "Saved Yarn cache"
   fi
 
-  if [ -d .cache ]
+  if [ -d $NETLIFY_BUILD_BASE/.cache ]
   then
     rm -rf $NETLIFY_CACHE_DIR/.cache
-    mv .cache $NETLIFY_CACHE_DIR/.cache
+    mv $NETLIFY_BUILD_BASE/.cache $NETLIFY_CACHE_DIR/.cache
     echo "Saved pip cache Directory"
   fi
 

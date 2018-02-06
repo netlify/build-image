@@ -26,6 +26,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.boot
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
+: ${BUNDLER_FLAGS=""}
 
 install_deps() {
   [ -f $1 ] || return 0
@@ -269,7 +270,7 @@ install_dependencies() {
     if install_deps Gemfile.lock $RUBY_VERSION $NETLIFY_CACHE_DIR/gemfile-sha || [ ! -d .bundle ]
     then
       echo "Installing gem bundle"
-      if bundle install --path $NETLIFY_CACHE_DIR/bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs
+      if bundle install --path $NETLIFY_CACHE_DIR/bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs "$BUNDLER_FLAGS"
       then
       export PATH=$NETLIFY_CACHE_DIR/binstubs:$PATH
         echo "Gem bundle installed"

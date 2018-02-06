@@ -21,6 +21,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.cache
 mkdir -p $NETLIFY_CACHE_DIR/.cask
+mkdir -p $NETLIFY_CACHE_DIR/.emacs.d
 mkdir -p $NETLIFY_CACHE_DIR/.m2
 mkdir -p $NETLIFY_CACHE_DIR/.boot
 
@@ -435,6 +436,12 @@ install_dependencies() {
       mv $NETLIFY_CACHE_DIR/.cask $NETLIFY_BUILD_BASE/.cask
     fi
 
+    if [ -d $NETLIFY_CACHE_DIR/.emacs.d ]
+    then
+      rm -rf $NETLIFY_BUILD_BASE/.emacs.d
+      mv $NETLIFY_CACHE_DIR/.emacs.d $NETLIFY_BUILD_BASE/.emacs.d
+    fi
+
     if cask install
     then
       echo "Emacs packages installed"
@@ -508,6 +515,13 @@ cache_artifacts() {
   then
     mv $NETLIFY_BUILD_BASE/.cask $NETLIFY_CACHE_DIR/.cask
     echo "Cached Emacs Cask dependencies"
+  fi
+
+  if [ -d $NETLIFY_BUILD_BASE/.emacs.d ]
+  then
+    rm -rf $NETLIFY_CACHE_DIR/.emacs.d
+    mv $NETLIFY_BUILD_BASE/.emacs.d $NETLIFY_CACHE_DIR/.emacs.d
+    echo "Saved Emacs cache"
   fi
 
   if [ -d $NETLIFY_BUILD_BASE/.m2 ]

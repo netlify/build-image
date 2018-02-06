@@ -74,7 +74,6 @@ RUN \
   curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/releases/download/v8.6.2/vips-8.6.2.tar.gz && \
   tar xvf vips-8.6.2.tar.gz && \
   cd vips-8.6.2 && \
-  sh autogen.sh && \
   ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
   make && \
   make install && \

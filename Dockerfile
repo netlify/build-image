@@ -287,36 +287,18 @@ USER root
 #
 ################################################################################
 
-ENV BINRC_VERSION 0.2.4
+ENV BINRC_VERSION 0.2.5
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
     ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
 
 
-RUN mkdir /opt/hugo && cd /opt/hugo && \
-    curl -sL https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_linux_amd64.tar.gz | tar zxvf - && \
-    ln -s /opt/hugo/hugo_0.13_linux_amd64/hugo_0.13_linux_amd64 /usr/local/bin/hugo_0.13 && \
-    curl -sL https://github.com/spf13/hugo/releases/download/v0.14/hugo_0.14_linux_amd64.tar.gz | tar zxvf - && \
-    ln -s /opt/hugo/hugo_0.14_linux_amd64/hugo_0.14_linux_amd64 /usr/local/bin/hugo_0.14 && \
-    curl -sL https://github.com/spf13/hugo/releases/download/v0.15/hugo_0.15_linux_amd64.tar.gz | tar zxvf - && \
-    ln -s /opt/hugo/hugo_0.15_linux_amd64/hugo_0.15_linux_amd64 /usr/local/bin/hugo_0.15 && \
-    mkdir /opt/hugo/hugo_0.16 && cd /opt/hugo/hugo_0.16 && \
-    curl -sL https://github.com/spf13/hugo/releases/download/v0.16/hugo_0.16_linux-64bit.tgz | tar zxvf - && \
-    ln -s /opt/hugo/hugo_0.16/hugo /usr/local/bin/hugo_0.16 && \
-    mkdir /opt/hugo/hugo_0.17 && cd /opt/hugo/hugo_0.17 && \
-    curl -sL https://github.com/spf13/hugo/releases/download/v0.17/hugo_0.17_Linux-64bit.tar.gz  | tar zxvf - && \
-    ln -s /opt/hugo/hugo_0.17/hugo_0.17_linux_amd64/hugo_0.17_linux_amd64 /opt/hugo/hugo_0.17/hugo  && \
-    ln -s /opt/hugo/hugo_0.17/hugo /usr/local/bin/hugo_0.17 && \
-    ln -s /opt/hugo/hugo_0.17/hugo /usr/local/bin/hugo && \
-    mkdir /opt/hugo/hugo_0.18 && cd /opt/hugo/hugo_0.18 && \
-    curl -sL https://github.com/spf13/hugo/releases/download/v0.18/hugo_0.18_Linux-64bit.tar.gz  | tar zxvf - && \
-    ln -s /opt/hugo/hugo_0.18/hugo_0.18_linux_amd64/hugo_0.18_linux_amd64 /opt/hugo/hugo_0.18/hugo  && \
-    ln -s /opt/hugo/hugo_0.18/hugo /usr/local/bin/hugo_0.18 && \
-    mkdir /opt/hugo/hugo_0.19 && cd /opt/hugo/hugo_0.19 && \
-    curl -sL https://github.com/spf13/hugo/releases/download/v0.19/hugo_0.19_Linux-64bit.tar.gz  | tar zxvf - && \
-    ln -s /opt/hugo/hugo_0.19/hugo_0.19_linux_amd64/hugo_0.19_linux_amd64 /opt/hugo/hugo_0.19/hugo  && \
-    ln -s /opt/hugo/hugo_0.19/hugo /usr/local/bin/hugo_0.19
+RUN binrc install spf13/hugo 0.17 | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.17 && \ 
+    binrc install spf13/hugo 0.18 | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.18 && \ 
+    binrc install spf13/hugo 0.19 | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.19 && \
+    binrc install spf13/hugo 0.20 | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.20 && \
+    ln -s /usr/local/bin/hugo_0.17 /usr/local/bin/hugo
 
 
 ################################################################################

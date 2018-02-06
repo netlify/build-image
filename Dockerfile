@@ -8,41 +8,151 @@ MAINTAINER Netlify
 #
 ################################################################################
 
-RUN apt-get -y update && \
-    apt-get install -y build-essential g++ libssl-dev curl wget zip \
-                      apache2-utils libxml2-dev libxslt-dev python-setuptools \
-                      mercurial bzr imagemagick graphicsmagick libmagickwand-dev python2.7-dev \
-                      advancecomp gifsicle jpegoptim libjpeg-progs optipng libgif-dev \
-                      pngcrush fontconfig fontconfig-config libfontconfig1 \
-                      gawk libreadline6-dev libyaml-dev libsqlite3-dev sqlite3 \
-                      autoconf libgdbm-dev libncurses5-dev automake bison libffi-dev \
-                      gobject-introspection gtk-doc-tools libglib2.0-dev \
-                      libjpeg-turbo8-dev libpng12-dev libwebp-dev libtiff5-dev \
-                      pandoc libsm6 libxrender1 libfontconfig1 libgmp3-dev libimage-exiftool-perl \
-                      libexif-dev swig python3 python3-dev libgd-dev software-properties-common \
-                      php5-cli php5-cgi libicu-dev libmcrypt-dev strace libgtk2.0-0 libgtk-3-0 libgconf-2-4 \
-                      libasound2 libxtst6 libxss1 libnss3 xvfb graphviz jq pandoc \
-                      libcurl3 libcurl3-gnutls libcurl3-openssl-dev cmake \
-                      && \
-    add-apt-repository ppa:openjdk-r/ppa && \
-    add-apt-repository ppa:git-core/ppa && \
+# language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
+RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y update && \
-    apt-get install -y openjdk-8-jdk git && \
-    apt-get clean
+    apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https gnupg-curl && \
+    echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
+    echo 'LANG="en_US.UTF-8"' > /etc/default/locale && \
+    echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
+    locale-gen en_US.UTF-8 && \
+    update-locale en_US.UTF-8 && \
+    export LANG=en_US.UTF-8 && \
+    export LANGUAGE=en_US.UTF-8 && \
+    export LC_ALL=en_US.UTF-8 && \
+    apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \ 
+    apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main' && \
+    add-apt-repository -y ppa:ondrej/php && \
+    add-apt-repository -y ppa:openjdk-r/ppa && \
+    add-apt-repository -y ppa:git-core/ppa && \
+    add-apt-repository -y ppa:rwky/graphicsmagick && \
+    apt-get -y update && \
+    apt-get install -y --no-install-recommends \
+        advancecomp \
+        apache2-utils \
+        autoconf \
+        automake \
+        bison \
+        build-essential \
+        bzr \
+        cmake \
+        curl \
+        fontconfig \
+        fontconfig-config \
+        g++ \
+        gawk \
+        git \
+        git-lfs \
+        gifsicle \
+        gobject-introspection \
+        graphicsmagick \
+        graphviz \
+        gtk-doc-tools \
+        imagemagick \
+        jpegoptim \
+        jq \
+        language-pack-ar \
+        language-pack-cs \
+        language-pack-da \
+        language-pack-de \
+        language-pack-el \
+        language-pack-es \
+        language-pack-fi \
+        language-pack-fil \
+        language-pack-fr \
+        language-pack-he \
+        language-pack-hi \
+        language-pack-it \
+        language-pack-ja \
+        language-pack-ka \
+        language-pack-ko \
+        language-pack-nan \
+        language-pack-nn \
+        language-pack-pl \
+        language-pack-pt \
+        language-pack-ro \
+        language-pack-ru \
+        language-pack-sa \
+        language-pack-sv \
+        language-pack-ta \
+        language-pack-th \
+        language-pack-tr \
+        language-pack-uk \
+        language-pack-vi \
+        language-pack-yi \
+        language-pack-zh-hans \
+        language-pack-zh-hant \
+        libasound2 \
+        libcurl3 \
+        libcurl3-gnutls \
+        libcurl3-openssl-dev \
+        libexif-dev \
+        libffi-dev \
+        libfontconfig1 \
+        libgconf-2-4 \
+        libgd-dev \
+        libgdbm-dev \
+        libgif-dev \
+        libglib2.0-dev \
+        libgmp3-dev \
+        libgraphicsmagick3 \
+        libgtk-3-0 \
+        libgtk2.0-0 \
+        libicu-dev \
+        libimage-exiftool-perl \
+        libjpeg-progs \
+        libjpeg-turbo8-dev \
+        libmagickwand-dev \
+        libmcrypt-dev \
+        libncurses5-dev \
+        libnss3 \
+        libpng12-dev \
+        libreadline6-dev \
+        libsm6 \
+        libsqlite3-dev \
+        libssl-dev \
+        libtiff5-dev \
+        libwebp-dev \
+        libwebp5 \
+        libxml2-dev \
+        libxrender1 \
+        libxslt-dev \
+        libxss1 \
+        libxtst6 \
+        libyaml-dev \
+        mercurial \
+        openjdk-8-jdk \
+        optipng \
+        pandoc \
+        php5.6 \
+        php7.2 \
+        pngcrush \
+        python-setuptools \
+        python2.7-dev \
+        python3 \
+        python3-dev \
+        software-properties-common \
+        sqlite3 \
+        strace \
+        swig \
+        unzip \
+        wget \
+        xvfb \
+        zip \
+        && \
+    /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    apt-get autoremove -y && \
+    unset DEBIAN_FRONTEND
 
-
-RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
+RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
     tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
     cd wkhtmltox && \
     cp -r ./ /usr/ && \
     wkhtmltopdf -V
 
-RUN curl -sSOL https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh && \
-    bash script.deb.sh && \
-    rm script.deb.sh && \
-    apt-get install -y git-lfs
-
-RUN wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz && \
+RUN wget -nv https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz && \
     tar -xf Python-3.5.2.tar.xz && \
     cd Python-3.5.2 && \
     ./configure && \
@@ -52,7 +162,7 @@ RUN wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz && \
     cd .. && \
     rm -r Python-3.5.2.tar.xz Python-3.5.2
 
-RUN wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz && \
+RUN wget -nv https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz && \
     tar -xf Python-3.6.2.tar.xz && \
     cd Python-3.6.2 && \
     ./configure && \
@@ -82,30 +192,6 @@ RUN \
 
 
 WORKDIR /
-
-################################################################################
-#
-# Locale and UTF-8
-#
-################################################################################
-
-RUN apt-get -y install \
-  language-pack-ar language-pack-cs  language-pack-da language-pack-de  language-pack-el language-pack-es \
-  language-pack-fi language-pack-fil language-pack-fr language-pack-he  language-pack-hi language-pack-it \
-  language-pack-ja language-pack-ka  language-pack-ko language-pack-nan language-pack-nn language-pack-pl \
-  language-pack-pt language-pack-ro  language-pack-ru  language-pack-sa language-pack-sv language-pack-ta \
-  language-pack-th language-pack-tr  language-pack-uk  language-pack-vi language-pack-yi language-pack-zh-hans language-pack-zh-hant \
-  && apt-get clean
-
-# Set a default language
-RUN echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
-    echo 'LANG="en_US.UTF-8"' > /etc/default/locale && \
-    echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
-    locale-gen en_US.UTF-8 && update-locale en_US.UTF-8
-
-ENV LANGUAGE en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
 
 ################################################################################
 #
@@ -263,13 +349,15 @@ RUN boot -u
 
 USER root
 
-RUN cd /usr/local/bin && curl -sL -O https://github.com/phpbrew/phpbrew/raw/1.23.0/phpbrew && \
-    chmod a+x phpbrew
+# set default to 5.6
+RUN update-alternatives --set php /usr/bin/php5.6 && \
+    update-alternatives --set phar /usr/bin/phar5.6 && \
+    update-alternatives --set phar.phar /usr/bin/phar.phar5.6
 
 USER buildbot
 
-RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.6 +default && \
-    phpbrew app get composer'
+RUN mkdir -p ~/.php && ln -s /usr/bin/php5.6 ~/.php/php
+ENV PATH "$HOME/.php:$PATH"
 
 ################################################################################
 #
@@ -278,7 +366,7 @@ RUN /bin/bash -c 'phpbrew init && source ~/.phpbrew/bashrc && phpbrew install 5.
 ################################################################################
 USER root
 ENV EMACS_VERSION 25.3
-RUN wget http://ftpmirror.gnu.org/emacs/emacs-${EMACS_VERSION}.tar.gz && \
+RUN wget -nv http://ftpmirror.gnu.org/emacs/emacs-${EMACS_VERSION}.tar.gz && \
     tar -xf emacs-${EMACS_VERSION}.tar.gz && \
     cd emacs-${EMACS_VERSION} && \
     env CANNOT_DUMP=yes ./configure --without-x && \
@@ -304,7 +392,6 @@ RUN curl -sL https://github.com/lz4/lz4/archive/v${LZ4_VERSION}.tar.gz | tar xzv
 
 # Cleanup
 USER root
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && apt-get autoremove -y
 
 # Add buildscript for local testing
 ADD run-build-functions.sh /usr/local/bin/run-build-functions.sh

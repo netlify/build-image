@@ -29,6 +29,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.emacs.d
 mkdir -p $NETLIFY_CACHE_DIR/.m2
 mkdir -p $NETLIFY_CACHE_DIR/.boot
+mkdir -p $NETLIFY_CACHE_DIR/.composer
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
@@ -137,6 +138,7 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
+  local defaultPHPVersion=$4
 
   # Python Version
   if [ -f runtime.txt ]
@@ -263,6 +265,22 @@ install_dependencies() {
 
   # Java version
   export JAVA_VERSION=default_sdk
+
+  # PHP version
+  : ${PHP_VERSION="$defaultPHPVersion"}
+  if [ -f /usr/bin/php$PHP_VERSION ]
+  then
+    if ln -sf /usr/bin/php$PHP_VERSION ~/.php/php
+    then
+      echo "Using PHP version $PHP_VERSION"
+    else
+      echo "Failed to switch to PHP version $PHP_VERSION"
+      exit 1
+    fi
+  else
+    echo "PHP version $PHP_VERSION does not exist"
+    exit 1
+  fi
 
   # Rubygems
   if [ -f Gemfile ]
@@ -411,6 +429,13 @@ install_dependencies() {
       echo "Emacs packages installed"
       fi
   fi
+
+  # PHP Composer dependencies
+  if [ -f composer.json ]
+  then
+    restore_home_cache ".composer" "composer dependencies"
+    composer install
+  fi
 }
 
 #
@@ -427,6 +452,7 @@ cache_artifacts() {
   cache_home_directory ".emacs.d" "emacs cache"
   cache_home_directory ".m2" "maven dependencies"
   cache_home_directory ".boot" "boot dependencies"
+  cache_home_directory ".composer" "composer dependencies"
 
   # cache the version of node installed
   if ! [ -d $NETLIFY_CACHE_DIR/node_version/$NODE_VERSION ]

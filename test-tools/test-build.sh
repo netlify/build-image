@@ -15,6 +15,7 @@ set -e
 : ${YARN_VERSION="1.3.2"}
 : ${NPM_VERSION=""}
 : ${HUGO_VERSION="0.20"}
+: ${PHP_VERSION="5.6"}
 
 REPO_URL=$1
 
@@ -44,6 +45,7 @@ docker run --rm \
 	-e "YARN_VERSION=$YARN_VERSION" \
 	-e "NPM_VERSION=$NPM_VERSION" \
 	-e "HUGO_VERSION=$HUGO_VERSION" \
+	-e "PHP_VERSION=$PHP_VERSION" \
 	-v $PWD/$T/scripts:/opt/buildhome/scripts \
 	-v $PWD/$T/repo:/opt/buildhome/repo \
 	-v $PWD/$T/cache:/opt/buildhome/cache \

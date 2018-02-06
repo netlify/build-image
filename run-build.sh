@@ -28,9 +28,10 @@ cd $NETLIFY_REPO_DIR
 : ${NODE_VERSION="8"}
 : ${RUBY_VERSION="2.3.6"}
 : ${YARN_VERSION="1.3.2"}
+: ${PHP_VERSION="5.6"}
 
-echo "Installing dependencies: node=$NODE_VERSION ruby=$RUBY_VERSION yarn=$YARN_VERSION"
-install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION
+echo "Installing dependencies: node=$NODE_VERSION ruby=$RUBY_VERSION yarn=$YARN_VERSION php=$PHP_VERSION"
+install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION
 
 echo "Installing missing commands"
 install_missing_commands

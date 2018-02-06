@@ -37,9 +37,9 @@ RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkh
     wkhtmltopdf -V
 
 RUN curl -sSOL https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh && \
-	bash script.deb.sh && \
-	rm script.deb.sh && \
-	apt-get install -y git-lfs
+    bash script.deb.sh && \
+    rm script.deb.sh && \
+    apt-get install -y git-lfs
 
 RUN wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz && \
     tar -xf Python-3.5.2.tar.xz && \

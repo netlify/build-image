@@ -310,8 +310,8 @@ install_dependencies() {
   then
     if [ -d $NETLIFY_CACHE_DIR/node_modules ]
     then
-        rm -rf $NETLIFY_REPO_DIR/node_modules
-        mv $NETLIFY_CACHE_DIR/node_modules $NETLIFY_REPO_DIR/node_modules
+      rm -rf $NETLIFY_REPO_DIR/node_modules
+      mv $NETLIFY_CACHE_DIR/node_modules $NETLIFY_REPO_DIR/node_modules
     fi
 
     if [ -f yarn.lock ]
@@ -333,15 +333,15 @@ install_dependencies() {
     if [ -d $NETLIFY_CACHE_DIR/bower_components ]
     then
       rm -rf $NETLIFY_REPO_DIR/bower_components
-        mv $NETLIFY_CACHE_DIR/bower_components $NETLIFY_REPO_DIR/bower_components
-      fi
+      mv $NETLIFY_CACHE_DIR/bower_components $NETLIFY_REPO_DIR/bower_components
+    fi
 
-      echo "Installing bower components"
+    echo "Installing bower components"
     if bower install --config.interactive=false
     then
       echo "Bower components installed"
     else
-        echo "Error installing bower components"
+      echo "Error installing bower components"
       exit 1
     fi
   fi

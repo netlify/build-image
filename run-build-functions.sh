@@ -13,12 +13,17 @@ export RVM_DIR="$HOME/.rvm"
 YELLOW=`tput setaf 3`
 NC=`tput sgr0` # No Color
 
+# language versions
 mkdir -p $NETLIFY_CACHE_DIR/node_version
-mkdir -p $NETLIFY_CACHE_DIR/node_modules
-mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
 mkdir -p $NETLIFY_CACHE_DIR/ruby_version
+
+# pwd caches
+mkdir -p $NETLIFY_CACHE_DIR/node_modules
 mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
+
+# HOME caches
+mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
 mkdir -p $NETLIFY_CACHE_DIR/.cache
 mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.emacs.d
@@ -49,11 +54,7 @@ run_yarn() {
   then
     export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
   fi
-  if [ -d $NETLIFY_CACHE_DIR/.yarn_cache ]
-  then
-    rm -rf $NETLIFY_BUILD_BASE/.yarn_cache
-    mv $NETLIFY_CACHE_DIR/.yarn_cache $NETLIFY_BUILD_BASE/.yarn_cache
-  fi
+  restore_home_cache ".yarn_cache" "yarn cache"
 
   if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]
   then
@@ -159,8 +160,10 @@ install_dependencies() {
   # restore only non-existing cached versions
   if [ $(ls $NETLIFY_CACHE_DIR/node_version/) ]
   then
+    echo "Started restoring cached node version"
     rm -rf $NVM_DIR/versions/node/*
     cp -p -r $NETLIFY_CACHE_DIR/node_version/* $NVM_DIR/versions/node/
+    echo "Finished restoring cached node version"
   fi
 
   if [ -f .nvmrc ]
@@ -219,8 +222,10 @@ install_dependencies() {
   local fulldruby="ruby-${druby}"
   if [ -d $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} ]
   then
+    echo "Started restoring cached ruby version"
     rm -rf $RVM_DIR/rubies/${fulldruby}
     cp -p -r $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} $RVM_DIR/rubies/
+    echo "Finished restoring cached ruby version"
   fi
 
   rvm --create use ${druby} > /dev/null 2>&1
@@ -262,12 +267,7 @@ install_dependencies() {
   # Rubygems
   if [ -f Gemfile ]
   then
-    # Make sure no existing .bundle/config is around
-    rm -rf .bundle
-    if [ -d $NETLIFY_CACHE_DIR/.bundle ];
-    then
-      mv $NETLIFY_CACHE_DIR/.bundle .bundle
-    fi
+    restore_cwd_cache ".bundle" "ruby gems"
     if install_deps Gemfile.lock $RUBY_VERSION $NETLIFY_CACHE_DIR/gemfile-sha || [ ! -d .bundle ]
     then
       echo "Installing gem bundle"
@@ -289,11 +289,7 @@ install_dependencies() {
   if [ -f requirements.txt ]
   then
     echo "Installing pip dependencies"
-    if [ -d $NETLIFY_CACHE_DIR/.cache ]
-    then
-      rm -rf $NETLIFY_BUILD_BASE/.cache
-      mv $NETLIFY_CACHE_DIR/.cache $NETLIFY_BUILD_BASE/.cache
-    fi
+    restore_home_cache ".cache" "pip cache"
     if pip install -r requirements.txt
     then
       echo "Pip dependencies installed"
@@ -308,12 +304,7 @@ install_dependencies() {
 
   if [ -f package.json ]
   then
-    if [ -d $NETLIFY_CACHE_DIR/node_modules ]
-    then
-      rm -rf $NETLIFY_REPO_DIR/node_modules
-      mv $NETLIFY_CACHE_DIR/node_modules $NETLIFY_REPO_DIR/node_modules
-    fi
-
+    restore_cwd_cache node_modules "node modules"
     if [ -f yarn.lock ]
     then
       run_yarn $YARN_VERSION
@@ -330,12 +321,7 @@ install_dependencies() {
       npm install bower
       export PATH=$(npm bin):$PATH
     fi
-    if [ -d $NETLIFY_CACHE_DIR/bower_components ]
-    then
-      rm -rf $NETLIFY_REPO_DIR/bower_components
-      mv $NETLIFY_CACHE_DIR/bower_components $NETLIFY_REPO_DIR/bower_components
-    fi
-
+    restore_cwd_cache bower_components "bower components"
     echo "Installing bower components"
     if bower install --config.interactive=false
     then
@@ -349,11 +335,7 @@ install_dependencies() {
   # Leiningen
   if [ -f project.clj ]
   then
-    if [ -d $NETLIFY_CACHE_DIR/.m2 ]
-    then
-      rm -rf $NETLIFY_BUILD_BASE/.m2
-      mv $NETLIFY_CACHE_DIR/.m2 $NETLIFY_BUILD_BASE/.m2
-    fi
+    restore_home_cache ".m2" "maven dependencies"
     if install_deps project.clj $JAVA_VERSION $NETLIFY_CACHE_DIR/project-clj-sha
     then
       echo "Installing Leiningen dependencies"
@@ -373,16 +355,8 @@ install_dependencies() {
   # Boot
   if [ -f build.boot ]
   then
-    if [ -d $NETLIFY_CACHE_DIR/.m2 ]
-    then
-      rm -rf $NETLIFY_BUILD_BASE/.m2
-      mv $NETLIFY_CACHE_DIR/.m2 $NETLIFY_BUILD_BASE/.m2
-    fi
-    if [ -d $NETLIFY_CACHE_DIR/.boot ]
-    then
-      rm -rf $NETLIFY_BUILD_BASE/.boot
-      mv $NETLIFY_CACHE_DIR/.boot $NETLIFY_BUILD_BASE/.boot
-    fi
+    restore_home_cache ".m2" "maven dependencies"
+    restore_home_cache ".boot" "boot dependencies"
     if install_deps build.boot $JAVA_VERSION $NETLIFY_CACHE_DIR/project-boot-sha
     then
       echo "Installing Boot dependencies"
@@ -430,22 +404,12 @@ install_dependencies() {
   # Cask
   if [ -f Cask ]
   then
-    if [ -d $NETLIFY_CACHE_DIR/.cask ]
-    then
-      rm -rf $NETLIFY_BUILD_BASE/.cask
-      mv $NETLIFY_CACHE_DIR/.cask $NETLIFY_BUILD_BASE/.cask
-    fi
-
-    if [ -d $NETLIFY_CACHE_DIR/.emacs.d ]
-    then
-      rm -rf $NETLIFY_BUILD_BASE/.emacs.d
-      mv $NETLIFY_CACHE_DIR/.emacs.d $NETLIFY_BUILD_BASE/.emacs.d
-    fi
-
+    restore_home_cache ".cask" "emacs cask dependencies"
+    restore_home_cache ".emacs.d" "emacs cache"
     if cask install
     then
       echo "Emacs packages installed"
-    fi
+      fi
   fi
 }
 
@@ -453,40 +417,16 @@ install_dependencies() {
 # Take things installed during the build and cache them
 #
 cache_artifacts() {
-  if [ -d .bundle ]
-  then
-    rm -rf $NETLIFY_CACHE_DIR/.bundle
-    mv .bundle $NETLIFY_CACHE_DIR/.bundle
-    echo "Cached ruby gems"
-  fi
+  cache_cwd_directory ".bundle" "ruby gems"
+  cache_cwd_directory "bower_components" "bower components"
+  cache_cwd_directory "node_modules" "node modules"
 
-  if [ -d bower_components ]
-  then
-    rm -rf $NETLIFY_CACHE_DIR/bower_components
-    mv bower_components $NETLIFY_CACHE_DIR/bower_components
-    echo "Cached bower components"
-  fi
-
-  if [ -d node_modules ]
-  then
-    rm -rf $NETLIFY_CACHE_DIR/node_modules
-    mv node_modules $NETLIFY_CACHE_DIR/node_modules
-    echo "Cached NPM modules"
-  fi
-
-  if [ -d $NETLIFY_BUILD_BASE/.yarn_cache ]
-  then
-    rm -rf $NETLIFY_CACHE_DIR/.yarn_cache
-    mv $NETLIFY_BUILD_BASE/.yarn_cache $NETLIFY_CACHE_DIR/.yarn_cache
-    echo "Saved Yarn cache"
-  fi
-
-  if [ -d $NETLIFY_BUILD_BASE/.cache ]
-  then
-    rm -rf $NETLIFY_CACHE_DIR/.cache
-    mv $NETLIFY_BUILD_BASE/.cache $NETLIFY_CACHE_DIR/.cache
-    echo "Saved pip cache Directory"
-  fi
+  cache_home_directory ".yarn_cache" "yarn cache"
+  cache_home_directory ".cache" "pip cache"
+  cache_home_directory ".cask" "emacs cask dependencies"
+  cache_home_directory ".emacs.d" "emacs cache"
+  cache_home_directory ".m2" "maven dependencies"
+  cache_home_directory ".boot" "boot dependencies"
 
   # cache the version of node installed
   if ! [ -d $NETLIFY_CACHE_DIR/node_version/$NODE_VERSION ]
@@ -510,33 +450,34 @@ cache_artifacts() {
   else
     rm -rf $NETLIFY_CACHE_DIR/ruby_version
   fi
+}
 
-  if [ -d .cask ]
+move_cache() {
+  local src=$1
+  local dst=$2
+  if [ -d $src ]
   then
-    mv $NETLIFY_BUILD_BASE/.cask $NETLIFY_CACHE_DIR/.cask
-    echo "Cached Emacs Cask dependencies"
+    echo "Started $3"
+    rm -rf $dst
+    mv $src $dst
+    echo "Finished $3"
   fi
+}
 
-  if [ -d $NETLIFY_BUILD_BASE/.emacs.d ]
-  then
-    rm -rf $NETLIFY_CACHE_DIR/.emacs.d
-    mv $NETLIFY_BUILD_BASE/.emacs.d $NETLIFY_CACHE_DIR/.emacs.d
-    echo "Saved Emacs cache"
-  fi
+restore_home_cache() {
+  move_cache "$NETLIFY_CACHE_DIR/$1" "$HOME/$1" "restoring cached $2"
+}
 
-  if [ -d $NETLIFY_BUILD_BASE/.m2 ]
-  then
-    rm -rf $NETLIFY_CACHE_DIR/.m2
-    mv $NETLIFY_BUILD_BASE/.m2 $NETLIFY_CACHE_DIR/.m2
-    echo "Cached Maven dependencies"
-  fi
+cache_home_directory() {
+  move_cache "$HOME/$1" "$NETLIFY_CACHE_DIR/$1" "saving $2"
+}
 
-  if [ -d $NETLIFY_BUILD_BASE/.boot ]
-  then
-    rm -rf $NETLIFY_CACHE_DIR/.boot
-    mv $NETLIFY_BUILD_BASE/.boot $NETLIFY_CACHE_DIR/.boot
-    echo "Cached Boot dependencies"
-  fi
+restore_cwd_cache() {
+  move_cache "$NETLIFY_CACHE_DIR/$1" "$PWD/$1" "restoring cached $2"
+}
+
+cache_cwd_directory() {
+  move_cache "$PWD/$1" "$NETLIFY_CACHE_DIR/$1" "saving $2"
 }
 
 install_missing_commands() {

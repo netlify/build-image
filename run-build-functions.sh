@@ -203,10 +203,10 @@ install_dependencies() {
   fi
 
   # Ruby version
+  local tmprv="${RUBY_VERSION:=$defaultRubyVersion}"
   source $HOME/.rvm/scripts/rvm
   # rvm will overwrite RUBY_VERSION, so we must control it
-  RUBY_VERSION="$defaultRubyVersion"
-  export RUBY_VERSION
+  export RUBY_VERSION=$tmprv
 
   local druby=$RUBY_VERSION
   if [ -f .ruby-version ]

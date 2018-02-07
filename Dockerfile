@@ -133,6 +133,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         python3-dev \
         software-properties-common \
         sqlite3 \
+        ssh \
         strace \
         swig \
         unzip \

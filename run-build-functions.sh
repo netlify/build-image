@@ -10,8 +10,8 @@ fi
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
 
-YELLOW=`tput setaf 3`
-NC=`tput sgr0` # No Color
+YELLOW="\033[0;33m"
+NC="\033[0m" # No Color
 
 # language versions
 mkdir -p $NETLIFY_CACHE_DIR/node_version
@@ -238,10 +238,10 @@ install_dependencies() {
     echo "Using ruby version ${RUBY_VERSION}"
   else
     echo -e "${YELLOW}"
-    echo -e "** WARNING **"
-    echo -e "Using custom ruby version ${druby}, this will slow down the build."
-    echo -e "To ensure fast builds, set the RUBY_VERSION environment variable, or .ruby-version file, to an included ruby version."
-    echo -e "Included versions: ${rvs[@]#ruby-}"
+    echo "** WARNING **"
+    echo "Using custom ruby version ${druby}, this will slow down the build."
+    echo "To ensure fast builds, set the RUBY_VERSION environment variable, or .ruby-version file, to an included ruby version."
+    echo "Included versions: ${rvs[@]#ruby-}"
     echo -e "${NC}"
     if rvm_install_on_use_flag=1 rvm --create use ${druby}
     then

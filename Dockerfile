@@ -137,6 +137,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         strace \
         swig \
         unzip \
+        webp \
         wget \
         xvfb \
         zip \

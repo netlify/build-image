@@ -8,6 +8,10 @@ MAINTAINER Netlify
 #
 ################################################################################
 
+ENV LANGUAGE en_US:en	
+ENV LANG en_US.UTF-8	
+ENV LC_ALL en_US.UTF-8
+
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y update && \
@@ -17,9 +21,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
-    export LANG=en_US.UTF-8 && \
-    export LANGUAGE=en_US.UTF-8 && \
-    export LC_ALL=en_US.UTF-8 && \
     apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \ 
     apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main' && \
     add-apt-repository -y ppa:ondrej/php && \

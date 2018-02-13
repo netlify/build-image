@@ -85,7 +85,7 @@ run_yarn() {
   # This removes the flag from the end of the string.
   yarn_local="${yarn_local%--cache-folder *}"
 
-  if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache "$yarn_local"
+  if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
   then
     echo "NPM modules installed using Yarn"
   else
@@ -122,7 +122,7 @@ run_npm() {
   then
     echo "Installing NPM modules using NPM version $(npm --version)"
     run_npm_set_temp
-    if npm install "$NPM_FLAGS"; then
+    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}; then
       echo "NPM modules installed"
     else
       echo "Error during NPM install"
@@ -289,7 +289,7 @@ install_dependencies() {
     if install_deps Gemfile.lock $RUBY_VERSION $NETLIFY_CACHE_DIR/gemfile-sha || [ ! -d .bundle ]
     then
       echo "Installing gem bundle"
-      if bundle install --path $NETLIFY_CACHE_DIR/bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs "$BUNDLER_FLAGS"
+      if bundle install --path $NETLIFY_CACHE_DIR/bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs ${BUNDLER_FLAGS:+"$BUNDLER_FLAGS"}
       then
       export PATH=$NETLIFY_CACHE_DIR/binstubs:$PATH
         echo "Gem bundle installed"

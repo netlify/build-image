@@ -378,6 +378,6 @@ USER root
 # Add buildscript for local testing
 ADD run-build-functions.sh /usr/local/bin/run-build-functions.sh
 ADD run-build.sh /usr/local/bin/build
-ADD buildbot-git-config /opt/buildhome/.gitconfig
+ADD buildbot-git-config /root/.gitconfig
 
 USER buildbot

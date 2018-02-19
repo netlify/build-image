@@ -126,7 +126,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         optipng \
         pandoc \
         php5.6 \
+        php5.6-xml \
         php7.2 \
+        php7.2-xml \
         pngcrush \
         python-setuptools \
         python2.7-dev \

@@ -134,6 +134,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         python2.7-dev \
         python3 \
         python3-dev \
+        rsync \
         software-properties-common \
         sqlite3 \
         ssh \

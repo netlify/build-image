@@ -27,6 +27,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:rwky/graphicsmagick && \
+    add-apt-repository -y ppa:kelleyk/emacs && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -38,6 +39,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         bzr \
         cmake \
         curl \
+        emacs25-nox \
         fontconfig \
         fontconfig-config \
         g++ \
@@ -349,19 +351,9 @@ ENV PATH "/opt/buildhome/.php:$PATH"
 
 ################################################################################
 #
-# Emacs and Cask
+# Cask
 #
 ################################################################################
-USER root
-ENV EMACS_VERSION 25.3
-RUN wget -nv http://ftpmirror.gnu.org/emacs/emacs-${EMACS_VERSION}.tar.gz && \
-    tar -xf emacs-${EMACS_VERSION}.tar.gz && \
-    cd emacs-${EMACS_VERSION} && \
-    env CANNOT_DUMP=yes ./configure --without-x && \
-    make install && \
-    make clean && \
-    cd .. && rm -rf emacs-${EMACS_VERSION} emacs-${EMACS_VERSION}.tar.gz
-
 USER buildbot
 RUN rm -rf /opt/buildhome/.cask && git clone https://github.com/cask/cask.git /opt/buildhome/.cask
 ENV PATH "$PATH:/opt/buildhome/.cask/bin"

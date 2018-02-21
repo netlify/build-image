@@ -3,6 +3,18 @@ pipeline {
 
   stages {
     stage("Build") {
+      when {
+        not { branch 'master' }
+      }
+      steps {
+        sh "docker build ."
+      }
+    }
+
+    stage("Build Tagged") {
+      when {
+        branch 'master'
+      }
       steps {
         sh "docker build -t netlify/build:latest ."
         sh "docker build --squash -t netlify/build:squash ."

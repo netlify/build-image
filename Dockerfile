@@ -27,6 +27,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:rwky/graphicsmagick && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
     add-apt-repository -y ppa:kelleyk/emacs && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
@@ -136,6 +137,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         python2.7-dev \
         python3 \
         python3-dev \
+        python3.5 \
+        python3.6 \
         rsync \
         software-properties-common \
         sqlite3 \
@@ -158,26 +161,6 @@ RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4
     cd wkhtmltox && \
     cp -r ./ /usr/ && \
     wkhtmltopdf -V
-
-RUN wget -nv https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz && \
-    tar -xf Python-3.5.2.tar.xz && \
-    cd Python-3.5.2 && \
-    ./configure && \
-    make && \
-    make install && \
-    ln -fs /opt/Python-3.5.2/Python /usr/bin/python3.5 && \
-    cd .. && \
-    rm -r Python-3.5.2.tar.xz Python-3.5.2
-
-RUN wget -nv https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz && \
-    tar -xf Python-3.6.2.tar.xz && \
-    cd Python-3.6.2 && \
-    ./configure && \
-    make && \
-    make install && \
-    ln -fs /opt/Python-3.6.2/Python /usr/bin/python3.6 && \
-    cd .. && \
-    rm -r Python-3.6.2.tar.xz Python-3.6.2
 
 ################################################################################
 #
@@ -271,7 +254,7 @@ USER buildbot
 
 RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.4
+    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.5
 
 RUN virtualenv -p python3.4 --no-site-packages /opt/buildhome/python3.4 && \
     /bin/bash -c 'source /opt/buildhome/python3.4/bin/activate' && \
@@ -279,11 +262,11 @@ RUN virtualenv -p python3.4 --no-site-packages /opt/buildhome/python3.4 && \
 
 RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
     /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.2
+    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.5
 
 RUN virtualenv -p python3.6 --no-site-packages /opt/buildhome/python3.6 && \
     /bin/bash -c 'source /opt/buildhome/python3.6/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.6 /opt/buildhome/python3.6.2
+    ln -nfs /opt/buildhome/python3.6 /opt/buildhome/python3.6.4
 
 USER root
 

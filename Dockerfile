@@ -130,8 +130,10 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         pandoc \
         php5.6 \
         php5.6-xml \
+        php5.6-mbstring \
         php7.2 \
         php7.2-xml \
+        php7.2-mbstring \
         pngcrush \
         python-setuptools \
         python2.7-dev \

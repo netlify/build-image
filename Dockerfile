@@ -125,6 +125,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libxtst6 \
         libyaml-dev \
         mercurial \
+        nasm \
         openjdk-8-jdk \
         optipng \
         pandoc \

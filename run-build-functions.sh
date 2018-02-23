@@ -143,13 +143,14 @@ install_dependencies() {
   # Python Version
   if [ -f runtime.txt ]
   then
-    if source $HOME/python$(cat runtime.txt)/bin/activate
+    PYTHON_VERSION=$(cat runtime.txt)
+    if source $HOME/python/${PYTHON_VERSION}/bin/activate
     then
-      echo "Python version set to $(cat runtime.txt)"
+      echo "Python version set to ${PYTHON_VERSION}"
     else
       echo "Error setting python version from runtime.txt"
-      echo "Will use default version (2.7)"
-      source $HOME/python2.7/bin/activate
+      echo "Please check to ensure ${PYTHON_VERSION} is included."
+      exit 1
     fi
   else
     source $HOME/python2.7/bin/activate

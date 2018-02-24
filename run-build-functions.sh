@@ -149,7 +149,7 @@ install_dependencies() {
       echo "Python version set to ${PYTHON_VERSION}"
     else
       echo "Error setting python version from runtime.txt"
-      echo "Please see https://www.netlify.com/docs/build-settings for current versions"
+      echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
       exit 1
     fi
   else

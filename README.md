@@ -4,19 +4,79 @@ This repository contains the tools to make the build image Netlify uses to build
 
 You can also use the image this generates to test locally if you're having build issues.
 
+## Included Software
+
+### Languages
+
+The specific patch versions included will depend on when the image was last built (except Ruby). It is highly suggested you depend only on minor versions, so that we can ensure the language has the latest updates (especially if security related).
+
+* Ruby - `RUBY_VERSION`, `.ruby-version`
+  * 2.2.9
+  * 2.3.6 (default)
+  * 2.4.3
+  * Any version that `rvm` can install.
+* Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
+  * 4
+  * 6
+  * 8 (default)
+  * Any version that `nvm` can install.
+* Python - `runtime.txt`
+  * 2.7 (default)
+  * 3.4
+  * 3.5
+  * 3.6
+* PHP - `PHP_VERSION`
+  * 5.6 (default)
+  * 7.2
+* Java
+  * 8 (default)
+* Emacs
+  * 25 (default)
+
+### Tools
+
+* Node.js
+  * Yarn - `YARN_VERSION`
+    * 1.3.2 (default)
+    * Any version available via their installer.
+  * NPM - `NPM_VERSION`
+    * Version corresponding with Node.js version. (default)
+    * Any version available via NPM.
+  * bower
+* Python
+  * pip
+    * Version corresponding with Python version. (default)
+* PHP
+  * Composer
+* Emacs
+  * Cask
+* Clojure
+  * Leiningen
+    * stable
+  * Boot
+    * 2.5.2
+* Hugo - `HUGO_VERSION`
+  * 0.17 (default)
+  * 0.18
+  * 0.19
+  * 0.20
+  * Any version installable via `binrc`.
+* Gutenburg - `GUTENBERG_VERSION`
+  * Any version installable via `binrc`.
+
 ## Testing locally
 
-The image takes a long time to build.  You can instead:
+The image takes a long time to build. You can instead:
 
 ```
 docker pull netlify/build
 ```
 
-to get the latest version we've published, pre-built for your testing pleasure.  To use it, these steps are recommended:
+to get the latest version we've published, pre-built for your testing pleasure. To use it, these steps are recommended:
 
-1. Clone your repo into a local directory.  If you are working from a local copy with changes, commit those changes, and be sure you are on the branch with those changes, otherwise we will ignore them during the build.
+1. Clone your repo into a local directory. If you are working from a local copy with changes, commit those changes, and be sure you are on the branch with those changes, otherwise we will ignore them during the build.
 2. Using our tool from the base of a checkout of our build-image repository, Run the image in interactive mode, mounting your repository as a volume: `./test-tools/start-image.sh path/to/my/repo`
-3. Within the container, use our 'build' script to simulate your build in our environment, using your own build command:  `build jekyll build` (Replace `jekyll build` with your build command of choice.)
+3. Within the container, use our 'build' script to simulate your build in our environment, using your own build command: `build jekyll build` (Replace `jekyll build` with your build command of choice.)
 
 ## Testing locally with cache
 

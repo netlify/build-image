@@ -141,7 +141,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         python3 \
         python3-dev \
         python3.5 \
+        python3.5-dev \
         python3.6 \
+        python3.6-dev \
         rsync \
         software-properties-common \
         sqlite3 \

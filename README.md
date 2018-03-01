@@ -74,9 +74,15 @@ docker pull netlify/build
 
 to get the latest version we've published, pre-built for your testing pleasure. To use it, these steps are recommended:
 
-1. Clone your repo into a local directory. If you are working from a local copy with changes, commit those changes, and be sure you are on the branch with those changes, otherwise we will ignore them during the build.
+1. Clone your repo into a local directory. If you are working from a local copy with changes, commit those changes (no need to push to a git provider, just commit), and be sure you are on the branch with those changes, otherwise we will ignore them during the build.
 2. Using our tool from the base of a checkout of our build-image repository, Run the image in interactive mode, mounting your repository as a volume: `./test-tools/start-image.sh path/to/my/repo`
 3. Within the container, use our 'build' script to simulate your build in our environment, using your own build command: `build jekyll build` (Replace `jekyll build` with your build command of choice.)
+
+Note that local testing will not incorporate your Build Environment Variables from our UI or any settings from netlify.toml.  You will need to "apply" the correct settings and build command manually, for instance:
+
+```
+export NODE_VERSION=6 NODE_ENV=production ; build npm run build
+```
 
 ## Testing locally with cache
 

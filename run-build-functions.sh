@@ -452,16 +452,24 @@ install_dependencies() {
     local goVersion=$(cat .go-version)
     if [ "$installGoVersion" != "$goVersion" ]
     then
-	installGoVersion="$goVersion"
+      installGoVersion="$goVersion"
     fi
   fi
 
   if [ "$GIMME_GO_VERSION" != "$installGoVersion" ]
   then
-    echo "Installing Go version $goVersion"
-    eval "$(GIMME_ENV_PREFIX=$HOME/.gimme_cache/env GIMME_VERSION_PREFIX=$HOME/.gimme_cache/versions gimme $goVersion)"
+    echo "Installing Go version $installGoVersion"
+    GIMME_ENV_PREFIX=$HOME/.gimme_cache/env GIMME_VERSION_PREFIX=$HOME/.gimme_cache/versions gimme $installGoVersion
+    if [ $? -eq 0 ]
+    then
+      source $HOME/.gimme_cache/env/go$installGoVersion.linux.amd64.env
+    else
+      echo "Failed to install Go version '$isntallGoVersion'"
+      exit 1
+    fi
   else
-    eval "$(gimme)"
+    gimme
+    source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
   fi
 
   # Setup project GOPATH
@@ -496,7 +504,7 @@ cache_artifacts() {
   then
     unlink $GOPATH/src/$GO_IMPORT_PATH
   fi
-  cache_home_directory ".gimme_cache" "composer dependencies"
+  cache_home_directory ".gimme_cache" "go dependencies"
 
   # cache the version of node installed
   if ! [ -d $NETLIFY_CACHE_DIR/node_version/$NODE_VERSION ]

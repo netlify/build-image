@@ -464,12 +464,18 @@ install_dependencies() {
     then
       source $HOME/.gimme_cache/env/go$installGoVersion.linux.amd64.env
     else
-      echo "Failed to install Go version '$isntallGoVersion'"
+      echo "Failed to install Go version '$installGoVersion'"
       exit 1
     fi
   else
     gimme
-    source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
+    if [ $? -eq 0 ]
+    then
+      source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
+    else
+      echo "Failed to install Go version '$GIMME_GO_VERSION'"
+      exit 1
+    fi
   fi
 
   # Setup project GOPATH

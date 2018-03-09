@@ -7,6 +7,10 @@ then
   set -x
 fi
 
+export GIMME_TYPE=binary
+export GIMME_NO_ENV_ALIAS=true
+export GIMME_CGO_ENABLED=true
+
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
 
@@ -30,6 +34,8 @@ mkdir -p $NETLIFY_CACHE_DIR/.emacs.d
 mkdir -p $NETLIFY_CACHE_DIR/.m2
 mkdir -p $NETLIFY_CACHE_DIR/.boot
 mkdir -p $NETLIFY_CACHE_DIR/.composer
+mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gopath
+mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gocache
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
@@ -139,6 +145,7 @@ install_dependencies() {
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
   local defaultPHPVersion=$4
+  local installGoVersion=$5
 
   # Python Version
   if [ -f runtime.txt ]
@@ -437,6 +444,47 @@ install_dependencies() {
     restore_home_cache ".composer" "composer dependencies"
     composer install
   fi
+
+  # Go version
+  restore_home_cache ".gimme_cache" "go cache"
+  if [ -f .go-version ]
+  then
+    local goVersion=$(cat .go-version)
+    if [ "$installGoVersion" != "$goVersion" ]
+    then
+      installGoVersion="$goVersion"
+    fi
+  fi
+
+  if [ "$GIMME_GO_VERSION" != "$installGoVersion" ]
+  then
+    echo "Installing Go version $installGoVersion"
+    GIMME_ENV_PREFIX=$HOME/.gimme_cache/env GIMME_VERSION_PREFIX=$HOME/.gimme_cache/versions gimme $installGoVersion
+    if [ $? -eq 0 ]
+    then
+      source $HOME/.gimme_cache/env/go$installGoVersion.linux.amd64.env
+    else
+      echo "Failed to install Go version '$installGoVersion'"
+      exit 1
+    fi
+  else
+    gimme
+    if [ $? -eq 0 ]
+    then
+      source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
+    else
+      echo "Failed to install Go version '$GIMME_GO_VERSION'"
+      exit 1
+    fi
+  fi
+
+  # Setup project GOPATH
+  if [ -n "$GO_IMPORT_PATH" ]
+  then
+    mkdir -p "$(dirname $GOPATH/src/$GO_IMPORT_PATH)"
+    rm -rf $GOPATH/src/$GO_IMPORT_PATH
+    ln -s /opt/buildhome/repo ${GOPATH}/src/$GO_IMPORT_PATH
+  fi
 }
 
 #
@@ -454,6 +502,15 @@ cache_artifacts() {
   cache_home_directory ".m2" "maven dependencies"
   cache_home_directory ".boot" "boot dependencies"
   cache_home_directory ".composer" "composer dependencies"
+
+
+  # Don't follow the Go import path or we'll store
+  # the origin repo twice.
+  if [ -n "$GO_IMPORT_PATH" ]
+  then
+    unlink $GOPATH/src/$GO_IMPORT_PATH
+  fi
+  cache_home_directory ".gimme_cache" "go dependencies"
 
   # cache the version of node installed
   if ! [ -d $NETLIFY_CACHE_DIR/node_version/$NODE_VERSION ]
@@ -515,5 +572,12 @@ install_missing_commands() {
       npm install grunt-cli
       export PATH=$(npm bin):$PATH
     fi
+  fi
+}
+
+verify_run_dir() {
+  if [ -n "$GO_IMPORT_PATH" ]
+  then
+    echo "$GOPATH/src/$GO_IMPORT_PATH"
   fi
 }

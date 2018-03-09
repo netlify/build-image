@@ -29,12 +29,20 @@ cd $NETLIFY_REPO_DIR
 : ${RUBY_VERSION="2.3.6"}
 : ${YARN_VERSION="1.3.2"}
 : ${PHP_VERSION="5.6"}
+: ${GO_VERSION="1.10"}
 
-echo "Installing dependencies: node=$NODE_VERSION ruby=$RUBY_VERSION yarn=$YARN_VERSION php=$PHP_VERSION"
-install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION
+echo "Installing dependencies: node=$NODE_VERSION ruby=$RUBY_VERSION yarn=$YARN_VERSION php=$PHP_VERSION go=$GO_VERSION"
+install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION $GO_VERSION
 
 echo "Installing missing commands"
 install_missing_commands
+
+echo "Verify run directory"
+run_dir=`verify_run_dir`
+if [ "$run_dir" != "" ]
+then
+  cd $run_dir
+fi
 
 echo "Executing user command: $cmd"
 $cmd

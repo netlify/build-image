@@ -358,6 +358,24 @@ RUN curl -sL https://github.com/lz4/lz4/archive/v${LZ4_VERSION}.tar.gz | tar xzv
     make install && \
     cd .. && rm -rf lz4-${LZ4_VERSION}
 
+################################################################################
+#
+# Go
+#
+################################################################################
+USER buildbot
+RUN mkdir -p /opt/buildhome/.gimme/bin/ && \
+    mkdir -p /opt/buildhome/.gimme/env/ && \
+    curl -sL -o /opt/buildhome/.gimme/bin/gimme https://raw.githubusercontent.com/travis-ci/gimme/master/gimme && \
+    chmod u+x /opt/buildhome/.gimme/bin/gimme
+ENV PATH "$PATH:/opt/buildhome/.gimme/bin"
+ENV GOPATH "/opt/buildhome/.gimme_cache/gopath"
+ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
+# Install the default version
+ENV GIMME_GO_VERSION "1.10"
+ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
+RUN gimme
+
 # Cleanup
 USER root
 

@@ -8,14 +8,21 @@
 # Example with previous cached build:
 #	T=/tmp/cache script/test-build.sh ../netlify-cms 'npm run build'
 
+if [ $NETLIFY_VERBOSE ]
+then
+  set -x
+fi
+
 set -e
 
+: ${NETLIFY_IMAGE="netlify/build"}
 : ${NODE_VERSION="8"}
 : ${RUBY_VERSION="2.3.6"}
 : ${YARN_VERSION="1.3.2"}
 : ${NPM_VERSION=""}
 : ${HUGO_VERSION="0.20"}
 : ${PHP_VERSION="5.6"}
+: ${GO_VERSION="1.10"}
 
 REPO_URL=$1
 
@@ -30,6 +37,7 @@ echo "Using temp dir: $T"
 chmod +w $T
 mkdir -p $T/scripts
 mkdir -p $T/cache
+chmod a+w $T/cache
 
 cp run-build* $T/scripts
 chmod +x $T/scripts/*
@@ -46,9 +54,12 @@ docker run --rm \
 	-e "NPM_VERSION=$NPM_VERSION" \
 	-e "HUGO_VERSION=$HUGO_VERSION" \
 	-e "PHP_VERSION=$PHP_VERSION" \
+	-e "NETLIFY_VERBOSE=$NETLIFY_VERBOSE" \
+	-e "GO_VERSION=$GO_VERSION" \
+	-e "GO_IMPORT_PATH=$GO_IMPORT_PATH" \
 	-v $PWD/$T/scripts:/opt/buildhome/scripts \
 	-v $PWD/$T/repo:/opt/buildhome/repo \
 	-v $PWD/$T/cache:/opt/buildhome/cache \
 	-w /opt/build \
 	-it \
-	netlify/build $SCRIPT
+	$NETLIFY_IMAGE $SCRIPT

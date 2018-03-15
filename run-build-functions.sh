@@ -512,7 +512,7 @@ install_missing_commands() {
   then
     if ! [ $(which grunt) ]
     then
-      npm install grunt-cli
+      npm install grunt-cli grunt
       export PATH=$(npm bin):$PATH
     fi
   fi

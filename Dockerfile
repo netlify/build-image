@@ -41,6 +41,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         cmake \
         curl \
         emacs25-nox \
+        expect \
         fontconfig \
         fontconfig-config \
         g++ \

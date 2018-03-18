@@ -146,6 +146,7 @@ install_dependencies() {
   local defaultYarnVersion=$3
   local defaultPHPVersion=$4
   local installGoVersion=$5
+  local cacheNodeModules=$6
 
   # Python Version
   if [ -f runtime.txt ]
@@ -187,7 +188,7 @@ install_dependencies() {
   fi
 
   if nvm install $NODE_VERSION
-  then 
+  then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us
     export NODE_VERSION=$NODE_VERSION
@@ -261,7 +262,7 @@ install_dependencies() {
       exit 1
     fi
   fi
-  
+
   if ! gem list -i "^bundler$" > /dev/null 2>&1
   then
     if ! gem install bundler
@@ -330,7 +331,11 @@ install_dependencies() {
 
   if [ -f package.json ]
   then
-    restore_cwd_cache node_modules "node modules"
+    if [ "$cacheNodeModules" = true ]
+    then
+      restore_cwd_cache node_modules "node modules"
+    fi
+
     if [ -f yarn.lock ]
     then
       run_yarn $YARN_VERSION
@@ -491,9 +496,15 @@ install_dependencies() {
 # Take things installed during the build and cache them
 #
 cache_artifacts() {
+  local cacheNodeModules=$1
+
   cache_cwd_directory ".bundle" "ruby gems"
   cache_cwd_directory "bower_components" "bower components"
-  cache_cwd_directory "node_modules" "node modules"
+
+  if [ "$cacheNodeModules" = true ]
+  then
+    cache_cwd_directory "node_modules" "node modules"
+  fi
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache" "pip cache"

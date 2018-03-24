@@ -8,8 +8,8 @@ MAINTAINER Netlify
 #
 ################################################################################
 
-ENV LANGUAGE en_US:en	
-ENV LANG en_US.UTF-8	
+ENV LANGUAGE en_US:en
+ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
@@ -21,7 +21,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
-    apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \ 
+    apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
     apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main' && \
     add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
@@ -56,14 +56,17 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         jpegoptim \
         jq \
         language-pack-ar \
+        language-pack-ca \
         language-pack-cs \
         language-pack-da \
         language-pack-de \
         language-pack-el \
         language-pack-es \
+        language-pack-eu \
         language-pack-fi \
         language-pack-fil \
         language-pack-fr \
+        language-pack-gl \
         language-pack-he \
         language-pack-hi \
         language-pack-it \
@@ -288,8 +291,8 @@ RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
     ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
 
-RUN binrc install spf13/hugo 0.17 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.17 && \ 
-    binrc install spf13/hugo 0.18 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.18 && \ 
+RUN binrc install spf13/hugo 0.17 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.17 && \
+    binrc install spf13/hugo 0.18 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.18 && \
     binrc install spf13/hugo 0.19 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.19 && \
     binrc install spf13/hugo 0.20 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.20 && \
     ln -s /usr/local/bin/hugo_0.17 /usr/local/bin/hugo

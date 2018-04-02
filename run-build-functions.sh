@@ -14,6 +14,10 @@ export GIMME_CGO_ENABLED=true
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
 
+# Pipenv configuration
+export PIPENV_RUNTIME=3.6
+export WORKON_HOME=$NETLIFY_CACHE_DIR/.pipenv
+
 YELLOW="\033[0;33m"
 NC="\033[0m" # No Color
 
@@ -159,6 +163,10 @@ install_dependencies() {
       echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
       exit 1
     fi
+  elif [ -f Pipfile ]
+  then
+    echo "Found Pipfile installing Pipenv"
+    $HOME/python$PIPENV_RUNTIME/bin/pip install pipenv
   else
     source $HOME/python2.7/bin/activate
   fi
@@ -321,6 +329,24 @@ install_dependencies() {
       echo "Pip dependencies installed"
     else
       echo "Error installing pip dependencies"
+      exit 1
+    fi
+  elif [ -f Pipfile ]
+  then
+    echo "Installing dependencies from Pipfile"
+    if $HOME/python$PIPENV_RUNTIME/bin/pipenv install
+    then
+      echo "Pipenv dependencies installed"
+      if source $($HOME/python$PIPENV_RUNTIME/bin/pipenv --venv)/bin/activate
+      then
+        echo "Python version set to $(python -V)"
+      else
+        echo "Error activating Pipenv environment"
+        echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
+        exit 1
+      fi
+    else
+      echo "Error installing Pipenv dependencies"
       exit 1
     fi
   fi

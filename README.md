@@ -20,7 +20,7 @@ The specific patch versions included will depend on when the image was last buil
   * 6
   * 8 (default)
   * Any version that `nvm` can install.
-* Python - `runtime.txt`
+* Python - `runtime.txt` or `Pipfile`
   * 2.7 (default)
   * 3.4
   * 3.5
@@ -46,6 +46,8 @@ The specific patch versions included will depend on when the image was last buil
 * Python
   * pip
     * Version corresponding with Python version. (default)
+  * Pipenv
+    * Latest version.
 * PHP
   * Composer
 * Emacs

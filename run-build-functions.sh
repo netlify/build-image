@@ -17,6 +17,7 @@ export RVM_DIR="$HOME/.rvm"
 # Pipenv configuration
 export PIPENV_RUNTIME=3.6
 export WORKON_HOME=$NETLIFY_CACHE_DIR/.pipenv
+export PIPENV_DEFAULT_PYTHON_VERSION=2.7
 
 YELLOW="\033[0;33m"
 NC="\033[0m" # No Color

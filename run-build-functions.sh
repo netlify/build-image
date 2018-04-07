@@ -345,11 +345,11 @@ install_dependencies() {
         echo "Python version set to $(python -V)"
       else
         echo "Error activating Pipenv environment"
-        echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
         exit 1
       fi
     else
       echo "Error installing Pipenv dependencies"
+      echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
       exit 1
     fi
   fi

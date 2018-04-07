@@ -16,7 +16,7 @@ export RVM_DIR="$HOME/.rvm"
 
 # Pipenv configuration
 export PIPENV_RUNTIME=3.6
-export WORKON_HOME=$NETLIFY_CACHE_DIR/.pipenv
+export PIPENV_VENV_IN_PROJECT=1
 export PIPENV_DEFAULT_PYTHON_VERSION=2.7
 
 YELLOW="\033[0;33m"
@@ -30,6 +30,7 @@ mkdir -p $NETLIFY_CACHE_DIR/ruby_version
 mkdir -p $NETLIFY_CACHE_DIR/node_modules
 mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
+mkdir -p $NETLIFY_CACHE_DIR/.venv
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
@@ -167,6 +168,7 @@ install_dependencies() {
   elif [ -f Pipfile ]
   then
     echo "Found Pipfile installing Pipenv"
+    restore_cwd_cache ".venv" "python virtualenv"
     $HOME/python$PIPENV_RUNTIME/bin/pip install pipenv
   else
     source $HOME/python2.7/bin/activate
@@ -521,6 +523,7 @@ cache_artifacts() {
   cache_cwd_directory ".bundle" "ruby gems"
   cache_cwd_directory "bower_components" "bower components"
   cache_cwd_directory "node_modules" "node modules"
+  cache_cwd_directory ".venv" "python virtualenv"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache" "pip cache"

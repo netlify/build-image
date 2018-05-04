@@ -211,10 +211,12 @@ RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys D39DC0E3 && \
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+# about the option of the install ruby 2.5.0, see https://github.com/rvm/rvm/issues/4291
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install 2.2.9 && rvm use 2.2.9 && gem install bundler && \
                   rvm install 2.3.6 && rvm use 2.3.6 && gem install bundler && \
                   rvm install 2.4.3 && rvm use 2.4.3 && gem install bundler && \
+                  rvm install 2.5.0 --disable-binary && rvm use 2.5.0 && gem install bundler && \
                   rvm use 2.3.6 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

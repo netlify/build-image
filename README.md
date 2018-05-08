@@ -63,6 +63,7 @@ The specific patch versions included will depend on when the image was last buil
   * Any version installable via `binrc`.
 * Gutenburg - `GUTENBERG_VERSION`
   * Any version installable via `binrc`.
+* Bazel
 
 ## Testing locally
 

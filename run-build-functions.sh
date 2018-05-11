@@ -167,9 +167,8 @@ install_dependencies() {
     fi
   elif [ -f Pipfile ]
   then
-    echo "Found Pipfile installing Pipenv"
+    echo "Found Pipfile restoring Pipenv virtualenv"
     restore_cwd_cache ".venv" "python virtualenv"
-    $HOME/python$PIPENV_RUNTIME/bin/pip install pipenv
   else
     source $HOME/python2.7/bin/activate
   fi

@@ -15,7 +15,7 @@ export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
 
 # Pipenv configuration
-export PIPENV_RUNTIME=3.6
+export PIPENV_RUNTIME=2.7
 export PIPENV_VENV_IN_PROJECT=1
 export PIPENV_DEFAULT_PYTHON_VERSION=2.7
 

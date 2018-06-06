@@ -7,6 +7,10 @@ then
   set -x
 fi
 
+: ${NETLIFY_BUILD_BASE="/opt/buildhome"}
+NETLIFY_CACHE_DIR="$NETLIFY_BUILD_BASE/cache"
+NETLIFY_REPO_DIR="$NETLIFY_BUILD_BASE/repo"
+
 export GIMME_TYPE=binary
 export GIMME_NO_ENV_ALIAS=true
 export GIMME_CGO_ENABLED=true
@@ -134,7 +138,8 @@ run_npm() {
   then
     echo "Installing NPM modules using NPM version $(npm --version)"
     run_npm_set_temp
-    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}; then
+    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
+    then
       echo "NPM modules installed"
     else
       echo "Error during NPM install"
@@ -157,7 +162,7 @@ install_dependencies() {
   if [ -f runtime.txt ]
   then
     PYTHON_VERSION=$(cat runtime.txt)
-    if source $HOME/python/${PYTHON_VERSION}/bin/activate
+    if source $HOME/python${PYTHON_VERSION}/bin/activate
     then
       echo "Python version set to ${PYTHON_VERSION}"
     else
@@ -604,9 +609,17 @@ install_missing_commands() {
   fi
 }
 
-verify_run_dir() {
+set_go_import_path() {
+  # Setup project GOPATH
   if [ -n "$GO_IMPORT_PATH" ]
   then
-    echo "$GOPATH/src/$GO_IMPORT_PATH"
+    local importPath="$GOPATH/src/$GO_IMPORT_PATH"
+    local dirPath="$(dirname $importPath)"
+
+    rm -rf $dirPath
+    mkdir -p $dirPath
+    ln -s $PWD $importPath
+
+    cd $importPath
   fi
 }

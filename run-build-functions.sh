@@ -14,6 +14,11 @@ export GIMME_CGO_ENABLED=true
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
 
+# Pipenv configuration
+export PIPENV_RUNTIME=2.7
+export PIPENV_VENV_IN_PROJECT=1
+export PIPENV_DEFAULT_PYTHON_VERSION=2.7
+
 YELLOW="\033[0;33m"
 NC="\033[0m" # No Color
 
@@ -25,6 +30,7 @@ mkdir -p $NETLIFY_CACHE_DIR/ruby_version
 mkdir -p $NETLIFY_CACHE_DIR/node_modules
 mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
+mkdir -p $NETLIFY_CACHE_DIR/.venv
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
@@ -159,6 +165,10 @@ install_dependencies() {
       echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
       exit 1
     fi
+  elif [ -f Pipfile ]
+  then
+    echo "Found Pipfile restoring Pipenv virtualenv"
+    restore_cwd_cache ".venv" "python virtualenv"
   else
     source $HOME/python2.7/bin/activate
   fi
@@ -321,6 +331,24 @@ install_dependencies() {
       echo "Pip dependencies installed"
     else
       echo "Error installing pip dependencies"
+      exit 1
+    fi
+  elif [ -f Pipfile ]
+  then
+    echo "Installing dependencies from Pipfile"
+    if $HOME/python$PIPENV_RUNTIME/bin/pipenv install
+    then
+      echo "Pipenv dependencies installed"
+      if source $($HOME/python$PIPENV_RUNTIME/bin/pipenv --venv)/bin/activate
+      then
+        echo "Python version set to $(python -V)"
+      else
+        echo "Error activating Pipenv environment"
+        exit 1
+      fi
+    else
+      echo "Error installing Pipenv dependencies"
+      echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
       exit 1
     fi
   fi
@@ -494,6 +522,7 @@ cache_artifacts() {
   cache_cwd_directory ".bundle" "ruby gems"
   cache_cwd_directory "bower_components" "bower components"
   cache_cwd_directory "node_modules" "node modules"
+  cache_cwd_directory ".venv" "python virtualenv"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache" "pip cache"

@@ -17,7 +17,7 @@ set -e
 
 : ${NETLIFY_IMAGE="netlify/build"}
 : ${NODE_VERSION="8"}
-: ${RUBY_VERSION="2.3.6"}
+: ${RUBY_VERSION="2.3.7"}
 : ${YARN_VERSION="1.3.2"}
 : ${NPM_VERSION=""}
 : ${HUGO_VERSION="0.20"}

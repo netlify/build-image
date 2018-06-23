@@ -19,7 +19,7 @@ fi
 cd $NETLIFY_REPO_DIR
 
 : ${NODE_VERSION="8"}
-: ${RUBY_VERSION="2.3.6"}
+: ${RUBY_VERSION="2.3.7"}
 : ${YARN_VERSION="1.3.2"}
 : ${PHP_VERSION="5.6"}
 : ${GO_VERSION="1.10"}

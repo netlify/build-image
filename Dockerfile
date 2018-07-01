@@ -136,9 +136,13 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php5.6 \
         php5.6-xml \
         php5.6-mbstring \
+        php5.6-gd \
+        php5.6-sqlite3 \
         php7.2 \
         php7.2-xml \
         php7.2-mbstring \
+        php7.2-gd \
+        php7.2-sqlite3 \
         pngcrush \
         python-setuptools \
         python2.7-dev \

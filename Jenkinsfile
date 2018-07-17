@@ -2,12 +2,13 @@ pipeline {
   agent any
 
   stages {
-    stage("Build") {
+    stage("Build Branch") {
       when {
         not { branch 'master' }
       }
       steps {
-        sh "docker build ."
+        sh "docker build -t netlify/build:${env.BRANCH_NAME} ."
+        sh "docker build --squash -t netlify/build:squash-${env.BRANCH_NAME} ."
       }
     }
 
@@ -21,7 +22,7 @@ pipeline {
       }
     }
 
-    stage("Push") {
+    stage("Push Tagged") {
       when {
         branch 'master'
       }
@@ -30,6 +31,20 @@ pipeline {
           docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-ci') {
             docker.image('netlify/build:latest').push()
             docker.image('netlify/build:squash').push()
+          }
+        }
+      }
+    }
+
+    stage("Push Branch") {
+      when {
+        not { branch 'master' }
+      }
+      steps {
+        script {
+          docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-ci') {
+            docker.image("netlify/build:${env.BRANCH_NAME}").push()
+            docker.image("netlify/build:squash-${env.BRANCH_NAME}").push()
           }
         }
       }

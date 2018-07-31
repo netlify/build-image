@@ -30,6 +30,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     add-apt-repository -y ppa:rwky/graphicsmagick && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     add-apt-repository -y ppa:kelleyk/emacs && \
+    add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -120,6 +121,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libsm6 \
         libsqlite3-dev \
         libssl-dev \
+        libstdc++6 \
         libtiff5-dev \
         libwebp-dev \
         libwebp5 \

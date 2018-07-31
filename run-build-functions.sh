@@ -7,6 +7,8 @@ then
   set -x
 fi
 
+echo "build-image version: ${NF_IMAGE_VERSION}"
+
 : ${NETLIFY_BUILD_BASE="/opt/buildhome"}
 NETLIFY_CACHE_DIR="$NETLIFY_BUILD_BASE/cache"
 NETLIFY_REPO_DIR="$NETLIFY_BUILD_BASE/repo"

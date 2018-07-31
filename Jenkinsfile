@@ -7,7 +7,7 @@ pipeline {
         not { branch 'master' }
       }
       steps {
-        sh "docker build ."
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} ."
       }
     }
 
@@ -16,8 +16,8 @@ pipeline {
         branch 'master'
       }
       steps {
-        sh "docker build -t netlify/build:latest ."
-        sh "docker build --squash -t netlify/build:squash ."
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} -t netlify/build:latest ."
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --squash -t netlify/build:squash ."
       }
     }
 

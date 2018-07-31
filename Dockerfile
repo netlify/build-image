@@ -403,3 +403,5 @@ ADD run-build.sh /usr/local/bin/build
 ADD buildbot-git-config /root/.gitconfig
 
 USER buildbot
+ARG NF_IMAGE_VERSION
+ENV NF_IMAGE_VERSION ${NF_IMAGE_VERSION:-latest}

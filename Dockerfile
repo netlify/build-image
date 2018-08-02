@@ -24,6 +24,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     update-locale en_US.UTF-8 && \
     apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
     apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main' && \
+    echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list && \
+    curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add - && \
     add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
@@ -36,6 +38,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         apache2-utils \
         autoconf \
         automake \
+        bazel \
         bison \
         build-essential \
         bzr \

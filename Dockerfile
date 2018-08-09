@@ -394,6 +394,22 @@ ENV GIMME_GO_VERSION "1.10"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
 RUN gimme
 
+################################################################################
+#
+# Nix
+#
+################################################################################
+USER root
+RUN mkdir -m 0755 /nix && chown buildbot /nix
+
+USER buildbot
+WORKDIR /tmp
+RUN curl -o install-nix https://nixos.org/nix/install && USER=buildbot sh ./install-nix && rm install-nix
+
+ENV PATH=/nix/var/nix/profiles/per-user/$USER/profile/bin:/nix/var/nix/profiles/per-user/$USER/profile/sbin:$PATH
+ENV NIX_PATH=/nix/var/nix/profiles/per-user/$USER/channels
+ENV NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+
 # Cleanup
 USER root
 

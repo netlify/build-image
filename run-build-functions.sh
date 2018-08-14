@@ -202,7 +202,7 @@ install_dependencies() {
   fi
 
   if nvm install $NODE_VERSION
-  then 
+  then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us
     export NODE_VERSION=$NODE_VERSION
@@ -276,7 +276,7 @@ install_dependencies() {
       exit 1
     fi
   fi
-  
+
   if ! gem list -i "^bundler$" > /dev/null 2>&1
   then
     if ! gem install bundler
@@ -607,6 +607,23 @@ install_missing_commands() {
       export PATH=$(npm bin):$PATH
     fi
   fi
+
+  # Create wrappers around nix / nix-build that divert the store to the cache
+  # directory. This must be done at runtime and can not be baked into the
+  # docker image because it depends on NETLIFY_CACHE_DIR which is available
+  # only during execution.
+  #
+  # Furthermore, these commands must be provided to the user command as normal
+  # executables. I'd love to just make wrapper functions in the shell but anything
+  # that's defined in this file is *not* available to the user command.
+
+  echo '#!/bin/sh
+CMD=$1;shift;exec /nix/var/nix/profiles/per-user/buildbot/profile/bin/nix $CMD --store '$NETLIFY_CACHE_DIR' "$@"
+' > $HOME/.nix/bin/nix
+  echo '#!/bin/sh
+exec /nix/var/nix/profiles/per-user/buildbot/profile/bin/nix-build --store '$NETLIFY_CACHE_DIR' "$$@"
+' > $HOME/.nix/bin/nix-build
+  chmod +x $HOME/.nix/bin/nix $HOME/.nix/bin/nix-build
 }
 
 set_go_import_path() {

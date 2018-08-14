@@ -405,9 +405,10 @@ RUN mkdir -m 0755 /nix && chown buildbot /nix
 USER buildbot
 WORKDIR /tmp
 RUN curl -o install-nix https://nixos.org/nix/install && USER=buildbot sh ./install-nix && rm install-nix
+RUN mkdir -p /opt/buildhome/.nix/bin
 
-ENV PATH=/nix/var/nix/profiles/per-user/$USER/profile/bin:/nix/var/nix/profiles/per-user/$USER/profile/sbin:$PATH
-ENV NIX_PATH=/nix/var/nix/profiles/per-user/$USER/channels
+ENV PATH=/opt/buildhome/.nix/bin:$PATH
+ENV NIX_PATH=/nix/var/nix/profiles/per-user/buildbot/channels
 ENV NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 # Cleanup

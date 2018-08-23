@@ -43,9 +43,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         bzr \
         cmake \
         curl \
+        elixir \
         emacs25-nox \
         esl-erlang \
-        elixir \
         expect \
         fontconfig \
         fontconfig-config \

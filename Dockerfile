@@ -56,7 +56,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         gtk-doc-tools \
         imagemagick \
         jpegoptim \
-        jq \
         language-pack-ar \
         language-pack-ca \
         language-pack-cs \
@@ -168,6 +167,11 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     apt-get autoremove -y && \
     unset DEBIAN_FRONTEND
+
+# install jq 1.5 (Ubuntu 14.04 only provides 1.3)
+RUN curl -sSL -o /usr/local/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
+    chmod +x /usr/local/bin/jq && \
+    jq --version
 
 RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
     tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \

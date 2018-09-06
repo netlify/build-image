@@ -165,6 +165,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         ssh \
         strace \
         swig \
+        tree \
         unzip \
         wget \
         xvfb \

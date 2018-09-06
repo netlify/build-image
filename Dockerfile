@@ -22,6 +22,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
+    apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
     apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
     apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main' && \
     add-apt-repository -y ppa:ondrej/php && \
@@ -30,6 +31,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     add-apt-repository -y ppa:rwky/graphicsmagick && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     add-apt-repository -y ppa:kelleyk/emacs && \
+    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu trusty contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -41,7 +43,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         bzr \
         cmake \
         curl \
+        elixir \
         emacs25-nox \
+        esl-erlang \
         expect \
         fontconfig \
         fontconfig-config \

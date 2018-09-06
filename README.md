@@ -32,6 +32,10 @@ The specific patch versions included will depend on when the image was last buil
   * 8 (default)
 * Emacs
   * 25 (default)
+* Erlang
+  * 21 (default)
+* Elixir
+  * 1.7 (default)
 
 ### Tools
 

@@ -441,9 +441,11 @@ install_dependencies() {
     then
       export PATH=$(dirname $hugoOut):$PATH
       if [ $(awk 'BEGIN {print ("'$HUGO_VERSION'" >= "'0.43'")}') -eq 1 ] ; then
-        grep "hugo=" /opt/buildhome/.bashrc || \
-          echo "alias hugo='LD_LIBRARY_PATH=/opt/buildhome/stdc++6/usr/lib/x86_64-linux-gnu hugo'" >> /opt/buildhome/.bashrc
+        export LD_LIBRARY_PATH=~/stdc++6/usr/lib/x86_64-linux-gnu
+        grep "hugo=" ~/.bashrc || \
+          echo "alias hugo='LD_LIBRARY_PATH=$LD_LIBRARY_PATH $hugoOut'" >> ~/.bashrc
       fi
+      echo "Hugo version set to $(hugo version)"
     else
       echo "Error during Hugo $HUGO_VERSION install: $hugoOut"
       exit 1

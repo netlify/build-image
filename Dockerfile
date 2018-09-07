@@ -326,6 +326,11 @@ RUN binrc install spf13/hugo 0.17 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln 
     binrc install spf13/hugo 0.48 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.48 && \
     ln -s /usr/local/bin/hugo_0.17 /usr/local/bin/hugo
 
+RUN mkdir /opt/buildhome/stdc++6 && \
+    wget -q -O libstdc++6.deb http://security.ubuntu.com/ubuntu/pool/main/g/gcc-5/libstdc++6_5.4.0-6ubuntu1~16.04.10_amd64.deb && \
+    dpkg -x libstdc++6.deb /opt/buildhome/stdc++6 && \
+    rm -fr libstdc++6.deb
+
 ################################################################################
 #
 # Clojure

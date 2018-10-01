@@ -204,9 +204,10 @@ WORKDIR /tmp
 
 # this actually builds v8.6.2
 RUN \
-  curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/releases/download/v8.6.2/vips-8.6.2.tar.gz && \
+  curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/archive/v8.6.2.tar.gz && \
   tar xvf vips-8.6.2.tar.gz && \
-  cd vips-8.6.2 && \
+  cd libvips-8.6.2 && \
+  ./autogen.sh && \
   ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
   make && \
   make install && \

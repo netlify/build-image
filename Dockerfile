@@ -43,6 +43,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         bzr \
         cmake \
         curl \
+        doxygen \
         elixir \
         emacs25-nox \
         esl-erlang \

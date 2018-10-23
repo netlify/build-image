@@ -73,6 +73,7 @@ The specific patch versions included will depend on when the image was last buil
 * [ImageMagick](https://www.imagemagick.org) - 6.7.7
 * [GNU Make](https://www.gnu.org/software/make/) - 3.81
 * OptiPNG - 0.6.4
+* [Doxygen](http://www.doxygen.org) - 1.8.6
 
 ## Running Locally
 

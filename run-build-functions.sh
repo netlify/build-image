@@ -312,7 +312,7 @@ install_dependencies() {
     if install_deps Gemfile.lock $RUBY_VERSION $NETLIFY_CACHE_DIR/gemfile-sha || [ ! -d .bundle ]
     then
       echo "Installing gem bundle"
-      if bundle install --path $NETLIFY_CACHE_DIR/bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs ${BUNDLER_FLAGS:+"$BUNDLER_FLAGS"}
+      if bundle install --path .bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs ${BUNDLER_FLAGS:+"$BUNDLER_FLAGS"}
       then
       export PATH=$NETLIFY_CACHE_DIR/binstubs:$PATH
         echo "Gem bundle installed"

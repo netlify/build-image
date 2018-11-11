@@ -1,12 +1,8 @@
 #!/bin/bash
 
 dir="$(dirname "$0")"
-
 : ${NETLIFY_REPO_URL="/opt/repo"}
-
 NETLIFY_BUILD_BASE="/opt/buildhome"
-NETLIFY_CACHE_DIR="$NETLIFY_BUILD_BASE/cache"
-NETLIFY_REPO_DIR="$NETLIFY_BUILD_BASE/repo"
 
 cmd=$*
 
@@ -15,29 +11,30 @@ $cmd
 EOF
 )
 
-mkdir -p $NETLIFY_CACHE_DIR
-rm -rf $NETLIFY_BUILD_BASE/.yarn
+. "$dir/run-build-functions.sh"
 
-cd $NETLIFY_BUILD_BASE
 if [[ ! -d $NETLIFY_REPO_DIR ]]; then
   git clone $NETLIFY_REPO_URL $NETLIFY_REPO_DIR
 fi
 cd $NETLIFY_REPO_DIR
 
-. "$dir/run-build-functions.sh"
+: ${NODE_VERSION="8"}
+: ${RUBY_VERSION="2.3.6"}
+: ${YARN_VERSION="1.3.2"}
+: ${PHP_VERSION="5.6"}
+: ${GO_VERSION="1.10"}
 
-: ${NODE_VERSION="6.10.2"}
-: ${RUBY_VERSION="2.1.2"}
-: ${YARN_VERSION="0.18.1"}
-
-echo "Installing dependencies: node=$NODE_VERSION ruby=$RUBY_VERSION yarn=$YARN_VERSION"
-install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION
+echo "Installing dependencies"
+install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION $GO_VERSION
 
 echo "Installing missing commands"
 install_missing_commands
 
+echo "Verify run directory"
+set_go_import_path
+
 echo "Executing user command: $cmd"
-$cmd
+eval "$cmd"
 CODE=$?
 
 echo "Caching artifacts"

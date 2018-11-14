@@ -283,7 +283,7 @@ USER root
 
 ENV PIPENV_RUNTIME 2.7
 
-RUN easy_install virtualenv
+RUN easy_install virtualenv==16.0.0
 
 USER buildbot
 

@@ -107,7 +107,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libgif-dev \
         libglib2.0-dev \
         libgmp3-dev \
-        libgraphicsmagick3 \
+        libgraphicsmagick-q16-3 \
         libgtk-3-0 \
         libgtk2.0-0 \
         libicu-dev \
@@ -204,9 +204,10 @@ WORKDIR /tmp
 
 # this actually builds v8.6.2
 RUN \
-  curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/releases/download/v8.6.2/vips-8.6.2.tar.gz && \
+  curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/archive/v8.6.2.tar.gz && \
   tar xvf vips-8.6.2.tar.gz && \
-  cd vips-8.6.2 && \
+  cd libvips-8.6.2 && \
+  ./autogen.sh && \
   ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
   make && \
   make install && \
@@ -282,7 +283,7 @@ USER root
 
 ENV PIPENV_RUNTIME 2.7
 
-RUN easy_install virtualenv
+RUN easy_install virtualenv==16.0.0
 
 USER buildbot
 
@@ -360,7 +361,7 @@ RUN update-alternatives --set php /usr/bin/php5.6 && \
     update-alternatives --set phar /usr/bin/phar5.6 && \
     update-alternatives --set phar.phar /usr/bin/phar.phar5.6
 
-RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/c1ad3667731e9c5c1a21e5835c7e6a7eedc2e1fe/web/installer -O - | php -- --quiet && \
+RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/72bb6f65aa902c76c7ca35514f58cf79a293657d/web/installer -O - | php -- --quiet && \
     mv composer.phar /usr/local/bin/composer
 
 USER buildbot

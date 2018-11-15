@@ -623,3 +623,32 @@ set_go_import_path() {
     cd $importPath
   fi
 }
+
+find_running_procs() {
+  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash
+}
+
+report_lingering_procs() {
+  procs=$(find_running_procs)
+  nprocs=$(expr $(echo "$procs" | wc -l) - 1)
+  if [[ $nprocs > 0 ]]; then
+    echo -e "${YELLOW}"
+    echo "** WARNING **"
+    echo "There are some lingering processes even after the build process finished: "
+    echo
+    echo "$procs"
+    echo
+    echo "Our builds do not kill your processes automatically, so please make sure"
+    echo "that nothing is running after your build finishes, or it will be marked as"
+    echo "failed since something is still running."
+    echo -e "${NC}"
+  fi
+}
+
+after_build_steps() {
+  echo "Caching artifacts"
+  cache_artifacts
+
+  # Find lingering processes after the build finished and report it to the user
+  report_lingering_procs
+}

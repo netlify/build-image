@@ -361,7 +361,7 @@ RUN update-alternatives --set php /usr/bin/php5.6 && \
     update-alternatives --set phar /usr/bin/phar5.6 && \
     update-alternatives --set phar.phar /usr/bin/phar.phar5.6
 
-RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/c1ad3667731e9c5c1a21e5835c7e6a7eedc2e1fe/web/installer -O - | php -- --quiet && \
+RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/72bb6f65aa902c76c7ca35514f58cf79a293657d/web/installer -O - | php -- --quiet && \
     mv composer.phar /usr/local/bin/composer
 
 USER buildbot

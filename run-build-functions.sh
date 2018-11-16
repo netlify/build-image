@@ -625,7 +625,7 @@ set_go_import_path() {
 }
 
 find_running_procs() {
-  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v [b]uildbot
+  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/usr/local/bin/buildbot"
 }
 
 report_lingering_procs() {

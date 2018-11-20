@@ -69,7 +69,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         language-pack-es \
         language-pack-eu \
         language-pack-fi \
-        language-pack-fil \
         language-pack-fr \
         language-pack-gl \
         language-pack-he \
@@ -78,20 +77,17 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         language-pack-ja \
         language-pack-ka \
         language-pack-ko \
-        language-pack-nan \
         language-pack-nn \
         language-pack-pl \
         language-pack-pt \
         language-pack-ro \
         language-pack-ru \
-        language-pack-sa \
         language-pack-sv \
         language-pack-ta \
         language-pack-th \
         language-pack-tr \
         language-pack-uk \
         language-pack-vi \
-        language-pack-yi \
         language-pack-zh-hans \
         language-pack-zh-hant \
         libasound2 \

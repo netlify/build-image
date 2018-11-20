@@ -147,13 +147,12 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.2-zip \
         pngcrush \
         python-setuptools \
-        python2.7-dev \
+        python \
+        python-dev \
         python3 \
         python3-dev \
-        python3.5 \
-        python3.5-dev \
-        python3.6 \
-        python3.6-dev \
+        python3.7 \
+        python3.7-dev \
         rsync \
         software-properties-common \
         sqlite3 \
@@ -278,25 +277,21 @@ USER root
 
 ENV PIPENV_RUNTIME 2.7
 
-RUN easy_install virtualenv==16.0.0
+RUN easy_install virtualenv
 
 USER buildbot
 
 RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.5
-
-RUN virtualenv -p python3.4 --no-site-packages /opt/buildhome/python3.4 && \
-    /bin/bash -c 'source /opt/buildhome/python3.4/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.4 /opt/buildhome/python3.4.0
+    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.11
 
 RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
     /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.5
+    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.1
 
-RUN virtualenv -p python3.6 --no-site-packages /opt/buildhome/python3.6 && \
-    /bin/bash -c 'source /opt/buildhome/python3.6/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.6 /opt/buildhome/python3.6.4
+RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
+    /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.1
 
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 

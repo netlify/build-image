@@ -237,10 +237,10 @@ RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys D39DC0E3 && \
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.2.9 && rvm use 2.2.9 && gem install bundler && \
-                  rvm install 2.3.6 && rvm use 2.3.6 && gem install bundler && \
-                  rvm install 2.4.3 && rvm use 2.4.3 && gem install bundler && \
-                  rvm use 2.3.6 --default && rvm cleanup all"
+                  rvm install 2.2.10 && rvm use 2.2.10 && gem install bundler && \
+                  rvm install 2.3.8 && rvm use 2.3.8 && gem install bundler && \
+                  rvm install 2.4.5 && rvm use 2.4.5 && gem install bundler && \
+                  rvm use 2.3.8 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 USER root

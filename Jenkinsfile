@@ -55,7 +55,7 @@ pipeline {
     stage("Push Untagged") {
       when {
         anyOf { branch 'master' ; branch 'staging'}
-        buildingTag()
+        not { buildingTag() }
       }
       steps {
         script {

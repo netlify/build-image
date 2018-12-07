@@ -7,8 +7,8 @@ TODO...
 
 ## Releasing
 
-1. `npm version [major, minor, patch]`  Generate changelog and bump version.
-2. `npm release` Push version commit + tag, push latest CHANGELOG entry to GitHub release page.
+1. `npm version [major, minor, patch]`  Generate changelog, bump version, version commit + tag.
+2. `npm run release` Push version commit + tag, push latest CHANGELOG entry to GitHub release page.
 
 
 ## License

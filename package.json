@@ -4,7 +4,7 @@
   "description": "This repository contains the tools to make the build image Netlify uses to build a site from git (for continuous deployment.)",
   "main": "index.js",
   "scripts": {
-    "version": "auto-changelog -p --template keepachangelog && git add README.md docs CHANGELOG.md",
+    "version": "auto-changelog -p -t keepachangelog -l false --starting-commit 9d2e26a && git add CHANGELOG.md",
     "release": "git push && git push --tags && gh-release"
   },
   "repository": {

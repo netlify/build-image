@@ -27,6 +27,7 @@ pipeline {
         buildingTag()
       }
       steps {
+        sh "env"
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} -t netlify/build:${env.GIT_TAG_NAME} -t netlify/build:${env.GIT_COMMIT} ."
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --squash -t netlify/build:${env.GIT_TAG_NAME}-squash -t netlify/build:${env.GIT_COMMIT}-squash ."
       }

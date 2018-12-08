@@ -17,6 +17,7 @@ pipeline {
         not { buildingTag() }
       }
       steps {
+        sh "env"
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} -t netlify/build:${env.BRANCH_NAME} -t netlify/build:${env.GIT_COMMIT} ."
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --squash -t netlify/build:${env.BRANCH_NAME}-squash -t netlify/build:${env.GIT_COMMIT}-squash ."
       }
@@ -28,8 +29,8 @@ pipeline {
       }
       steps {
         sh "env"
-        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} -t netlify/build:${env.GIT_TAG_NAME} -t netlify/build:${env.GIT_COMMIT} ."
-        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --squash -t netlify/build:${env.GIT_TAG_NAME}-squash -t netlify/build:${env.GIT_COMMIT}-squash ."
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} -t netlify/build:${env.GIT_BRANCH} -t netlify/build:${env.GIT_COMMIT} ."
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --squash -t netlify/build:${env.GIT_BRANCH}-squash -t netlify/build:${env.GIT_COMMIT}-squash ."
       }
     }
 
@@ -40,9 +41,9 @@ pipeline {
       steps {
         script {
           docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-ci') {
-            docker.image("netlify/build:${env.GIT_TAG_NAME}").push()
+            docker.image("netlify/build:${env.GIT_BRANCH}").push()
             docker.image("netlify/build:${env.GIT_COMMIT}").push()
-            docker.image("netlify/build:${env.GIT_TAG_NAME}-squash").push()
+            docker.image("netlify/build:${env.GIT_BRANCH}-squash").push()
             docker.image("netlify/build:${env.GIT_COMMIT}-squash").push()
           }
         }

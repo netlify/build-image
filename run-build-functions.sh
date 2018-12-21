@@ -202,7 +202,7 @@ install_dependencies() {
   fi
 
   if nvm install $NODE_VERSION
-  then 
+  then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us
     export NODE_VERSION=$NODE_VERSION
@@ -276,7 +276,7 @@ install_dependencies() {
       exit 1
     fi
   fi
-  
+
   if ! gem list -i "^bundler$" > /dev/null 2>&1
   then
     if ! gem install bundler
@@ -625,7 +625,7 @@ set_go_import_path() {
 }
 
 find_running_procs() {
-  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/usr/local/bin/buildbot" | grep -v [d]efunct | grep -v "[build]"
+  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/usr/local/bin/buildbot" | grep -v "[node] <defunct>" | grep -v "[build]"
 }
 
 report_lingering_procs() {

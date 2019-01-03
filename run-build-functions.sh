@@ -279,7 +279,7 @@ install_dependencies() {
   
   if ! gem list -i "^bundler$" > /dev/null 2>&1
   then
-    if ! gem install bundler
+    if ! gem install bundler -v 1.17.3
     then
       echo "Error installing bundler"
       exit 1

@@ -440,6 +440,17 @@ install_dependencies() {
     if [ $? -eq 0 ]
     then
       export PATH=$(dirname $hugoOut):$PATH
+      if [ $(awk 'BEGIN {print ("'$HUGO_VERSION'" >= "'0.43'")}') -eq 1 ]
+      then
+        shopt -s expand_aliases
+        alias hugo='LD_LIBRARY_PATH=$HOME/stdc++6/usr/lib/x86_64-linux-gnu $hugoOut'
+        grep "hugo=" $NETLIFY_BUILD_BASE/.bashrc >/dev/null
+        if [ $? -eq 1 ]
+        then
+          echo "alias hugo='LD_LIBRARY_PATH=$HOME/stdc++6/usr/lib/x86_64-linux-gnu $hugoOut'" >> $NETLIFY_BUILD_BASE/.bashrc
+        fi
+      fi
+      echo "Hugo version set to $(hugo version)"
     else
       echo "Error during Hugo $HUGO_VERSION install: $hugoOut"
       exit 1

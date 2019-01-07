@@ -348,11 +348,17 @@ RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
     chmod +x boot && \
     ln -s /opt/boot-clj/boot /usr/local/bin/boot
 
+RUN mkdir /opt/clojure && cd /opt/clojure && \
+    curl -sL https://download.clojure.org/install/linux-install-1.10.0.411.sh > clojure && \
+    chmod +x clojure
+
 USER buildbot
 
 RUN lein
 
 RUN boot -u
+
+RUN /opt/clojure/clojure
 
 ################################################################################
 #

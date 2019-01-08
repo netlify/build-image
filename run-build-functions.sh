@@ -202,7 +202,7 @@ install_dependencies() {
   fi
 
   if nvm install $NODE_VERSION
-  then 
+  then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us
     export NODE_VERSION=$NODE_VERSION
@@ -276,7 +276,7 @@ install_dependencies() {
       exit 1
     fi
   fi
-  
+
   if ! gem list -i "^bundler$" > /dev/null 2>&1
   then
     if ! gem install bundler
@@ -440,17 +440,6 @@ install_dependencies() {
     if [ $? -eq 0 ]
     then
       export PATH=$(dirname $hugoOut):$PATH
-      if [ $(awk 'BEGIN {print ("'$HUGO_VERSION'" >= "'0.43'")}') -eq 1 ]
-      then
-        shopt -s expand_aliases
-        alias hugo='LD_LIBRARY_PATH=$HOME/stdc++6/usr/lib/x86_64-linux-gnu $hugoOut'
-        grep "hugo=" $NETLIFY_BUILD_BASE/.bashrc >/dev/null
-        if [ $? -eq 1 ]
-        then
-          echo "alias hugo='LD_LIBRARY_PATH=$HOME/stdc++6/usr/lib/x86_64-linux-gnu $hugoOut'" >> $NETLIFY_BUILD_BASE/.bashrc
-        fi
-      fi
-      echo "Hugo version set to $(hugo version)"
     else
       echo "Error during Hugo $HUGO_VERSION install: $hugoOut"
       exit 1

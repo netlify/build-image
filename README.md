@@ -74,19 +74,28 @@ The specific patch versions included will depend on when the image was last buil
 * [GNU Make](https://www.gnu.org/software/make/) - 3.81
 * OptiPNG - 0.6.4
 
-## Testing locally
+## Running Locally
 
-The image takes a long time to build. You can instead:
+To use this tool, you must first clone it:
+```
+git clone netlify/build-image
+```
 
+Next, the Docker Image needs to be built, which takes a long time, instead we recommend get the latest version of the image that we've published, pre-built for your testing pleasure:
 ```
 docker pull netlify/build
 ```
 
-to get the latest version we've published, pre-built for your testing pleasure. To use it, these steps are recommended:
+### Usage
+Prerequisites:
+1. This repository cloned locally
+2. The reposotory you would like to test also cloned locally
+3. Be sure to have a clean git status in the test repository (e.g. commit or stash).  
+4. Ensure the test repository's branch is the inteneded one to be built
 
-1. Clone your repo into a local directory. If you are working from a local copy with changes, commit those changes (no need to push to a git provider, just commit), and be sure you are on the branch with those changes, otherwise we will ignore them during the build.
-2. Using our tool from the base of a checkout of our build-image repository, Run the image in interactive mode, mounting your repository as a volume: `./test-tools/start-image.sh path/to/my/repo`
-3. Within the container, use our 'build' script to simulate your build in our environment, using your own build command: `build jekyll build` (Replace `jekyll build` with your build command of choice.)
+Interactive Mode:
+1. To run the test image in interactive mode, run the following command: `./test-tools/start-image.sh path/to/my/repo`.  This will open an interactive shell within the container
+2. Within that container's shell, use our 'build' script to simulate your build in our environment, using your own build command: `build jekyll build` (Replace `jekyll build` with your build command of choice.)
 
 Note that local testing will not incorporate your Build Environment Variables from our UI or any settings from netlify.toml.  You will need to "apply" the correct settings and build command manually, for instance:
 

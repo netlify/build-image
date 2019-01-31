@@ -98,6 +98,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libcurl3 \
         libcurl3-gnutls \
         libcurl3-openssl-dev \
+        libenchant1c2a \
         libexif-dev \
         libffi-dev \
         libfontconfig1 \

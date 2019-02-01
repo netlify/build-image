@@ -305,7 +305,7 @@ USER root
 #
 ################################################################################
 
-ENV BINRC_VERSION 0.2.5
+ENV BINRC_VERSION 0.2.6
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
@@ -315,6 +315,7 @@ RUN binrc install spf13/hugo 0.17 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln 
     binrc install spf13/hugo 0.18 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.18 && \
     binrc install spf13/hugo 0.19 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.19 && \
     binrc install spf13/hugo 0.20 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.20 && \
+    binrc install gohugoio/hugo 0.52 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.52 && \
     ln -s /usr/local/bin/hugo_0.17 /usr/local/bin/hugo
 
 ################################################################################

@@ -161,6 +161,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         swig \
         tree \
         unzip \
+        virtualenv \
         wget \
         xvfb \
         zip \
@@ -275,8 +276,6 @@ USER root
 ################################################################################
 
 ENV PIPENV_RUNTIME 2.7
-
-RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install virtualenv
 
 USER buildbot
 

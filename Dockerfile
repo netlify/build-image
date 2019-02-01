@@ -276,7 +276,7 @@ USER root
 
 ENV PIPENV_RUNTIME 2.7
 
-RUN easy_install virtualenv
+RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install virtualenv
 
 USER buildbot
 
@@ -286,11 +286,11 @@ RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
 
 RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
     /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.1
+    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.6
 
 RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
     /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.1
+    ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.2
 
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 

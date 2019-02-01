@@ -226,8 +226,7 @@ RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt
 ################################################################################
 
 USER buildbot
-RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB && \
-    curl -sL https://get.rvm.io | bash -s stable --with-gems="bundler" --autolibs=read-fail
+RUN \curl -sSL https://get.rvm.io | bash -s stable
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 

@@ -58,6 +58,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         graphicsmagick \
         graphviz \
         gtk-doc-tools \
+        gnupg2 \
         imagemagick \
         jpegoptim \
         language-pack-ar \
@@ -161,6 +162,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         swig \
         tree \
         unzip \
+        virtualenv \
         wget \
         xvfb \
         zip \
@@ -225,14 +227,12 @@ RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt
 ################################################################################
 
 USER buildbot
-RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys D39DC0E3 && \
+RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB && \
     curl -sL https://get.rvm.io | bash -s stable --with-gems="bundler" --autolibs=read-fail
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.2.9 && rvm use 2.2.9 && gem install bundler && \
                   rvm install 2.3.6 && rvm use 2.3.6 && gem install bundler && \
                   rvm install 2.4.3 && rvm use 2.4.3 && gem install bundler && \
                   rvm use 2.3.6 --default && rvm cleanup all"
@@ -278,8 +278,6 @@ USER root
 
 ENV PIPENV_RUNTIME 2.7
 
-RUN easy_install virtualenv
-
 USER buildbot
 
 RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
@@ -288,11 +286,11 @@ RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
 
 RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
     /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.1
+    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.6
 
 RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
     /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.1
+    ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.2
 
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 

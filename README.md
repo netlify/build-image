@@ -11,7 +11,8 @@ You can also use the image this generates to test locally if you're having build
 The specific patch versions included will depend on when the image was last built (except Ruby). It is highly suggested you depend only on minor versions, so that we can ensure the language has the latest updates (especially if security related).
 
 * Ruby - `RUBY_VERSION`, `.ruby-version`
-  * 2.3.8 (default)
+  * 2.6.1 (default)
+  * 2.5.3
   * 2.4.5
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
@@ -89,7 +90,7 @@ docker pull netlify/build
 Prerequisites:
 1. This repository cloned locally
 2. The reposotory you would like to test also cloned locally
-3. Be sure to have a clean git status in the test repository (e.g. commit or stash).  
+3. Be sure to have a clean git status in the test repository (e.g. commit or stash).
 4. Ensure the test repository's branch is the inteneded one to be built
 
 Interactive Mode:

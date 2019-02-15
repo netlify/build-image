@@ -226,16 +226,19 @@ RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt
 #
 ################################################################################
 
+## TODO: Consider switching to rbenv or asdf-vm
 USER buildbot
 RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB && \
     curl -sL https://get.rvm.io | bash -s stable --with-gems="bundler" --autolibs=read-fail
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+# Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.3.8 && rvm use 2.3.8 && gem install bundler && \
+                  rvm install 2.6.1 && rvm use 2.6.1 && gem install bundler && \
+                  rvm install 2.5.3 && rvm use 2.5.3 && gem install bundler && \
                   rvm install 2.4.5 && rvm use 2.4.5 && gem install bundler && \
-                  rvm use 2.3.8 --default && rvm cleanup all"
+                  rvm use 2.6.1 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 USER root

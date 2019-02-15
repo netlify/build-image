@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 MAINTAINER Netlify
 
@@ -58,6 +58,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         graphicsmagick \
         graphviz \
         gtk-doc-tools \
+        gnupg2 \
         imagemagick \
         jpegoptim \
         language-pack-ar \
@@ -69,7 +70,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         language-pack-es \
         language-pack-eu \
         language-pack-fi \
-        language-pack-fil \
         language-pack-fr \
         language-pack-gl \
         language-pack-he \
@@ -78,20 +78,17 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         language-pack-ja \
         language-pack-ka \
         language-pack-ko \
-        language-pack-nan \
         language-pack-nn \
         language-pack-pl \
         language-pack-pt \
         language-pack-ro \
         language-pack-ru \
-        language-pack-sa \
         language-pack-sv \
         language-pack-ta \
         language-pack-th \
         language-pack-tr \
         language-pack-uk \
         language-pack-vi \
-        language-pack-yi \
         language-pack-zh-hans \
         language-pack-zh-hant \
         libasound2 \
@@ -107,7 +104,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libgif-dev \
         libglib2.0-dev \
         libgmp3-dev \
-        libgraphicsmagick-q16-3 \
         libgtk-3-0 \
         libgtk2.0-0 \
         libicu-dev \
@@ -152,13 +148,12 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.2-zip \
         pngcrush \
         python-setuptools \
-        python2.7-dev \
+        python \
+        python-dev \
         python3 \
         python3-dev \
-        python3.5 \
-        python3.5-dev \
-        python3.6 \
-        python3.6-dev \
+        python3.7 \
+        python3.7-dev \
         rsync \
         software-properties-common \
         sqlite3 \
@@ -167,6 +162,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         swig \
         tree \
         unzip \
+        virtualenv \
         wget \
         xvfb \
         zip \
@@ -231,13 +227,12 @@ RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt
 ################################################################################
 
 USER buildbot
-RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys D39DC0E3 && \
+RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB && \
     curl -sL https://get.rvm.io | bash -s stable --with-gems="bundler" --autolibs=read-fail
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.2.10 && rvm use 2.2.10 && gem install bundler && \
                   rvm install 2.3.8 && rvm use 2.3.8 && gem install bundler && \
                   rvm install 2.4.5 && rvm use 2.4.5 && gem install bundler && \
                   rvm use 2.3.8 --default && rvm cleanup all"
@@ -283,25 +278,19 @@ USER root
 
 ENV PIPENV_RUNTIME 2.7
 
-RUN easy_install virtualenv==16.0.0
-
 USER buildbot
 
 RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.5
-
-RUN virtualenv -p python3.4 --no-site-packages /opt/buildhome/python3.4 && \
-    /bin/bash -c 'source /opt/buildhome/python3.4/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.4 /opt/buildhome/python3.4.0
+    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.11
 
 RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
     /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.5
+    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.6
 
-RUN virtualenv -p python3.6 --no-site-packages /opt/buildhome/python3.6 && \
-    /bin/bash -c 'source /opt/buildhome/python3.6/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.6 /opt/buildhome/python3.6.4
+RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
+    /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.2
 
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 
@@ -314,7 +303,7 @@ USER root
 #
 ################################################################################
 
-ENV BINRC_VERSION 0.2.5
+ENV BINRC_VERSION 0.2.6
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
@@ -324,6 +313,7 @@ RUN binrc install spf13/hugo 0.17 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln 
     binrc install spf13/hugo 0.18 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.18 && \
     binrc install spf13/hugo 0.19 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.19 && \
     binrc install spf13/hugo 0.20 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.20 && \
+    binrc install gohugoio/hugo 0.52 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.52 && \
     ln -s /usr/local/bin/hugo_0.17 /usr/local/bin/hugo
 
 ################################################################################

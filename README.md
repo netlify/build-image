@@ -11,7 +11,6 @@ You can also use the image this generates to test locally if you're having build
 The specific patch versions included will depend on when the image was last built (except Ruby). It is highly suggested you depend only on minor versions, so that we can ensure the language has the latest updates (especially if security related).
 
 * Ruby - `RUBY_VERSION`, `.ruby-version`
-  * 2.2.10
   * 2.3.8 (default)
   * 2.4.5
   * Any version that `rvm` can install.

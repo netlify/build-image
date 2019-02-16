@@ -256,18 +256,16 @@ RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.s
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd ~/.nvm && \
-    git checkout v0.33.4 && \
+    git checkout v0.34.0 && \
     cd /
 
-ENV ELM_VERSION=0.17.1
-ENV YARN_VERSION=1.3.2
+ENV ELM_VERSION=0.19.0-bugfix6
+ENV YARN_VERSION=1.13.0
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
-         nvm install 4 && nvm use 4 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         nvm install 11 && nvm use 11 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
-         nvm install 6 && nvm use 6 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
-             bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
-         nvm install 8 && nvm use 8 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         nvm install 10 && nvm use 10 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 

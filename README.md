@@ -16,9 +16,8 @@ The specific patch versions included will depend on when the image was last buil
   * 2.4.5
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
-  * 4
-  * 6
-  * 8 (default)
+  * 10 (default)
+  * 11
   * Any version that `nvm` can install.
 * Python - `runtime.txt` or `Pipfile`
   * 2.7 (default)
@@ -41,7 +40,7 @@ The specific patch versions included will depend on when the image was last buil
 
 * Node.js
   * Yarn - `YARN_VERSION`
-    * 1.3.2 (default)
+    * 1.13.0 (default)
     * Any version available via their installer.
   * NPM - `NPM_VERSION`
     * Version corresponding with Node.js version. (default)

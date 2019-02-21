@@ -174,6 +174,13 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get autoremove -y && \
     unset DEBIAN_FRONTEND
 
+
+################################################################################
+#
+# Pandoc
+#
+################################################################################
+
 RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
     tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
     cd wkhtmltox && \
@@ -232,8 +239,6 @@ ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install 2.6.1 && rvm use 2.6.1 && gem install bundler && \
-                  rvm install 2.5.3 && rvm use 2.5.3 && gem install bundler && \
-                  rvm install 2.4.5 && rvm use 2.4.5 && gem install bundler && \
                   rvm use 2.6.1 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -260,8 +265,6 @@ ENV YARN_VERSION=1.13.0
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install 11 && nvm use 11 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
-             bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
-         nvm install 10 && nvm use 10 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 

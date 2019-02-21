@@ -61,6 +61,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         gnupg2 \
         imagemagick \
         jpegoptim \
+        jq \
         language-pack-ar \
         language-pack-ca \
         language-pack-cs \
@@ -173,10 +174,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get autoremove -y && \
     unset DEBIAN_FRONTEND
 
-# install jq 1.5 (Ubuntu 14.04 only provides 1.3)
-RUN curl -sSL -o /usr/local/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
-    chmod +x /usr/local/bin/jq && \
-    jq --version
 
 ################################################################################
 #
@@ -234,7 +231,7 @@ RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt
 
 ## TODO: Consider switching to rbenv or asdf-vm
 USER buildbot
-RUN gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB && \
+RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB && \
     curl -sL https://get.rvm.io | bash -s stable --with-gems="bundler" --autolibs=read-fail
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

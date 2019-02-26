@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-MAINTAINER Netlify
+LABEL maintainer Netlify
 
 ################################################################################
 #

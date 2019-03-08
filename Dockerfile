@@ -423,8 +423,8 @@ RUN gimme
 ################################################################################
 USER root
 ENV PATH "$PATH:/tmp/texlive/bin/x86_64-linux"
-RUN printf "selected_scheme scheme-full\nTEXDIR /tmp/texlive\nTEXMFCONFIG ~/.texlive/texmf-config\nTEXMFHOME ~/texmf\nTEXMFLOCAL /tmp/texlive/texmf-local\nTEXMFSYSCONFIG /tmp/texlive/texmf-config\nTEXMFSYSVAR /tmp/texlive/texmf-var\nTEXMFVAR ~/.texlive/texmf-var\noption_doc 0\noption_src 0" >/tmp/texlive.profile && \
-    wget 'http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz' && \
+ADD texlive.profile /tmp/texlive.profile
+RUN wget 'http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz' && \
     tar -xvzf install-tl-unx.tar.gz && \
     cd install-tl-20* && \
     ./install-tl --profile=/tmp/texlive.profile && \

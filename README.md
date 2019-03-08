@@ -89,15 +89,15 @@ docker pull netlify/build
 ### Usage
 Prerequisites:
 1. This repository cloned locally
-2. The reposotory you would like to test also cloned locally
+2. The repository you would like to test also cloned locally
 3. Be sure to have a clean git status in the test repository (e.g. commit or stash).
-4. Ensure the test repository's branch is the inteneded one to be built
+4. Ensure the test repository's branch is the intended one to be built
 
 Interactive Mode:
 1. To run the test image in interactive mode, run the following command: `./test-tools/start-image.sh path/to/my/repo`.  This will open an interactive shell within the container
 2. Within that container's shell, use our 'build' script to simulate your build in our environment, using your own build command: `build jekyll build` (Replace `jekyll build` with your build command of choice.)
 
-Note that local testing will not incorporate your Build Environment Variables from our UI or any settings from netlify.toml.  You will need to "apply" the correct settings and build command manually, for instance:
+Note that local testing will not incorporate your Build Environment Variables from our UI or any settings from `netlify.toml`.  You will need to "apply" the correct settings and build command manually, for instance:
 
 ```
 export NODE_VERSION=6 NODE_ENV=production ; build npm run build

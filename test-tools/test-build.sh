@@ -16,13 +16,13 @@ fi
 set -e
 
 : ${NETLIFY_IMAGE="netlify/build"}
-: ${NODE_VERSION="8"}
+: ${NODE_VERSION="10"}
 : ${RUBY_VERSION="2.6.1"}
-: ${YARN_VERSION="1.3.2"}
+: ${YARN_VERSION="1.13.0"}
 : ${NPM_VERSION=""}
-: ${HUGO_VERSION="0.20"}
+: ${HUGO_VERSION="0.54"}
 : ${PHP_VERSION="5.6"}
-: ${GO_VERSION="1.10"}
+: ${GO_VERSION="1.12"}
 
 REPO_URL=$1
 

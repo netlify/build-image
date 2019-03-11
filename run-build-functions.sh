@@ -436,7 +436,7 @@ install_dependencies() {
   if [ -n "$HUGO_VERSION" ]
   then
     echo "Installing Hugo $HUGO_VERSION"
-    hugoOut=$(binrc install -c $NETLIFY_CACHE_DIR/.binrc-$BINRC_VERSION hugo)
+    hugoOut=$(binrc install -c $NETLIFY_CACHE_DIR/.binrc-$(binrc version) hugo)
     if [ $? -eq 0 ]
     then
       export PATH=$(dirname $hugoOut):$PATH
@@ -451,7 +451,7 @@ install_dependencies() {
   if [ -n "$GUTENBERG_VERSION" ]
   then
     echo "Installing Gutenberg $GUTENBERG_VERSION"
-    gutenbergOut=$(binrc install -c $NETLIFY_CACHE_DIR/.binrc-$BINRC_VERSION gutenberg)
+    gutenbergOut=$(binrc install -c $NETLIFY_CACHE_DIR/.binrc-$(binrc version) gutenberg)
     if [ $? -eq 0 ]
     then
       export PATH=$(dirname $gutenbergOut):$PATH

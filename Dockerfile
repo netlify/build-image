@@ -264,7 +264,7 @@ ENV ELM_VERSION=0.19.0-bugfix6
 ENV YARN_VERSION=1.13.0
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
-         nvm install 11 && nvm use 11 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         nvm install 10 && nvm use 10 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 

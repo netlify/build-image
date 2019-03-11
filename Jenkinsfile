@@ -4,7 +4,7 @@ pipeline {
   stages {
     stage("Test Build") {
       when {
-        not { anyOf { branch 'master' ; branch 'staging' ; buildingTag() } }
+        not { anyOf { branch 'master' ; branch 'xenial' ; branch 'trusty  ' ; buildingTag() } }
       }
       steps {
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} ."
@@ -13,25 +13,44 @@ pipeline {
 
     stage("Build Tags and Special Branches") {
       when {
-        anyOf { branch 'master' ; branch 'staging' ; buildingTag() }
+        anyOf { branch 'master' ; branch 'xenial' ; branch 'trusty' ; buildingTag() }
       }
       steps {
-        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} -t netlify/build:${env.BRANCH_NAME} -t netlify/build:${env.GIT_COMMIT} ."
-        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --squash -t netlify/build:${env.BRANCH_NAME}-squash -t netlify/build:${env.GIT_COMMIT}-squash ."
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --build-arg NF_IMAGE_TAG=${env.BRANCH_NAME} -t netlify/build:${env.BRANCH_NAME} -t netlify/build:${env.GIT_COMMIT} ."
+      }
+    }
+
+    stage("Build Squash images") {
+      when {
+        anyOf { buildingTag() }
+      }
+      steps {
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --build-arg NF_IMAGE_TAG=${env.BRANCH_NAME} --squash -t netlify/build:${env.BRANCH_NAME}-squash ."
       }
     }
 
     stage("Push Images") {
       when {
-        anyOf { branch 'master' ; branch 'staging' ; buildingTag()}
+        anyOf { branch 'master' ; branch 'xenial' ; branch 'trusty' ; buildingTag()}
       }
       steps {
         script {
           docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-ci') {
             docker.image("netlify/build:${env.BRANCH_NAME}").push()
             docker.image("netlify/build:${env.GIT_COMMIT}").push()
+          }
+        }
+      }
+    }
+
+    stage("Push Squash Images") {
+      when {
+        anyOf { buildingTag()}
+      }
+      steps {
+        script {
+          docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-ci') {
             docker.image("netlify/build:${env.BRANCH_NAME}-squash").push()
-            docker.image("netlify/build:${env.GIT_COMMIT}-squash").push()
           }
         }
       }

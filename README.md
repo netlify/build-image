@@ -12,12 +12,9 @@ The specific patch versions included will depend on when the image was last buil
 
 * Ruby - `RUBY_VERSION`, `.ruby-version`
   * 2.6.1 (default)
-  * 2.5.3
-  * 2.4.5
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
   * 10 (default)
-  * 11
   * Any version that `nvm` can install.
 * Python - `runtime.txt` or `Pipfile`
   * 2.7 (default)

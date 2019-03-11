@@ -202,7 +202,7 @@ install_dependencies() {
   fi
 
   if nvm install $NODE_VERSION
-  then 
+  then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us
     export NODE_VERSION=$NODE_VERSION
@@ -276,7 +276,7 @@ install_dependencies() {
       exit 1
     fi
   fi
-  
+
   if ! gem list -i "^bundler$" > /dev/null 2>&1
   then
     if ! gem install bundler
@@ -440,6 +440,7 @@ install_dependencies() {
     if [ $? -eq 0 ]
     then
       export PATH=$(dirname $hugoOut):$PATH
+      hugo version
     else
       echo "Error during Hugo $HUGO_VERSION install: $hugoOut"
       exit 1

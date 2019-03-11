@@ -440,6 +440,7 @@ install_dependencies() {
     if [ $? -eq 0 ]
     then
       export PATH=$(dirname $hugoOut):$PATH
+      hugo version
     else
       echo "Error during Hugo $HUGO_VERSION install: $hugoOut"
       exit 1

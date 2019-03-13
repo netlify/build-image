@@ -2,6 +2,8 @@
 
 This is the **Trusty** build image. It runs on Ubuntu version 14.04 (aka Trusty), and includes the languages and software versions listed below.
 
+For instructions on how to run this image locally to test your build, please see the [README](/README.md).
+
 ### Languages
 
 The specific patch versions included will depend on when the image was last built (except Ruby). It is highly suggested you depend only on minor versions, so that we can ensure the language has the latest updates (especially if security related).

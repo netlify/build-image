@@ -11,7 +11,7 @@ LABEL maintainer Netlify
 ENV LANGUAGE en_US:en
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-ENV PANDOC_VERSION 2.2.1
+ENV PANDOC_VERSION 2.4
 
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
@@ -167,6 +167,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         unzip \
         virtualenv \
         wget \
+        xfonts-base \
+        xfonts-75dpi \
         xvfb \
         zip \
         && \
@@ -183,10 +185,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 #
 ################################################################################
 
-RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
-    tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz && \
-    cd wkhtmltox && \
-    cp -r ./ /usr/ && \
+RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.trusty_amd64.deb && \
+    dpkg -i wkhtmltox_0.12.5-1.trusty_amd64.deb && \
+    rm wkhtmltox_0.12.5-1.trusty_amd64.deb && \
     wkhtmltopdf -V
 
 # install Pandoc (more recent version to what is provided in Ubuntu 14.04)

@@ -171,6 +171,12 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         xfonts-75dpi \
         xvfb \
         zip \
+# dotnet core dependencies
+	libunwind8-dev \
+	libicu-dev \
+	libcurl3 \
+	liblttng-ust0 \
+	libkrb5-3 \	
         && \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
     apt-get clean && \
@@ -396,6 +402,26 @@ ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 ENV GIMME_GO_VERSION "1.12"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
 RUN gimme
+
+
+
+################################################################################
+#
+# Dotnet Core
+#
+################################################################################
+USER buildbot
+WORKDIR /tmp
+RUN wget https://dot.net/v1/dotnet-install.sh 
+RUN chmod u+x /tmp/dotnet-install.sh
+RUN /tmp/dotnet-install.sh -c Current
+ENV PATH "$PATH:/opt/buildhome/.dotnet/tools"
+ENV PATH "$PATH:/opt/buildhome/.dotnet"
+ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
+#populate local package cache
+RUN dotnet new
+WORKDIR /
+
 
 # Cleanup
 USER root

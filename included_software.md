@@ -1,6 +1,6 @@
-## Included Software: Trusty
+## Included Software: Xenial
 
-This is the **Trusty** build image. It runs on Ubuntu version 14.04 (aka Trusty), and includes the languages and software versions listed below.
+This is the **Xenial** build image. It runs on Ubuntu version 16.04 (aka Xenial), and includes the languages and software versions listed below.
 
 For instructions on how to run this image locally to test your build, please see the [README](/README.md).
 
@@ -10,8 +10,6 @@ The specific patch versions included will depend on when the image was last buil
 
 * Ruby - `RUBY_VERSION`, `.ruby-version`
   * 2.6.1 (default)
-  * 2.5.3
-  * 2.4.5
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
   * 10 (default)
@@ -37,7 +35,7 @@ The specific patch versions included will depend on when the image was last buil
 
 * Node.js
   * Yarn - `YARN_VERSION`
-    * 1.3.2 (default)
+    * 1.13.0 (default)
     * Any version available via their installer.
   * NPM - `NPM_VERSION`
     * Version corresponding with Node.js version. (default)

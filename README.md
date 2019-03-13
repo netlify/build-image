@@ -1,44 +1,91 @@
 # Netlify Build Image
 
-This repository contains the tools to make the build image Netlify uses to build a site from git (for continuous deployment.)
+This repository contains the tools to make the build image that Netlify's continuous deployment buildbot uses to build a site from a connected Git repository.
 
-You can also use the image this generates to test locally if you're having build issues.
+If you're having problems with your build, you can also use these tools to test locally.
 
-## Running Locally
+## Available images
 
-To use this tool, you must first clone it:
-```
-git clone netlify/build-image
-```
+Netlify maintains multiple build images for testing new development as well as supporting legacy builds. Each image uses a different version of Ubuntu Linux, with a slightly different list of included language and software versions. 
 
-Next, the Docker Image needs to be built, which takes a long time, instead we recommend get the latest version of the image that we've published, pre-built for your testing pleasure:
+The following images are currently available:
+
+- `trusty` - Legacy build image for older sites; running Ubuntu 14.04 and [this software](https://github.com/netlify/build-image/blob/trusty/included_software.md)
+- `xenial` - Default build image for all new sites; running Ubuntu 16.04 and [this software](https://github.com/netlify/build-image/blob/xenial/included_software.md)
+
+Each image name above corresponds to a branch in this repository. The `master` branch is currently identical to `trusty`.
+
+## Running locally
+
+Emulating Netlify's buildbot on your local machine requires the following:
+
+- [Docker](https://docs.docker.com/install/)
+- A local clone of this build-image repository
+- A local clone of the site repository you want to test, checked out to the branch you want to be built, with a clean git status (nothing to commit).
+
+### Step 1: Pull the build image
+
+Open your Docker terminal, and run the following command to pull the default image:
+
 ```
 docker pull netlify/build
 ```
 
-### Usage
-Prerequisites:
-1. This repository cloned locally
-2. The reposotory you would like to test also cloned locally
-3. Be sure to have a clean git status in the test repository (e.g. commit or stash).
-4. Ensure the test repository's branch is the inteneded one to be built
-
-Interactive Mode:
-1. To run the test image in interactive mode, run the following command: `./test-tools/start-image.sh path/to/my/repo`.  This will open an interactive shell within the container
-2. Within that container's shell, use our 'build' script to simulate your build in our environment, using your own build command: `build jekyll build` (Replace `jekyll build` with your build command of choice.)
-
-Note that local testing will not incorporate your Build Environment Variables from our UI or any settings from netlify.toml.  You will need to "apply" the correct settings and build command manually, for instance:
+To pull an alternate image, add the image name (from the [list above](#available-images)) to the end of the command, like so:
 
 ```
-export NODE_VERSION=6 NODE_ENV=production ; build npm run build
+docker pull netlify/build:xenial
+```
+
+### Step 2: Start the script to run interactively
+
+Still in your Docker terminal, change directories into your local clone of this build-image repository.
+
+If you pulled an alternate image in Step 1, check out the corresponding branch in this repository.
+
+Run the following command to start the interactive shell within the container:
+
+```
+./test-tools/start-image.sh path/to/site/repo
+```
+
+If you receive a `command not found` message, make sure you are in the baase of the build-image repository.
+
+If the command works correctly, you should see a new prompt, with the user `buildbot`.
+
+### Step 3: Have the buildbot run your build command
+
+In the buildbot shell, run `build` followed by your site build command. For example, for a site build command of `npm run build`, you would run the following:
+
+```
+build npm run build
+```
+
+This will run the build as it would run on Netlify, displaying logs in your terminal as it goes. When you are done testing, you can exit the buildbot shell by typing `exit`.
+
+### Build environment variables
+
+Your local buildbot emulator doesn't have access to build environment variables set in the Netlify UI or netlify.toml file. However, you can explicitly set them in the interactive buildbot shell before running your build command.
+
+Here is an example that sets `NODE_VERSION` and `NODE_ENV` before running a build command of `npm run build`:
+
+```
+export NODE_VERSION=8 NODE_ENV=production ; build npm run build
 ```
 
 ## Testing locally with cache
 
-If you'd like to run a debugging build using our caching mechanisms, with verbose shell output, you can instead use `test-tools/test-build.sh path/to/your/repo 'your build command'`
+If you'd like to run a debugging build using our caching mechanisms, with verbose shell output, you can replace steps 2 and 3 above with the following command:
 
-This will create a tmp directory that will have the repo we cloned, the cache (with hidden files), and the scripts we ran.
-You can run also run with that cache by prepending `T=tmp/tmp.XXXXX` to the build command.
+```
+./test-tools/test-build.sh path/to/site/repo 'your build command'
+```
+
+This will create a `tmp` directory that will have the repo that the buildbot cloned, the scripts run by the buildbot, and the cache (with hidden files). The terminal displays the path to the `tmp` directory at the start of each build. You specify this path in an environment variable prepended to the command above, like so:
+
+```
+T=tmp/tmp.XXXXX ./test-tools/test-build.sh path/to/site/repo 'your build command'
+```
 
 ## Contributing
 

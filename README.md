@@ -13,7 +13,7 @@ The following images are currently available:
 - `trusty` - Legacy build image for older sites; running Ubuntu 14.04 and [this software](https://github.com/netlify/build-image/blob/trusty/included_software.md)
 - `xenial` - Default build image for all new sites; running Ubuntu 16.04 and [this software](https://github.com/netlify/build-image/blob/xenial/included_software.md)
 
-Each image name above corresponds to a branch in this repository. The `master` branch is currently identical to `trusty`.
+Each image name above corresponds to a branch in this repository.
 
 ## Running locally
 

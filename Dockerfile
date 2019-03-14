@@ -245,6 +245,7 @@ RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
                   rvm install 2.5.4 && rvm use 2.5.4 && gem install bundler && \
                   rvm install 2.4.5 && rvm use 2.4.5 && gem install bundler && \
+                  rvm install 2.3.6 && rvm use 2.3.6 && gem install bundler -v 1.17.3 && \
                   rvm use 2.6.2 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

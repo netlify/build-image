@@ -1,6 +1,6 @@
 FROM ubuntu:14.04
 
-MAINTAINER Netlify
+LABEL maintainer Netlify
 
 ################################################################################
 #
@@ -43,6 +43,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         bzr \
         cmake \
         curl \
+        doxygen \
         elixir \
         emacs25-nox \
         esl-erlang \
@@ -99,6 +100,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libcurl3 \
         libcurl3-gnutls \
         libcurl3-openssl-dev \
+        libenchant1c2a \
         libexif-dev \
         libffi-dev \
         libfontconfig1 \
@@ -261,18 +263,14 @@ RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.s
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd ~/.nvm && \
-    git checkout v0.33.4 && \
+    git checkout v0.34.0 && \
     cd /
 
-ENV ELM_VERSION=0.17.1
-ENV YARN_VERSION=1.3.2
+ENV ELM_VERSION=0.19.0-bugfix6
+ENV YARN_VERSION=1.13.0
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
-         nvm install 4 && nvm use 4 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
-             bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
-         nvm install 6 && nvm use 6 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
-             bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
-         nvm install 8 && nvm use 8 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         nvm install 10 && nvm use 10 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 
@@ -412,7 +410,7 @@ ENV PATH "$PATH:/opt/buildhome/.gimme/bin"
 ENV GOPATH "/opt/buildhome/.gimme_cache/gopath"
 ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
-ENV GIMME_GO_VERSION "1.10"
+ENV GIMME_GO_VERSION "1.12"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
 RUN gimme
 
@@ -441,3 +439,6 @@ ADD buildbot-git-config /root/.gitconfig
 USER buildbot
 ARG NF_IMAGE_VERSION
 ENV NF_IMAGE_VERSION ${NF_IMAGE_VERSION:-latest}
+
+ARG NF_IMAGE_TAG
+ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}

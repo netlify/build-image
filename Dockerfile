@@ -176,7 +176,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	libicu-dev \
 	libcurl3 \
 	liblttng-ust0 \
-	libkrb5-3 \	
+	libkrb5-3 \
         && \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
     apt-get clean && \
@@ -247,8 +247,8 @@ ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
 
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.6.1 && rvm use 2.6.1 && gem install bundler && \
-                  rvm use 2.6.1 --default && rvm cleanup all"
+                  rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
+                  rvm use 2.6.2 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 USER root
@@ -412,7 +412,7 @@ RUN gimme
 ################################################################################
 USER buildbot
 WORKDIR /tmp
-RUN wget https://dot.net/v1/dotnet-install.sh 
+RUN wget https://dot.net/v1/dotnet-install.sh
 RUN chmod u+x /tmp/dotnet-install.sh
 RUN /tmp/dotnet-install.sh -c Current
 ENV PATH "$PATH:/opt/buildhome/.dotnet/tools"

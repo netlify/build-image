@@ -16,9 +16,8 @@ The specific patch versions included will depend on when the image was last buil
   * Any version that `nvm` can install.
 * Python - `runtime.txt` or `Pipfile`
   * 2.7 (default)
-  * 3.4
   * 3.5
-  * 3.6
+  * 3.7
 * PHP - `PHP_VERSION`
   * 5.6 (default)
   * 7.2

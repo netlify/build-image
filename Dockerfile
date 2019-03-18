@@ -24,14 +24,14 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     update-locale en_US.UTF-8 && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
     apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
-    apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main' && \
+    apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ xenial main' && \
     add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:rwky/graphicsmagick && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     add-apt-repository -y ppa:kelleyk/emacs && \
-    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu trusty contrib' && \
+    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu xenial contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -191,9 +191,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 #
 ################################################################################
 
-RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.trusty_amd64.deb && \
-    dpkg -i wkhtmltox_0.12.5-1.trusty_amd64.deb && \
-    rm wkhtmltox_0.12.5-1.trusty_amd64.deb && \
+RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb && \
+    dpkg -i wkhtmltox_0.12.5-1.xenial_amd64.deb && \
+    rm wkhtmltox_0.12.5-1.xenial_amd64.deb && \
     wkhtmltopdf -V
 
 # install Pandoc (more recent version to what is provided in Ubuntu 14.04)

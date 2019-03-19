@@ -60,7 +60,7 @@ The specific patch versions included will depend on when the image was last buil
   * Boot
     * 2.5.2
 * Hugo - `HUGO_VERSION`
-  * 0.54 extended (default)
+  * 0.17 (default)
   * Any version installable via `binrc`.
 * Gutenburg - `GUTENBERG_VERSION`
   * Any version installable via `binrc`.

@@ -430,6 +430,7 @@ USER root
 ADD run-build-functions.sh /usr/local/bin/run-build-functions.sh
 ADD run-build.sh /usr/local/bin/build
 ADD buildbot-git-config /root/.gitconfig
+RUN rm -r /tmp/*
 
 USER buildbot
 ARG NF_IMAGE_VERSION

@@ -4,7 +4,7 @@ pipeline {
   stages {
     stage("Test Build") {
       when {
-        not { anyOf { branch 'master' ; branch 'xenial' ; branch 'trusty  ' ; buildingTag() } }
+        not { anyOf { branch 'staging' ; branch 'xenial' ; branch 'trusty  ' ; buildingTag() } }
       }
       steps {
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} ."
@@ -13,7 +13,7 @@ pipeline {
 
     stage("Build Tags and Special Branches") {
       when {
-        anyOf { branch 'master' ; branch 'xenial' ; branch 'trusty' ; buildingTag() }
+        anyOf { branch 'staging' ; branch 'xenial' ; branch 'trusty' ; buildingTag() }
       }
       steps {
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --build-arg NF_IMAGE_TAG=${env.BRANCH_NAME} -t netlify/build:${env.BRANCH_NAME} -t netlify/build:${env.GIT_COMMIT} ."
@@ -31,7 +31,7 @@ pipeline {
 
     stage("Push Images") {
       when {
-        anyOf { branch 'master' ; branch 'xenial' ; branch 'trusty' ; buildingTag()}
+        anyOf { branch 'staging' ; branch 'xenial' ; branch 'trusty' ; buildingTag()}
       }
       steps {
         script {

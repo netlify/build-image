@@ -150,6 +150,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.2-curl \
         php7.2-zip \
         pngcrush \
+        pngquant \
         python-setuptools \
         python \
         python-dev \

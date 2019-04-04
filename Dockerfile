@@ -308,18 +308,37 @@ USER root
 
 ################################################################################
 #
-# Hugo
+# Binrc
 #
 ################################################################################
 
-ENV BINRC_VERSION 0.2.6
+ENV BINRC_VERSION 0.2.9
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
     ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
 
-RUN binrc install gohugoio/hugo 0.54.0 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.54.0 && \
-    ln -s /usr/local/bin/hugo_0.54.0 /usr/local/bin/hugo
+################################################################################
+#
+# Hugo
+#
+################################################################################
+
+ENV HUGO_VERSION 0.54.0
+
+RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_${HUGO_VERSION} && \
+    ln -s /usr/local/bin/hugo_${HUGO_VERSION} /usr/local/bin/hugo
+
+################################################################################
+#
+# Zip-it-and-ship-it
+#
+################################################################################
+
+ENV ZIP_IT_AND_SHIP_IT_VERSION 0.2.4
+
+RUN binrc install netlify/zip-it-and-ship-it ${ZIP_IT_AND_SHIP_IT_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/zip-it-and-ship-it_${ZIP_IT_AND_SHIP_IT_VERSION} && \
+    ln -s /usr/local/bin/zip-it-and-ship-it_${ZIP_IT_AND_SHIP_IT_VERSION} /usr/local/bin/zip-it-and-ship-it
 
 ################################################################################
 #

@@ -525,6 +525,7 @@ install_dependencies() {
 # Take things installed during the build and cache them
 #
 cache_artifacts() {
+  echo "Caching artifacts"
   cache_cwd_directory ".bundle" "ruby gems"
   cache_cwd_directory "bower_components" "bower components"
   cache_cwd_directory "node_modules" "node modules"
@@ -647,9 +648,6 @@ report_lingering_procs() {
 }
 
 after_build_steps() {
-  echo "Caching artifacts"
-  cache_artifacts
-
   # Find lingering processes after the build finished and report it to the user
   report_lingering_procs
 }

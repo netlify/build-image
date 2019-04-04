@@ -314,7 +314,7 @@ USER root
 
 ################################################################################
 #
-# Hugo
+# Binrc
 #
 ################################################################################
 
@@ -323,6 +323,12 @@ ENV BINRC_VERSION 0.2.5
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
     ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
+
+################################################################################
+#
+# Hugo
+#
+################################################################################
 
 RUN binrc install spf13/hugo 0.17 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.17 && \
     binrc install spf13/hugo 0.18 -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_0.18 && \
@@ -334,6 +340,17 @@ RUN mkdir /opt/buildhome/stdc++6 && \
     wget -q -O libstdc++6.deb http://security.ubuntu.com/ubuntu/pool/main/g/gcc-5/libstdc++6_5.4.0-6ubuntu1~16.04.10_amd64.deb && \
     dpkg -x libstdc++6.deb /opt/buildhome/stdc++6 && \
     rm -fr libstdc++6.deb
+
+################################################################################
+#
+# Zip-it-and-ship-it
+#
+################################################################################
+
+ENV ZIP_IT_AND_SHIP_IT_VERSION 0.2.4
+
+RUN binrc install netlify/zip-it-and-ship-it ${ZIP_IT_AND_SHIP_IT_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/zip-it-and-ship-it_${ZIP_IT_AND_SHIP_IT_VERSION} && \
+    ln -s /usr/local/bin/zip-it-and-ship-it_${ZIP_IT_AND_SHIP_IT_VERSION} /usr/local/bin/zip-it-and-ship-it
 
 ################################################################################
 #

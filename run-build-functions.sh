@@ -183,7 +183,7 @@ install_dependencies() {
   : ${NODE_VERSION="$defaultNodeVersion"}
 
   # restore only non-existing cached versions
-  if [ $(ls $NETLIFY_CACHE_DIR/node_version/) ]
+  if [[ $(ls $NETLIFY_CACHE_DIR/node_version/) ]]
   then
     echo "Started restoring cached node version"
     rm -rf $NVM_DIR/versions/node/*
@@ -546,6 +546,8 @@ cache_artifacts() {
   then
     unlink $GOPATH/src/$GO_IMPORT_PATH
   fi
+
+  chmod -R +rw $HOME/.gimme_cache
   cache_home_directory ".gimme_cache" "go dependencies"
 
   # cache the version of node installed
@@ -553,12 +555,11 @@ cache_artifacts() {
   then
     rm -rf $NETLIFY_CACHE_DIR/node_version
     mkdir $NETLIFY_CACHE_DIR/node_version
-    mv $NVM_DIR/versions/node/$NODE_VERSION $NETLIFY_CACHE_DIR/node_version/
-    echo "Cached node version $NODE_VERSION"
+    mv $NVM_DIR/versions/node/* $NETLIFY_CACHE_DIR/node_version/
   fi
 
   # cache the version of ruby installed
-  if [ "$CUSTOM_RUBY" -ne "0" ]
+  if [[ "$CUSTOM_RUBY" -ne "0" ]]
   then
     if ! [ -d $NETLIFY_CACHE_DIR/ruby_version/ruby-$RUBY_VERSION ]
     then

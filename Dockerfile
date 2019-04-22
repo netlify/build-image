@@ -335,7 +335,7 @@ RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs
 #
 ################################################################################
 
-ENV ZIP_IT_AND_SHIP_IT_VERSION 0.2.5
+ENV ZIP_IT_AND_SHIP_IT_VERSION 0.3.1
 
 RUN binrc install netlify/zip-it-and-ship-it ${ZIP_IT_AND_SHIP_IT_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/zip-it-and-ship-it_${ZIP_IT_AND_SHIP_IT_VERSION} && \
     ln -s /usr/local/bin/zip-it-and-ship-it_${ZIP_IT_AND_SHIP_IT_VERSION} /usr/local/bin/zip-it-and-ship-it

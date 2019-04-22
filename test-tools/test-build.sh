@@ -20,7 +20,7 @@ set -e
 : ${RUBY_VERSION="2.6.2"}
 : ${YARN_VERSION="1.13.0"}
 : ${NPM_VERSION=""}
-: ${HUGO_VERSION="0.54"}
+: ${HUGO_VERSION="0.54.0"}
 : ${PHP_VERSION="5.6"}
 : ${GO_VERSION="1.12"}
 

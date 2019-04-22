@@ -422,14 +422,18 @@ ENV GIMME_GO_VERSION "1.12"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
 RUN gimme
 
-
+################################################################################
+#
+# Wasmer
+#
+################################################################################
+RUN curl https://get.wasmer.io -sSfL | sh
 
 ################################################################################
 #
 # Dotnet Core
 #
 ################################################################################
-USER buildbot
 WORKDIR /tmp
 RUN wget https://dot.net/v1/dotnet-install.sh
 RUN chmod u+x /tmp/dotnet-install.sh
@@ -440,7 +444,6 @@ ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
 #populate local package cache
 RUN dotnet new
 WORKDIR /
-
 
 # Cleanup
 USER root

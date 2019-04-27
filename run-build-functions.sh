@@ -379,7 +379,14 @@ install_dependencies() {
   then
     if ! [ $(which bower) ]
     then
-      npm install bower
+      if [ -f yarn.lock ]
+      then
+        echo "Installing bower with Yarn"
+        yarn add bower
+      else
+        echo "Installing bower with NPM"
+        npm install bower
+      fi
       export PATH=$(npm bin):$PATH
     fi
     restore_cwd_cache bower_components "bower components"

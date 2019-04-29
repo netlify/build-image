@@ -318,6 +318,13 @@ RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
     ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
 
+# Create a place for binrc to link/persist installs to the PATH
+USER buildbot
+RUN mkdir -p /opt/buildhome/.binrc/bin
+ENV PATH "/opt/buildhome/.binrc/bin:$PATH"
+
+USER root
+
 ################################################################################
 #
 # Hugo

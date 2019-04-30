@@ -532,11 +532,11 @@ install_dependencies() {
   fi
 
   # WAPM version
+  source $HOME/.wasmer/wasmer.sh
   if [ -f wapm.toml ] || [ -f wapm.lock ]
   then
     restore_home_cache ".wasmer/cache" "wasmer cache"
     restore_cwd_cache "wapm_packages" "wapm packages"
-    source $HOME/.wasmer/wasmer.sh
     wapm install
     if [ $? -eq 0 ]
     then

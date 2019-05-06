@@ -119,6 +119,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libnss3 \
         libpng12-dev \
         libreadline6-dev \
+        librsvg2-bin \
         libsm6 \
         libsqlite3-dev \
         libssl-dev \

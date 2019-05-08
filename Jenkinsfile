@@ -45,7 +45,7 @@ pipeline {
 
     stage("Push Squash Images") {
       when {
-        anyOf { buildingTag()}
+        anyOf { buildingTag() }
       }
       steps {
         script {

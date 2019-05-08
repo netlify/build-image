@@ -483,7 +483,7 @@ install_dependencies() {
       exit 1
     fi
   fi
-  
+
   # zip-it-and-ship-it
   if [ -n "$ZISI_VERSION" ]
   then
@@ -684,6 +684,39 @@ set_go_import_path() {
   fi
 }
 
+prep_functions() {
+  local functionsDir=$1
+  local zisiTempDir=$2
+
+  if [[ -z "$functionsDir" ]]; then
+    echo "Skipping functions preparation step: no functions directory set"
+    return 0
+  else
+    echo Function Dir: $functionsDir
+  fi
+
+  if [[ ! -d "$functionsDir" ]]; then
+    echo "Skipping functions preparation step: $functionsDir not found"
+    return 0
+  fi
+
+  if [[ -z "$zisiTempDir" ]]; then
+    echo "Skipping functions preparation step: no temp directory set"
+  else
+    echo TempDir: $zisiTempDir
+  fi
+  # ZISI will create this foler if it doesn't exist, we don't need to check for it
+
+  echo Prepping functions with zip-it-and-ship-it $(zip-it-and-ship-it --version)
+
+  if zip-it-and-ship-it $functionsDir $zisiTempDir; then
+    echo "Prepping functions complete"
+  else
+    echo "Error prepping functions"
+    exit 1
+  fi
+}
+
 find_running_procs() {
   ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/usr/local/bin/buildbot" | grep -v [d]efunct | grep -v "[build]"
 }
@@ -703,9 +736,4 @@ report_lingering_procs() {
     echo "failed since something is still running."
     echo -e "${NC}"
   fi
-}
-
-after_build_steps() {
-  # Find lingering processes after the build finished and report it to the user
-  report_lingering_procs
 }

@@ -37,6 +37,4 @@ echo "Executing user command: $cmd"
 eval "$cmd"
 CODE=$?
 
-after_build_steps
-
 exit $CODE

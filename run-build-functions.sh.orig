@@ -461,6 +461,23 @@ install_dependencies() {
     fi
   fi
 
+<<<<<<< HEAD
+=======
+  # Zola
+  if [ -n "$ZOLA_VERSION" ]
+  then
+    echo "Installing Zola $ZOLA_VERSION"
+    zolaOut=$(binrc install -c $NETLIFY_CACHE_DIR/.binrc-$(binrc version) zola)
+    if [ $? -eq 0 ]
+    then
+      export PATH=$(dirname $zolaOut):$PATH
+    else
+      echo "Error during Zola $ZOLA_VERSION install: $zolaOut"
+      exit 1
+    fi
+  fi
+
+>>>>>>> 23b55c2... Add prep functions build function
   # zip-it-and-ship-it
   if [ -n "$ZISI_VERSION" ]
   then
@@ -696,9 +713,4 @@ report_lingering_procs() {
     echo "failed since something is still running."
     echo -e "${NC}"
   fi
-}
-
-after_build_steps() {
-  # Find lingering processes after the build finished and report it to the user
-  report_lingering_procs
 }

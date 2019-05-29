@@ -51,6 +51,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.composer
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gopath
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gocache
 mkdir -p $NETLIFY_CACHE_DIR/.wasmer/cache
+mkdir -p $NETLIFY_CACHE_DIR/.cargo/registry
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
@@ -571,6 +572,22 @@ install_dependencies() {
     fi
   fi
 
+  # Install rust dependencies and compile the code.
+  if [ -f Cargo.toml ] || [ -f Cargo.lock ]
+  then
+    restore_home_cache ".cargo/registry" "rust deps"
+    source $HOME/.cargo/env
+    cargo update
+    cargo build --release
+    if [ $? -eq 0 ]
+    then
+      echo "Rust dependencies installed and compiled."
+    else
+      echo "Error during Rust code compilation."
+      exit 1
+    fi
+  fi
+
   # Setup project GOPATH
   if [ -n "$GO_IMPORT_PATH" ]
   then
@@ -599,6 +616,7 @@ cache_artifacts() {
   cache_home_directory ".boot" "boot dependencies"
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".wasmer/cache", "wasmer cache"
+  cache_home_directory ".cargo/registry" "rust toolchain and deps"
 
   # Don't follow the Go import path or we'll store
   # the origin repo twice.

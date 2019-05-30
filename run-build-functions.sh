@@ -577,7 +577,6 @@ install_dependencies() {
   then
     restore_home_cache ".cargo/registry" "rust deps"
     source $HOME/.cargo/env
-    cargo update
     cargo build --release
     if [ $? -eq 0 ]
     then

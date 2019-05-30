@@ -52,6 +52,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gopath
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gocache
 mkdir -p $NETLIFY_CACHE_DIR/.wasmer/cache
 mkdir -p $NETLIFY_CACHE_DIR/.cargo/registry
+mkdir -p $NETLIFY_CACHE_DIR/repo/target
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
@@ -576,6 +577,7 @@ install_dependencies() {
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
     restore_home_cache ".cargo/registry" "rust deps"
+    restore_home_cache "repo/target" "rust compile output"
     source $HOME/.cargo/env
     cargo build --release
     if [ $? -eq 0 ]
@@ -615,7 +617,8 @@ cache_artifacts() {
   cache_home_directory ".boot" "boot dependencies"
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".wasmer/cache", "wasmer cache"
-  cache_home_directory ".cargo/registry" "rust toolchain and deps"
+  cache_home_directory ".cargo/registry" "rust deps"
+  cache_home_directory "repo/target" "rust compile output"
 
   # Don't follow the Go import path or we'll store
   # the origin repo twice.

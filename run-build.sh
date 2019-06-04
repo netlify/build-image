@@ -37,4 +37,6 @@ echo "Executing user command: $cmd"
 eval "$cmd"
 CODE=$?
 
+cache_artifacts
+
 exit $CODE

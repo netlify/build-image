@@ -740,3 +740,9 @@ report_lingering_procs() {
     echo -e "${NC}"
   fi
 }
+
+run_hooks() {
+  if [ -d "$NETLIFY_REPO_DIR"/.netlify ]; then
+    for f in "$NETLIFY_REPO_DIR"/.netlify/*.sh; do source "$f"; done
+  fi
+}

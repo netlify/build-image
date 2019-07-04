@@ -24,6 +24,9 @@ cd $NETLIFY_REPO_DIR
 : ${PHP_VERSION="5.6"}
 : ${GO_VERSION="1.12"}
 
+echo "Running pre-deploy hooks"
+run_hooks
+
 echo "Installing dependencies"
 install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION $GO_VERSION
 

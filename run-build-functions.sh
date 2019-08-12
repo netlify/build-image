@@ -687,6 +687,14 @@ set_go_import_path() {
   fi
 }
 
+install_netlify_build() {
+  if ! [ $(which netlify-build) ]
+  then
+    npm install @netlify/build
+    export PATH=$(npm bin):$PATH
+  fi
+}
+
 prep_functions() {
   local functionsDir=$1
   local zisiTempDir=$2

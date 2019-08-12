@@ -27,6 +27,9 @@ cd $NETLIFY_REPO_DIR
 echo "Installing dependencies"
 install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION $GO_VERSION
 
+echo  "Install Netlify Build"
+install_netlify_build
+
 echo "Installing missing commands"
 install_missing_commands
 

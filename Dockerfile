@@ -107,6 +107,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libgif-dev \
         libglib2.0-dev \
         libgmp3-dev \
+        libgsl2 \
+        libgsl-dev \
         libgtk-3-0 \
         libgtk2.0-0 \
         libicu-dev \

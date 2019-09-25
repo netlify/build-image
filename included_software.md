@@ -12,6 +12,9 @@ The specific patch versions included will depend on when the image was last buil
   * 2.6.2 (default)
   * 2.5.4
   * 2.4.5
+  * 2.4.3
+  * 2.3.6
+  * 2.2.9
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
   * 10 (default)

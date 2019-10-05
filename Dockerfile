@@ -211,11 +211,11 @@ RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-
 
 WORKDIR /tmp
 
-# this actually builds v8.6.2
+# this actually builds v8.8.3
 RUN \
-  curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/archive/v8.6.2.tar.gz && \
-  tar xvf vips-8.6.2.tar.gz && \
-  cd libvips-8.6.2 && \
+  curl -sLo vips-8.8.3.tar.gz https://github.com/libvips/libvips/releases/download/v8.8.3/vips-8.8.3.tar.gz && \
+  tar xvf vips-8.8.3.tar.gz && \
+  cd vips-8.8.3 && \
   ./autogen.sh && \
   ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
   make && \

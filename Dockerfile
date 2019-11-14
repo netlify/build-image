@@ -250,7 +250,7 @@ ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
 
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
+                  rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler:2.0.1 && \
                   rvm use 2.6.2 --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

@@ -282,13 +282,27 @@ install_dependencies() {
     fi
   fi
 
-  if ! gem list -i "^bundler$" > /dev/null 2>&1
+  # get bundler version
+  local bundler_version
+  if [ -f Gemfile.lock ]
   then
-    if ! gem install bundler
-    then
-      echo "Error installing bundler"
-      exit 1
-    fi
+     bundler_version="$(cat Gemfile.lock | grep -C1 '^BUNDLED WITH$' | tail -n1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' | tr -d \\n)"
+  fi
+
+  if ! gem list -i "^bundler$" -v "$bundler_version" > /dev/null 2>&1
+  then
+      local bundler_gem_name
+      if [ -z "$bundler_version" ]
+      then
+          bundler_gem_name=bundler
+      else
+          bundler_gem_name="bundler:$bundler_version"
+      fi
+      if ! gem install "$bundler_gem_name"
+      then
+          echo "Error installing bundler"
+          exit 1
+      fi
   fi
 
   # Java version

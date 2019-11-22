@@ -289,6 +289,11 @@ install_dependencies() {
      bundler_version="$(cat Gemfile.lock | grep -C1 '^BUNDLED WITH$' | tail -n1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' | tr -d \\n)"
   fi
 
+  if ! [ -z "$bundler_version" ]
+  then
+      echo "Using bundler version $bundler_version from Gemfile.lock"
+  fi
+
   if ! gem list -i "^bundler$" -v "$bundler_version" > /dev/null 2>&1
   then
       local bundler_gem_name
@@ -330,8 +335,15 @@ install_dependencies() {
     restore_cwd_cache ".bundle" "ruby gems"
     if install_deps Gemfile.lock $RUBY_VERSION $NETLIFY_CACHE_DIR/gemfile-sha || [ ! -d .bundle ]
     then
+      local bundle_command
+      if [ -z "$bundler_version" ]
+      then
+          bundle_command="bundle"
+      else
+          bundle_command="bundle _${bundler_version}_"
+      fi
       echo "Installing gem bundle"
-      if bundle install --path $NETLIFY_CACHE_DIR/bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs ${BUNDLER_FLAGS:+"$BUNDLER_FLAGS"}
+      if $bundle_command install --path $NETLIFY_CACHE_DIR/bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs ${BUNDLER_FLAGS:+"$BUNDLER_FLAGS"}
       then
       export PATH=$NETLIFY_CACHE_DIR/binstubs:$PATH
         echo "Gem bundle installed"

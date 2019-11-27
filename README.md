@@ -37,13 +37,14 @@ docker pull netlify/build:v3.0.2 # replace the version with a git tag of the spe
 
 Still in your Docker terminal, change directories into your local clone of this build-image repository.
 
-If you pulled an alternate image in Step 1, check out the corresponding branch in this repository.
-
 Run the following command to start the interactive shell within the container:
 
 ```
 ./test-tools/start-image.sh path/to/site/repo
 ```
+
+> If you pulled an alternate image in Step 1, set the `NETLIFY_IMAGE` variable with your command:
+> `NETLIFY_IMAGE=netlify/build:VERSION script/start-image.sh path/to/site/repo`
 
 If you receive a `command not found` message, make sure you are in the baase of the build-image repository.
 

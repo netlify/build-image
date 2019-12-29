@@ -23,7 +23,6 @@ fi
 : ${HUGO_VERSION="0.54.0"}
 : ${PHP_VERSION="5.6"}
 : ${GO_VERSION="1.12"}
-: ${SWIFT_VERSION="5.1.3"}
 
 BASE_PATH=$(pwd)
 REPO_PATH="$(cd $1 && pwd)"

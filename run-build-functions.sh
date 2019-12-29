@@ -406,7 +406,7 @@ install_dependencies() {
   if [ -f Package.swift ]
   then
     echo "Building Swift Package"
-    restore_cwd_cache ".build" "spm cache"
+    restore_cwd_cache ".build" "swift build"
     if swift build
     then
       echo "Swift package Built"
@@ -643,7 +643,7 @@ cache_artifacts() {
   cache_cwd_directory "node_modules" "node modules"
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory "wapm_packages", "wapm packages"
-  cache_cwd_directory ".build", "spm cache"
+  cache_cwd_directory ".build", "swift build"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache" "pip cache"

@@ -23,6 +23,7 @@ fi
 : ${HUGO_VERSION="0.54.0"}
 : ${PHP_VERSION="5.6"}
 : ${GO_VERSION="1.12"}
+: ${SWIFT_VERSION="5.1.3"}
 
 BASE_PATH=$(pwd)
 REPO_PATH="$(cd $1 && pwd)"
@@ -51,6 +52,7 @@ docker run --rm \
        -e NETLIFY_VERBOSE \
        -e GO_VERSION \
        -e GO_IMPORT_PATH \
+       -e SWIFT_VERSION \
        -v "${REPO_PATH}:/opt/repo" \
        -v "${BASE_PATH}/run-build.sh:/usr/local/bin/build" \
        -v "${BASE_PATH}/run-build-functions.sh:/usr/local/bin/run-build-functions.sh" \

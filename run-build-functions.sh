@@ -642,8 +642,8 @@ cache_artifacts() {
   cache_cwd_directory "bower_components" "bower components"
   cache_cwd_directory "node_modules" "node modules"
   cache_cwd_directory ".venv" "python virtualenv"
-  cache_cwd_directory "wapm_packages", "wapm packages"
-  cache_cwd_directory ".build", "swift build"
+  cache_cwd_directory "wapm_packages" "wapm packages"
+  cache_cwd_directory ".build" "swift build"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache" "pip cache"

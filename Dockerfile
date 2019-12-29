@@ -24,6 +24,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     update-locale en_US.UTF-8 && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
     apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
+    apt-key adv --fetch-keys https://swift.org/keys/all-keys.asc && \
     apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ xenial main' && \
     add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
@@ -41,6 +42,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         bison \
         build-essential \
         bzr \
+        clang \
         cmake \
         curl \
         doxygen \

@@ -469,6 +469,25 @@ ENV PATH "$PATH:/opt/buildhome/.dotnet"
 ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
 #populate local package cache
 RUN dotnet new
+
+
+################################################################################
+#
+# Swift
+#
+################################################################################
+WORKDIR /tmp
+RUN mkdir -p /opt/buildhome/.swift
+RUN curl -fsSL "$SWIFT_BIN_URL" -o swift.tar.gz "$SWIFT_SIG_URL" -o swift.tar.gz.sig \
+    && gpg --batch --quiet --keyserver ha.pool.sks-keyservers.net --recv-keys "$SWIFT_SIGNING_KEY" \
+    && gpg --batch --verify swift.tar.gz.sig swift.tar.gz \
+    && tar -xzf swift.tar.gz --directory /opt/buildhome/.swift --strip-components=1 \
+    && chmod -R o+r /opt/buildhome/.swift/usr/lib/swift \
+    && rm swift.tar.gz.sig swift.tar.gz
+ENV PATH "$PATH:/opt/buildhome/.swift/usr/bin"
+ENV SWIFT_ROOT "/opt/buildhome/.swift"
+#populate local package cache
+RUN swift --version
 WORKDIR /
 
 # Cleanup

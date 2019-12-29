@@ -39,6 +39,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.venv
 mkdir -p $NETLIFY_CACHE_DIR/wapm_packages
+mkdir -p $NETLIFY_CACHE_DIR/.build
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
@@ -401,6 +402,20 @@ install_dependencies() {
     fi
   fi
 
+  # SPM dependencies
+  if [ -f Package.swift ]
+  then
+    echo "Building Swift Package"
+    restore_cwd_cache ".build" "spm cache"
+    if swift build
+    then
+      echo "Swift package Built"
+    else
+      echo "Error building Swift package"
+      exit 1
+    fi
+  fi
+
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
 
@@ -628,6 +643,7 @@ cache_artifacts() {
   cache_cwd_directory "node_modules" "node modules"
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory "wapm_packages", "wapm packages"
+  cache_cwd_directory ".build", "spm cache"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache" "pip cache"

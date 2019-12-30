@@ -171,6 +171,7 @@ install_dependencies() {
   local defaultPHPVersion=$4
   local installGoVersion=$5
   local defaultSwiftVersion=$6
+  local defaultPythonVersion=$7
 
   # Python Version
   if [ -f runtime.txt ]
@@ -189,7 +190,7 @@ install_dependencies() {
     echo "Found Pipfile restoring Pipenv virtualenv"
     restore_cwd_cache ".venv" "python virtualenv"
   else
-    source $HOME/python2.7/bin/activate
+    source $HOME/python${defaultPythonVersion}/bin/activate
   fi
 
   # Node version

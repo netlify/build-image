@@ -24,6 +24,7 @@ fi
 : ${PHP_VERSION="5.6"}
 : ${GO_VERSION="1.12"}
 : ${SWIFT_VERSION="5.2"}
+: ${PYTHON_VERSION="2.7"}
 
 BASE_PATH=$(pwd)
 REPO_PATH="$(cd $1 && pwd)"

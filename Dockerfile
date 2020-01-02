@@ -475,18 +475,11 @@ RUN dotnet new
 # Swift
 #
 ################################################################################
-WORKDIR /tmp
-RUN mkdir -p /opt/buildhome/.swift
-ENV SWIFT_BIN_URL="https://swift.org/builds/swift-5.1.3-release/ubuntu1604/swift-5.1.3-RELEASE/swift-5.1.3-RELEASE-ubuntu16.04.tar.gz"
-RUN wget -q -O - https://swift.org/keys/all-keys.asc | \
-    gpg --import -
-RUN curl -fsL "$SWIFT_BIN_URL" -o swift.tar.gz "$SWIFT_BIN_URL.sig" -o swift.tar.gz.sig \
-    && gpg --batch --verify swift.tar.gz.sig swift.tar.gz \
-    && tar -xzf swift.tar.gz --directory /opt/buildhome/.swift --strip-components=1 \
-    && chmod -R o+r /opt/buildhome/.swift/usr/lib/swift \
-    && rm swift.tar.gz.sig swift.tar.gz
-ENV PATH "$PATH:/opt/buildhome/.swift/usr/bin"
-ENV SWIFT_ROOT "/opt/buildhome/.swift"
+USER buildbot
+ENV SWIFTENV_ROOT="/opt/buildhome/.swiftenv"
+RUN git clone --depth 1 https://github.com/kylef/swiftenv.git "$SWIFTENV_ROOT"
+ENV PATH="$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
+RUN swiftenv install 5.1.3
 RUN swift --version
 
 WORKDIR /

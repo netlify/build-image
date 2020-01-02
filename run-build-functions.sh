@@ -17,6 +17,7 @@ export GIMME_CGO_ENABLED=true
 
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
+export SWIFTENV_ROOT="${SWIFTENV_ROOT:-${HOME}/.swiftenv}"
 
 # Pipenv configuration
 export PIPENV_RUNTIME=2.7
@@ -400,6 +401,21 @@ install_dependencies() {
       echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
       exit 1
     fi
+  fi
+
+  if [ -f .swift-version ]
+  then
+    SWIFT_VERSION=$(cat .swift-version)
+    echo "Attempting Swift version '$SWIFT_VERSION' from .swift-version"
+  fi
+
+  if swiftenv install $SWIFT_VERSION
+  then
+    SWIFT_VERSION=$(swiftenv version)
+    export SWIFT_VERSION=$SWIFT_VERSION
+  else
+    echo "Failed to install Swift version '$SWIFT_VERSION'"
+    exit 1
   fi
 
   # SPM dependencies

@@ -411,12 +411,10 @@ install_dependencies() {
     SWIFT_VERSION=$(cat .swift-version)
     echo "Attempting Swift version '$SWIFT_VERSION' from .swift-version"
   fi
-
   
   if [ -f $SWIFTENV_ROOT/versions/$SWIFT_VERSION/usr/bin/swift ] || swiftenv install $SWIFT_VERSION
   then
-    SWIFT_VERSION=$(swiftenv version)
-    export SWIFT_VERSION=$SWIFT_VERSION
+    echo "Using Swift version $SWIFT_VERSION"
   else
     echo "Failed to install Swift version '$SWIFT_VERSION'"
     exit 1

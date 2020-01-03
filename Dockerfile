@@ -478,7 +478,7 @@ RUN dotnet new
 USER buildbot
 ENV SWIFTENV_ROOT="/opt/buildhome/.swiftenv"
 RUN git clone --depth 1 https://github.com/kylef/swiftenv.git "$SWIFTENV_ROOT"
-ENV PATH="$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
+ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
 RUN swiftenv install 5.1.3
 RUN swift --version
 

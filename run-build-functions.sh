@@ -164,6 +164,7 @@ install_dependencies() {
   local defaultYarnVersion=$3
   local defaultPHPVersion=$4
   local installGoVersion=$5
+  local defaultSwiftVersion=$6
 
   # Python Version
   if [ -f runtime.txt ]
@@ -403,13 +404,16 @@ install_dependencies() {
     fi
   fi
 
+  # Swift Version
+  : ${SWIFT_VERSION="$defaultSwiftVersion"}
   if [ -f .swift-version ]
   then
     SWIFT_VERSION=$(cat .swift-version)
     echo "Attempting Swift version '$SWIFT_VERSION' from .swift-version"
   fi
 
-  if swiftenv install $SWIFT_VERSION
+  
+  if [ -f $SWIFTENV_ROOT/versions/$SWIFT_VERSION/usr/bin/swift ] || swiftenv install $SWIFT_VERSION
   then
     SWIFT_VERSION=$(swiftenv version)
     export SWIFT_VERSION=$SWIFT_VERSION

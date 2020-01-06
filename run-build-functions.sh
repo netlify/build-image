@@ -33,6 +33,7 @@ NC="\033[0m" # No Color
 # language versions
 mkdir -p $NETLIFY_CACHE_DIR/node_version
 mkdir -p $NETLIFY_CACHE_DIR/ruby_version
+mkdir -p $NETLIFY_CACHE_DIR/swift_version
 
 # pwd caches
 mkdir -p $NETLIFY_CACHE_DIR/node_modules
@@ -411,6 +412,17 @@ install_dependencies() {
     SWIFT_VERSION=$(cat .swift-version)
     echo "Attempting Swift version '$SWIFT_VERSION' from .swift-version"
   fi
+
+  swiftenv global ${SWIFT_VERSION} > /dev/null 2>&1
+  export CUSTOM_SWIFT=$?
+
+  if [ -d $NETLIFY_CACHE_DIR/swift_version/${SWIFT_VERSION} ]
+  then
+    echo "Started restoring cached Swift version"
+    rm -rf $SWIFTENV_ROOT/versions/$SWIFT_VERSION
+    cp -p -r $NETLIFY_CACHE_DIR/swift_version/${SWIFT_VERSION} $SWIFTENV_ROOT/versions/
+    echo "Finished restoring cached Swift version"
+  fi
   
   if swiftenv install -s $SWIFT_VERSION
   then
@@ -702,6 +714,20 @@ cache_artifacts() {
     fi
   else
     rm -rf $NETLIFY_CACHE_DIR/ruby_version
+  fi
+
+  # cache the version of Swift installed
+  if [[ "$CUSTOM_SWIFT" -ne "0" ]]
+  then
+    if ! [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
+    then
+      rm -rf $NETLIFY_CACHE_DIR/swift_version
+      mkdir $NETLIFY_CACHE_DIR/swift_version
+      mv $SWIFTENV_ROOT/versions/$SWIFT_VERSION $NETLIFY_CACHE_DIR/swift_version/
+      echo "Cached Swift version $SWIFT_VERSION"
+    fi
+  else
+    rm -rf $NETLIFY_CACHE_DIR/swift_version
   fi
 }
 

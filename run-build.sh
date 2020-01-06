@@ -26,7 +26,7 @@ cd $NETLIFY_REPO_DIR
 : ${SWIFT_VERSION="5.1.3"}
 
 echo "Installing dependencies"
-install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION $GO_VERSION $SWIFT_VERSION 
+install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION $GO_VERSION $SWIFT_VERSION
 
 echo "Installing missing commands"
 install_missing_commands

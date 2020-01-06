@@ -416,11 +416,12 @@ install_dependencies() {
   swiftenv global ${SWIFT_VERSION} > /dev/null 2>&1
   export CUSTOM_SWIFT=$?
 
-  if [ -d $NETLIFY_CACHE_DIR/swift_version/${SWIFT_VERSION} ]
+  if [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
   then
     echo "Started restoring cached Swift version"
     rm -rf $SWIFTENV_ROOT/versions/$SWIFT_VERSION
     cp -p -r $NETLIFY_CACHE_DIR/swift_version/${SWIFT_VERSION} $SWIFTENV_ROOT/versions/
+    swiftenv rehash
     echo "Finished restoring cached Swift version"
   fi
   

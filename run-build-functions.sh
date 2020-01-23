@@ -303,7 +303,7 @@ install_dependencies() {
       else
           bundler_gem_name="bundler:$bundler_version"
       fi
-      if ! gem install "$bundler_gem_name"
+      if ! gem install "$bundler_gem_name" --no-document
       then
           echo "Error installing bundler"
           exit 1

@@ -51,9 +51,9 @@ docker run --rm \
        -e NETLIFY_VERBOSE \
        -e GO_VERSION \
        -e GO_IMPORT_PATH \
-       -v "${REPO_PATH}:/opt/repo" \
-       -v "${BASE_PATH}/run-build.sh:/usr/local/bin/build" \
-       -v "${BASE_PATH}/run-build-functions.sh:/usr/local/bin/run-build-functions.sh" \
+       -v "${REPO_PATH}:/opt/repo:delegated" \
+       -v "${BASE_PATH}/run-build.sh:/usr/local/bin/build:delegated" \
+       -v "${BASE_PATH}/run-build-functions.sh:/usr/local/bin/run-build-functions.sh:delegated" \
        -v $PWD/$T/cache:/opt/buildhome/cache \
        -w /opt/build \
        -it \

@@ -45,7 +45,7 @@ Run the following command to start the interactive shell within the container:
 ./test-tools/start-image.sh path/to/site/repo
 ```
 
-If you receive a `command not found` message, make sure you are in the baase of the build-image repository.
+If you receive a `command not found` message, make sure you are in the base of the build-image repository.
 
 If the command works correctly, you should see a new prompt, with the user `buildbot`.
 

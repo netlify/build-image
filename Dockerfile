@@ -304,6 +304,7 @@ RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
     /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
     ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.2
 
+RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install "setuptools<45"
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 
 USER root

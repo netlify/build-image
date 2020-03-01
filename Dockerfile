@@ -41,7 +41,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         bison \
         build-essential \
         bzr \
-        clang \
         cmake \
         curl \
         doxygen \

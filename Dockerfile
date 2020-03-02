@@ -160,6 +160,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         python3-dev \
         python3.7 \
         python3.7-dev \
+        rlwrap \
         rsync \
         software-properties-common \
         sqlite3 \
@@ -369,6 +370,8 @@ RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
     curl -sL https://github.com/boot-clj/boot-bin/releases/download/2.5.2/boot.sh > boot && \
     chmod +x boot && \
     ln -s /opt/boot-clj/boot /usr/local/bin/boot
+
+RUN curl -sL https://download.clojure.org/install/linux-install-1.10.1.492.sh | bash
 
 USER buildbot
 

@@ -191,7 +191,19 @@ install_dependencies() {
   if [[ $(ls $NETLIFY_CACHE_DIR/node_version/) ]]
   then
     echo "Started restoring cached node version"
-    rm -rf $NVM_DIR/versions/node/*
+    local nvm_versions_dir="$NVM_DIR/versions/node"
+    # only remove the version used by netlify-build if it also exists
+    # in the cache
+    if [ -d "$NETLIFY_CACHE_DIR/node_version/v$NETLIFY_BUILD_NODE_VERSION" ]
+    then
+        rm -rf $nvm_versions_dir/*
+    else
+        find "$nvm_versions_dir" -maxdepth 1 \
+             -type d \
+             -not -name "v$NETLIFY_BUILD_NODE_VERSION" \
+             -not -path "$nvm_versions_dir" \
+             -exec rm -rf {} \;
+    fi
     cp -p -r $NETLIFY_CACHE_DIR/node_version/* $NVM_DIR/versions/node/
     echo "Finished restoring cached node version"
   fi

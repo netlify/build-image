@@ -15,7 +15,16 @@ then
   set -x
 fi
 
-: ${NETLIFY_IMAGE="netlify/build"}
+if [ -z "$NETLIFY_IMAGE" ]
+then
+   if [ -n "$NETLIFY_IMAGE_TAG" ]
+   then
+       NETLIFY_IMAGE="netlify/build:$NETLIFY_IMAGE_TAG"
+   else
+       NETLIFY_IMAGE="netlify/build:latest"
+   fi
+fi
+
 : ${NODE_VERSION="10"}
 : ${RUBY_VERSION="2.6.2"}
 : ${YARN_VERSION="1.13.0"}
@@ -24,7 +33,7 @@ fi
 : ${PHP_VERSION="5.6"}
 : ${GO_VERSION="1.12"}
 
-BASE_PATH=$(pwd)
+BASE_PATH="$(pwd)"
 REPO_PATH="$(cd $1 && pwd)"
 
 mkdir -p tmp
@@ -54,7 +63,7 @@ docker run --rm \
        -v "${REPO_PATH}:/opt/repo" \
        -v "${BASE_PATH}/run-build.sh:/usr/local/bin/build" \
        -v "${BASE_PATH}/run-build-functions.sh:/usr/local/bin/run-build-functions.sh" \
-       -v $PWD/$T/cache:/opt/buildhome/cache \
+       -v "$PWD"/"$T"/cache:/opt/buildhome/cache \
        -w /opt/build \
        -it \
-       $NETLIFY_IMAGE $SCRIPT
+       "$NETLIFY_IMAGE" $SCRIPT

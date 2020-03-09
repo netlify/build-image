@@ -23,41 +23,81 @@ Emulating Netlify's buildbot on your local machine requires the following:
 - A local clone of this build-image repository
 - A local clone of the site repository you want to test, checked out to the branch you want to be built, with a clean git status (nothing to commit).
 
-### Step 1: Pull the build image
-
-Open your Docker terminal, and run the following command to pull the default image:
+To run the `xenial` image, run the following command:
 
 ```
-docker pull netlify/build:xenial
-or
-docker pull netlify/build:v3.0.2 # replace the version with a git tag of the specific version you want to test
+./test-tools/start-xenial.sh path/to/site/repo
 ```
 
-### Step 2: Start the script to run interactively
-
-Still in your Docker terminal, change directories into your local clone of this build-image repository.
-
-If you pulled an alternate image in Step 1, check out the corresponding branch in this repository.
-
-Run the following command to start the interactive shell within the container:
+To run the `trusty` image, run the following command:
 
 ```
-./test-tools/start-image.sh path/to/site/repo
+./test-tools/start-trusty.sh path/to/site/repo
 ```
 
 If you receive a `command not found` message, make sure you are in the base of the build-image repository.
 
 If the command works correctly, you should see a new prompt, with the user `buildbot`.
 
-### Step 3: Have the buildbot run your build command
-
-In the buildbot shell, run `build` followed by your site build command. For example, for a site build command of `npm run build`, you would run the following:
+Finally, in the buildbot shell, run `build` followed by your site build command. For example, for a site build command of `npm run build`, you would run the following:
 
 ```
 build npm run build
 ```
 
 This will run the build as it would run on Netlify, displaying logs in your terminal as it goes. When you are done testing, you can exit the buildbot shell by typing `exit`.
+
+## Running a different tag or image
+
+To run a Docker tag other than `xenial` or `trustry`, first pull the image:
+
+```
+docker pull netlify/build:v3.0.2 # replace the version with a git tag of the specific version you want to test
+```
+
+Next, run `test-tools/start-image.sh` with the environment variable `NETLIFY_IMAGE_TAG` set to the tag you just pulled:
+
+```
+NETLIFY_IMAGE_TAG=v3.0.2 ./test-tools/start-image.sh path/to/site/repo
+```
+
+To run a different Docker image name that you've pulled or built locally, run `test-tools/start-image.sh` with the environment variable `NETLIFY_IMAGE` set to the image and tag you wish to use:
+
+```
+NETLIFY_IMAGE=some-other-image:latest ./test-tools/start-image.sh path/to/site/repo
+```
+
+Note that `NETLIFY_IMAGE_TAG` has no effect when `NETLIFY_IMAGE` is defined.
+
+## Building and running locally
+
+If you would like to build the image locally, you can do so with Docker. In the root of this repository, run the following:
+
+```
+docker build -t netlify/build .
+```
+
+Next, run the image you just built with `test-tools/start-image.sh`:
+
+```
+./test-tools/start-image.sh path/to/site/repo
+```
+
+If you want to build and run using a specific tag, do the following:
+
+```
+docker build -t netlify/build:a-tag .
+NETLIFY_IMAGE_TAG=a-tag ./test-tools/start-image.sh path/to/site/repo
+```
+
+If you want to use an entirely separate image name, do the following:
+
+```
+docker build -t another-image-name .
+NETLIFY_IMAGE=another-image-name ./test-tools/start-image.sh path/to/site/repo
+```
+
+Note that `NETLIFY_IMAGE_TAG` has no effect if `NETLIFY_IMAGE` is defined.
 
 ### Build environment variables
 

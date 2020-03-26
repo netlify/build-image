@@ -25,7 +25,7 @@ The specific patch versions included will depend on when the image was last buil
 * Go - `GO_VERSION`
   * 1.12 (default)
 * Swift - `SWIFT_VERSION`, `.swift-version`
-  * 5.1.3 (default)
+  * 5.2 (default)
   * Any version that `swiftenv` can install.
 * Java
   * 8 (default)

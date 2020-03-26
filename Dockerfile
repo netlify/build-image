@@ -475,7 +475,7 @@ RUN dotnet new
 #
 ################################################################################
 USER buildbot
-ENV NETLIFY_BUILD_SWIFT_VERSION 5.1.3
+ENV NETLIFY_BUILD_SWIFT_VERSION 5.2
 ENV SWIFTENV_ROOT "/opt/buildhome/.swiftenv"
 RUN git clone --depth 1 https://github.com/kylef/swiftenv.git "$SWIFTENV_ROOT"
 ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"

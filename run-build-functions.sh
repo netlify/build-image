@@ -663,6 +663,7 @@ install_dependencies() {
     ln -s /opt/buildhome/repo ${GOPATH}/src/$GO_IMPORT_PATH
   fi
 
+  # Install Racket Dependencies
   if [ -n info.rkt ]
   then
     raco setup

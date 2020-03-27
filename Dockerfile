@@ -468,7 +468,6 @@ ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
 #populate local package cache
 RUN dotnet new
 
-
 ################################################################################
 #
 # Swift
@@ -481,8 +480,6 @@ RUN git clone --depth 1 https://github.com/kylef/swiftenv.git "$SWIFTENV_ROOT"
 ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
 RUN swiftenv install ${NETLIFY_BUILD_SWIFT_VERSION}
 RUN swift --version
-
-WORKDIR /
 
 ################################################################################
 #
@@ -502,6 +499,8 @@ RUN raco pkg config --set catalogs \
     "https://pkg-build.racket-lang.org/server/built/catalog/" \
     "https://pkgs.racket-lang.org" \
     "https://planet-compats.racket-lang.org"
+
+WORKDIR /
 
 # Cleanup
 USER root

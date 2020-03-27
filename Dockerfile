@@ -488,17 +488,18 @@ RUN swift --version
 ################################################################################
 # Based on https://github.com/jackfirth/racket-docker
 
-USER buildbot
+USER root
 
 RUN wget --output-document=racket-install.sh -q https://mirror.racket-lang.org/installers/7.6/racket-7.6-x86_64-linux.sh && \
     echo "yes\n1\n" | sh racket-install.sh --create-dir --unix-style --dest /usr/ && \
     rm racket-install.sh
 
-RUN raco pkg config --set catalogs \
-    "https://download.racket-lang.org/releases/7.6/catalog/" \
-    "https://pkg-build.racket-lang.org/server/built/catalog/" \
-    "https://pkgs.racket-lang.org" \
-    "https://planet-compats.racket-lang.org"
+# RUN raco pkg config --set catalogs \
+#     "https://download.racket-lang.org/releases/7.6/catalog/" \
+#     "https://pkg-build.racket-lang.org/server/built/catalog/" \
+#     "https://pkgs.racket-lang.org" \
+#     "https://planet-compats.racket-lang.org"
+
 
 WORKDIR /
 

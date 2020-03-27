@@ -662,6 +662,19 @@ install_dependencies() {
     rm -rf $GOPATH/src/$GO_IMPORT_PATH
     ln -s /opt/buildhome/repo ${GOPATH}/src/$GO_IMPORT_PATH
   fi
+
+  if [ -n info.rkt ]
+  then
+    raco setup
+    if [ $? -eq 0 ]
+    then
+      echo "Racket dependencies installed"
+    else
+      echo "Error during Racket dependencies install"
+      exit 1
+    fi
+  fi
+    
 }
 
 #

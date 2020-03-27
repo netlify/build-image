@@ -494,12 +494,6 @@ RUN wget --output-document=racket-install.sh -q https://mirror.racket-lang.org/i
     echo "yes\n1\n" | sh racket-install.sh --create-dir --unix-style --dest /usr/ && \
     rm racket-install.sh
 
-# RUN raco pkg config --set catalogs \
-#     "https://download.racket-lang.org/releases/7.6/catalog/" \
-#     "https://pkg-build.racket-lang.org/server/built/catalog/" \
-#     "https://pkgs.racket-lang.org" \
-#     "https://planet-compats.racket-lang.org"
-
 
 WORKDIR /
 

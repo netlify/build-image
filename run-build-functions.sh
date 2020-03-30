@@ -300,7 +300,7 @@ install_dependencies() {
   then
      bundler_version="$(cat Gemfile.lock | grep -C1 '^BUNDLED WITH$' | tail -n1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' | tr -d \\n)"
   else
-     echo "Gemfile.lock does not found; not attempting to obtain bundler version from it"
+     echo "Gemfile.lock not found; not attempting to obtain bundler version from it"
   fi
 
   if ! [ -z "$bundler_version" ]

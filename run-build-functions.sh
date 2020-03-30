@@ -299,11 +299,15 @@ install_dependencies() {
   if [ -f Gemfile.lock ]
   then
      bundler_version="$(cat Gemfile.lock | grep -C1 '^BUNDLED WITH$' | tail -n1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' | tr -d \\n)"
+  else
+     echo "Gemfile.lock does not found; not attempting to obtain bundler version from it"
   fi
 
   if ! [ -z "$bundler_version" ]
   then
       echo "Using bundler version $bundler_version from Gemfile.lock"
+  else
+      echo "Bundler version could not be parsed from Gemfile.lock"
   fi
 
   if ! gem list -i "^bundler$" -v "$bundler_version" > /dev/null 2>&1
@@ -315,11 +319,14 @@ install_dependencies() {
       else
           bundler_gem_name="bundler:$bundler_version"
       fi
+      echo "proceeding with bundler gem name: $bundler_gem_name"
       if ! gem install "$bundler_gem_name" --no-document
       then
           echo "Error installing bundler"
           exit 1
       fi
+  else
+      echo "Specified Bundler version $bundler_version already installed"
   fi
 
   # Java version

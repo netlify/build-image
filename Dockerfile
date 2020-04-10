@@ -36,6 +36,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get install -y --no-install-recommends \
         advancecomp \
         apache2-utils \
+        asciidoctor \
         autoconf \
         automake \
         bison \

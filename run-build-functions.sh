@@ -583,7 +583,7 @@ install_dependencies() {
       exit 1
     fi
   else
-    gimme
+    gimme | bash
     if [ $? -eq 0 ]
     then
       source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env

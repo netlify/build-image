@@ -484,3 +484,5 @@ ENV NF_IMAGE_VERSION ${NF_IMAGE_VERSION:-latest}
 
 ARG NF_IMAGE_TAG
 ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}
+
+apt-get install -y postgresql-dev

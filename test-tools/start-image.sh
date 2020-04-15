@@ -11,7 +11,7 @@ docker run --rm -t -i \
 	-e HUGO_VERSION \
 	-e PHP_VERSION \
 	-e GO_VERSION \
-	-v ${REPO_PATH}:/opt/repo \
+	-v ${REPO_PATH}:/opt/buildhome/repo \
 	-v ${BASE_PATH}/run-build.sh:/usr/local/bin/build \
 	-v ${BASE_PATH}/run-build-functions.sh:/usr/local/bin/run-build-functions.sh \
-	netlify/build /bin/bash
+	netlify/build:xenial /bin/bash

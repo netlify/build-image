@@ -69,3 +69,4 @@ The specific patch versions included will depend on when the image was last buil
 * [Doxygen](http://www.doxygen.org) - 1.8.6
 * [WASMER](https://github.com/wasmerio/wasmer)
 * [WAPM](https://github.com/wasmerio/wapm-cli)
+* [fgallery](https://www.thregr.org/~wavexx/software/fgallery/)

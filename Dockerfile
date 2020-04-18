@@ -48,6 +48,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         emacs25-nox \
         esl-erlang \
         expect \
+        fgallery \
         fontconfig \
         fontconfig-config \
         g++ \

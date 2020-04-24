@@ -26,7 +26,7 @@ The specific patch versions included will depend on when the image was last buil
   * 1.12 (default)
 * Swift - `SWIFT_VERSION`, `.swift-version`
   * 5.2 (default)
-  * Any version that `swiftenv` can install.
+  * Any version that `swiftenv` can install newer than `4.x`. Versions `4.x` and below will not work due to incompatible shared libraries.
 * Java
   * 8 (default)
 * Emacs

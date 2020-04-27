@@ -222,7 +222,7 @@ install_dependencies() {
     echo "Attempting node version '$NODE_VERSION' from .node-version"
   fi
 
-  if nvm install $NODE_VERSION
+  if nvm install --no-progress $NODE_VERSION
   then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us

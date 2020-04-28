@@ -159,6 +159,22 @@ run_npm() {
   export PATH=$(npm bin):$PATH
 }
 
+run_raco() {
+  if install_deps info.rkt $RACKET_VERSION $NETLIFY_CACHE_DIR/racket-package-sha
+  then
+    echo "Installing raco packages"
+    if raco pkg install --deps search-auto
+    then
+      echo "Racket packages installed"
+    else
+      echo "Error during raco pkg install"
+      exit 1
+    fi
+
+   echo "$(shasum info.rkt)-$RACKET_VERSION" > $NETLIFY_CACHE_DIR/racket-package-sha
+  fi
+}
+
 install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
@@ -666,7 +682,8 @@ install_dependencies() {
   # Install Racket Dependencies
   if [ -n info.rkt ]
   then
-    raco setup
+    restore_home_cache ".racket/${RACKET_VERSION}/pkgs" "raco pkg cache"
+    run_raco
     if [ $? -eq 0 ]
     then
       echo "Racket dependencies installed"
@@ -675,7 +692,6 @@ install_dependencies() {
       exit 1
     fi
   fi
-    
 }
 
 #
@@ -698,6 +714,7 @@ cache_artifacts() {
   cache_home_directory ".boot" "boot dependencies"
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".wasmer/cache", "wasmer cache"
+  cache_home_directory ".racket/${RACKET_VERSION}/pkgs"
 
   # Don't follow the Go import path or we'll store
   # the origin repo twice.

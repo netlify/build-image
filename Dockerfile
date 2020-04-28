@@ -134,6 +134,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libxss1 \
         libxtst6 \
         libyaml-dev \
+        lua5.1 \
+        lua5.3 \
+        luajit \
         mercurial \
         nasm \
         openjdk-8-jdk \
@@ -266,10 +269,20 @@ USER root
 
 ################################################################################
 #
-# Node.js
+# Lua
 #
 ################################################################################
 
+# Lua is already installed by apt-get above, so just set an
+# environment variable indicating the default version. 5.3 and luajit
+# are still available, but must be run explicitly.
+ENV LUA_VERSION=5.1
+
+################################################################################
+#
+# Node.js
+#
+################################################################################
 
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 

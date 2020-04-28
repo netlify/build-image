@@ -490,7 +490,9 @@ RUN swift --version
 
 USER root
 
-RUN wget --output-document=racket-install.sh -q https://mirror.racket-lang.org/installers/7.6/racket-7.6-x86_64-linux.sh && \
+ENV RACKET_VERSION "7.6"
+
+RUN wget --output-document=racket-install.sh -q https://mirror.racket-lang.org/installers/${RACKET_VERSION}/racket-${RACKET_VERSION}-x86_64-linux.sh && \
     echo "yes\n1\n" | sh racket-install.sh --create-dir --unix-style --dest /usr/ && \
     rm racket-install.sh
 

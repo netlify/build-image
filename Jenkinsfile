@@ -2,20 +2,14 @@ pipeline {
   agent any
 
   stages {
-    stage("Test Credentials") {
-      when { branch 'xenial' }
-      steps {
-        withCredentials([string(credentialsId: 'sample-secret', variable: 'SECRET')]) {
-          echo "Sample secret: $SECRET"
-        }
-      }
-    }
-
     stage("Test Build") {
       when {
         not { anyOf { branch 'staging' ; branch 'xenial' ; branch 'trusty  ' ; buildingTag() } }
       }
       steps {
+        withCredentials([string(credentialsId: 'sample-secret', variable: 'SECRET')]) {
+          echo "Sample secret: $SECRET"
+        }
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} ."
       }
     }

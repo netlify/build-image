@@ -3,6 +3,7 @@ pipeline {
 
   stages {
     stage("Test Credentials") {
+      when { branch 'xenial' }
       steps {
         withCredentials([string(credentialsId: 'sample-secret', variable: 'SECRET')]) {
           echo "Sample secret: $SECRET"

@@ -18,11 +18,11 @@ if [[ ! -d $NETLIFY_REPO_DIR ]]; then
 fi
 cd $NETLIFY_REPO_DIR
 
-: ${NODE_VERSION="10"}
-: ${RUBY_VERSION="2.6.2"}
-: ${YARN_VERSION="1.13.0"}
+: ${NODE_VERSION="12.16.2"}
+: ${RUBY_VERSION="2.7.1"}
+: ${YARN_VERSION="1.22.4"}
 : ${PHP_VERSION="5.6"}
-: ${GO_VERSION="1.12"}
+: ${GO_VERSION="1.14.2"}
 : ${SWIFT_VERSION="5.2"}
 
 echo "Installing dependencies"

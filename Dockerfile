@@ -257,9 +257,10 @@ RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A170311380
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
+ENV RUBY_VERSION=2.7.1
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
-                  rvm use 2.6.2 --default && rvm cleanup all"
+                  rvm install $RUBY_VERSION && rvm use $RUBY_VERSION && gem install bundler && \
+                  rvm use $RUBY_VERSION --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 USER root
@@ -274,17 +275,19 @@ USER root
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
 # Install node.js
+ENV NVM_VERSION=0.35.3
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd ~/.nvm && \
-    git checkout v0.34.0 && \
+    git checkout v"$NVM_VERSION" && \
     cd /
 
 ENV ELM_VERSION=0.19.0-bugfix6
-ENV YARN_VERSION=1.13.0
+ENV YARN_VERSION=1.22.4
+ENV NODE_VERSION=12.16.3
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
-         nvm install --no-progress 10 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         nvm install --no-progress $NODE_VERSION && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 
@@ -439,7 +442,7 @@ ENV PATH "$PATH:/opt/buildhome/.gimme/bin"
 ENV GOPATH "/opt/buildhome/.gimme_cache/gopath"
 ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
-ENV GIMME_GO_VERSION "1.12"
+ENV GIMME_GO_VERSION "1.14.2"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
 RUN gimme | bash
 

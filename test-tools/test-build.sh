@@ -15,7 +15,7 @@ then
   set -x
 fi
 
-: ${NETLIFY_IMAGE="netlify/build"}
+: ${NETLIFY_IMAGE="netlify/build:xenial"}
 : ${NODE_VERSION="10"}
 : ${RUBY_VERSION="2.6.2"}
 : ${YARN_VERSION="1.13.0"}

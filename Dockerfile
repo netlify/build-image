@@ -145,6 +145,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php5.6-sqlite3 \
         php5.6-curl \
         php5.6-zip \
+        php5.6-intl \
         php7.2 \
         php7.2-xml \
         php7.2-mbstring \
@@ -152,6 +153,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.2-sqlite3 \
         php7.2-curl \
         php7.2-zip \
+        php7.2-intl \
         php7.4 \
         php7.4-xml \
         php7.4-mbstring \
@@ -159,6 +161,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.4-sqlite3 \
         php7.4-curl \
         php7.4-zip \
+        php7.4-intl \
         pngcrush \
         python-setuptools \
         python \

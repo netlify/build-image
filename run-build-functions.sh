@@ -51,6 +51,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.composer
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gopath
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gocache
 mkdir -p $NETLIFY_CACHE_DIR/.wasmer/cache
+mkdir -p $NETLIFY_CACHE_DIR/.homebrew-cache
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
@@ -616,6 +617,12 @@ install_dependencies() {
     rm -rf $GOPATH/src/$GO_IMPORT_PATH
     ln -s /opt/buildhome/repo ${GOPATH}/src/$GO_IMPORT_PATH
   fi
+
+  # Homebrew from Brewfile
+  if [ -f Brewfile ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
+  then
+    brew bundle
+  fi
 }
 
 #
@@ -637,6 +644,7 @@ cache_artifacts() {
   cache_home_directory ".boot" "boot dependencies"
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".wasmer/cache", "wasmer cache"
+  cache_home_directory ".homebrew-cache", "homebrew cache"
 
   # Don't follow the Go import path or we'll store
   # the origin repo twice.

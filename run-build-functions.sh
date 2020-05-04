@@ -453,6 +453,7 @@ install_dependencies() {
   # Homebrew from Brewfile
   if [ -f Brewfile ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
   then
+    echo "Installing Homebrew dependencies from ${HOMEBREW_BUNDLE_FILE:-Brewfile}"
     brew bundle
   fi
 

@@ -425,7 +425,7 @@ install_dependencies() {
     swiftenv rehash
     echo "Finished restoring cached Swift version"
   fi
-  
+
   # swiftenv expects the following environment variables to refer to
   # swiftenv internals
   if PLATFORM= URL= VERSION= swiftenv install -s $SWIFT_VERSION
@@ -448,6 +448,12 @@ install_dependencies() {
       echo "Error building Swift package"
       exit 1
     fi
+  fi
+
+  # Homebrew from Brewfile
+  if [ -f Brewfile ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
+  then
+    brew bundle
   fi
 
   # NPM Dependencies
@@ -664,12 +670,6 @@ install_dependencies() {
     mkdir -p "$(dirname $GOPATH/src/$GO_IMPORT_PATH)"
     rm -rf $GOPATH/src/$GO_IMPORT_PATH
     ln -s /opt/buildhome/repo ${GOPATH}/src/$GO_IMPORT_PATH
-  fi
-
-  # Homebrew from Brewfile
-  if [ -f Brewfile ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
-  then
-    brew bundle
   fi
 }
 

@@ -17,6 +17,7 @@ export GIMME_CGO_ENABLED=true
 
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
+export SWIFTENV_ROOT="${SWIFTENV_ROOT:-${HOME}/.swiftenv}"
 
 # Pipenv configuration
 export PIPENV_RUNTIME=2.7
@@ -32,6 +33,7 @@ NC="\033[0m" # No Color
 # language versions
 mkdir -p $NETLIFY_CACHE_DIR/node_version
 mkdir -p $NETLIFY_CACHE_DIR/ruby_version
+mkdir -p $NETLIFY_CACHE_DIR/swift_version
 
 # pwd caches
 mkdir -p $NETLIFY_CACHE_DIR/node_modules
@@ -39,6 +41,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.venv
 mkdir -p $NETLIFY_CACHE_DIR/wapm_packages
+mkdir -p $NETLIFY_CACHE_DIR/.build
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
@@ -162,6 +165,7 @@ install_dependencies() {
   local defaultYarnVersion=$3
   local defaultPHPVersion=$4
   local installGoVersion=$5
+  local defaultSwiftVersion=$6
 
   # Python Version
   if [ -f runtime.txt ]
@@ -218,7 +222,7 @@ install_dependencies() {
     echo "Attempting node version '$NODE_VERSION' from .node-version"
   fi
 
-  if nvm install $NODE_VERSION
+  if nvm install --no-progress $NODE_VERSION
   then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us
@@ -408,6 +412,48 @@ install_dependencies() {
     fi
   fi
 
+  # Swift Version
+  : ${SWIFT_VERSION="$defaultSwiftVersion"}
+  if [ -f .swift-version ]
+  then
+    SWIFT_VERSION=$(cat .swift-version)
+    echo "Attempting Swift version '$SWIFT_VERSION' from .swift-version"
+  fi
+
+  swiftenv global ${SWIFT_VERSION} > /dev/null 2>&1
+  export CUSTOM_SWIFT=$?
+
+  if [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
+  then
+    echo "Started restoring cached Swift version"
+    rm -rf $SWIFTENV_ROOT/versions/$SWIFT_VERSION
+    cp -p -r $NETLIFY_CACHE_DIR/swift_version/${SWIFT_VERSION} $SWIFTENV_ROOT/versions/
+    swiftenv rehash
+    echo "Finished restoring cached Swift version"
+  fi
+  
+  if swiftenv install -s $SWIFT_VERSION
+  then
+    echo "Using Swift version $SWIFT_VERSION"
+  else
+    echo "Failed to install Swift version '$SWIFT_VERSION'"
+    exit 1
+  fi
+
+  # SPM dependencies
+  if [ -f Package.swift ]
+  then
+    echo "Building Swift Package"
+    restore_cwd_cache ".build" "swift build"
+    if swift build
+    then
+      echo "Swift package Built"
+    else
+      echo "Error building Swift package"
+      exit 1
+    fi
+  fi
+
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
 
@@ -590,7 +636,7 @@ install_dependencies() {
       exit 1
     fi
   else
-    gimme
+    gimme | bash
     if [ $? -eq 0 ]
     then
       source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
@@ -634,7 +680,8 @@ cache_artifacts() {
   cache_cwd_directory "bower_components" "bower components"
   cache_cwd_directory "node_modules" "node modules"
   cache_cwd_directory ".venv" "python virtualenv"
-  cache_cwd_directory "wapm_packages", "wapm packages"
+  cache_cwd_directory "wapm_packages" "wapm packages"
+  cache_cwd_directory ".build" "swift build"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache" "pip cache"
@@ -675,6 +722,20 @@ cache_artifacts() {
     fi
   else
     rm -rf $NETLIFY_CACHE_DIR/ruby_version
+  fi
+
+  # cache the version of Swift installed
+  if [[ "$CUSTOM_SWIFT" -ne "0" ]]
+  then
+    if ! [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
+    then
+      rm -rf $NETLIFY_CACHE_DIR/swift_version
+      mkdir $NETLIFY_CACHE_DIR/swift_version
+      mv $SWIFTENV_ROOT/versions/$SWIFT_VERSION $NETLIFY_CACHE_DIR/swift_version/
+      echo "Cached Swift version $SWIFT_VERSION"
+    fi
+  else
+    rm -rf $NETLIFY_CACHE_DIR/swift_version
   fi
 }
 

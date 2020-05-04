@@ -444,7 +444,7 @@ ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
 ENV GIMME_GO_VERSION "1.12"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
-RUN gimme
+RUN gimme | bash
 
 ################################################################################
 #
@@ -467,6 +467,21 @@ ENV PATH "$PATH:/opt/buildhome/.dotnet"
 ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
 #populate local package cache
 RUN dotnet new
+
+
+################################################################################
+#
+# Swift
+#
+################################################################################
+USER buildbot
+ENV NETLIFY_BUILD_SWIFT_VERSION 5.2
+ENV SWIFTENV_ROOT "/opt/buildhome/.swiftenv"
+RUN git clone --depth 1 https://github.com/kylef/swiftenv.git "$SWIFTENV_ROOT"
+ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
+RUN swiftenv install ${NETLIFY_BUILD_SWIFT_VERSION}
+RUN swift --version
+
 WORKDIR /
 
 # Cleanup

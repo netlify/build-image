@@ -18,8 +18,11 @@ $SWIFT_VERSION="5.2"
 
 $tempDirectory = New-Item -ItemType Directory -Path 'tmp' -Force
 
+$EnteredPath = $args[0]
+$EnteredCommand = $args[1]
+
 $BASE_PATH=$(pwd)
-$REPO_PATH="$(cd $args[0] ; pwd)"
+$REPO_PATH="$(cd $EnteredPath ; pwd)"
 
 Write-Host "BASE_PATH: $BASE_PATH"
 Write-Host "REPO_PATH: $REPO_PATH"
@@ -29,7 +32,7 @@ $T=$tempDirectory
 
 Write-Host "Using temp cache dir: $T\cache"
 
-$SCRIPT="/usr/local/bin/build " + $args[1]
+$SCRIPT="/usr/local/bin/build " + $EnteredCommand
 Write-Host "SCRIPT: $SCRIPT"
 
 docker run --rm `
@@ -44,8 +47,6 @@ docker run --rm `
        -e GO_IMPORT_PATH `
        -e SWIFT_VERSION `
        -v "${REPO_PATH}:/opt/repo" `
-       -v "${BASE_PATH}/run-build.sh:/usr/local/bin/build" `
-       -v "${BASE_PATH}/run-build-functions.sh:/usr/local/bin/run-build-functions.sh" `
        -v $T/cache:/opt/buildhome/cache `
        -w /opt/build `
        -it `

@@ -425,7 +425,9 @@ install_dependencies() {
     echo "Finished restoring cached Swift version"
   fi
   
-  if swiftenv install -s $SWIFT_VERSION
+  # swiftenv expects the following environment variables to refer to
+  # swiftenv internals
+  if PLATFORM= URL= VERSION= swiftenv install -s $SWIFT_VERSION
   then
     echo "Using Swift version $SWIFT_VERSION"
   else

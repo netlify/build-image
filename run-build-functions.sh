@@ -377,7 +377,7 @@ install_dependencies() {
   if [ -f requirements.txt ]
   then
     echo "Installing pip dependencies"
-    restore_home_cache ".cache" "pip cache"
+    restore_home_cache ".cache" "~/.cache"
     if pip install -r requirements.txt
     then
       echo "Pip dependencies installed"
@@ -455,6 +455,7 @@ install_dependencies() {
   if [ -f package.json ]
   then
     restore_cwd_cache node_modules "node modules"
+    restore_home_cache ".cache" "~/.cache"
     if [ -f yarn.lock ]
     then
       run_yarn $YARN_VERSION
@@ -679,7 +680,7 @@ cache_artifacts() {
   cache_cwd_directory ".build" "swift build"
 
   cache_home_directory ".yarn_cache" "yarn cache"
-  cache_home_directory ".cache" "pip cache"
+  cache_home_directory ".cache" "~/.cache"
   cache_home_directory ".cask" "emacs cask dependencies"
   cache_home_directory ".emacs.d" "emacs cache"
   cache_home_directory ".m2" "maven dependencies"

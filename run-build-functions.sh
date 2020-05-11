@@ -98,7 +98,7 @@ run_yarn() {
   fi
 
 
-  if install_deps package.json $NODE_VERSION "$NETLIFY_CACHE_DIR/package-sha"
+  if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then
     echo "Installing NPM modules using Yarn version $(yarn --version)"
     run_npm_set_temp

@@ -118,6 +118,8 @@ run_yarn() {
       echo "Error during Yarn install"
       exit 1
     fi
+
+    echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
   fi
   export PATH=$(yarn bin):$PATH
 }

@@ -98,23 +98,28 @@ run_yarn() {
   fi
 
 
-  echo "Installing NPM modules using Yarn version $(yarn --version)"
-  run_npm_set_temp
-
-  # Remove the cache-folder flag if the user set any.
-  # We want to control where to put the cache
-  # to be able to store it internally after the build.
-  local yarn_local="${YARN_FLAGS/--cache-folder * /}"
-  # The previous pattern doesn't match the end of the string.
-  # This removes the flag from the end of the string.
-  yarn_local="${yarn_local%--cache-folder *}"
-
-  if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
+  if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then
-    echo "NPM modules installed using Yarn"
-  else
-    echo "Error during Yarn install"
-    exit 1
+    echo "Installing NPM modules using Yarn version $(yarn --version)"
+    run_npm_set_temp
+
+    # Remove the cache-folder flag if the user set any.
+    # We want to control where to put the cache
+    # to be able to store it internally after the build.
+    local yarn_local="${YARN_FLAGS/--cache-folder * /}"
+    # The previous pattern doesn't match the end of the string.
+    # This removes the flag from the end of the string.
+    yarn_local="${yarn_local%--cache-folder *}"
+
+    if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
+    then
+      echo "NPM modules installed using Yarn"
+    else
+      echo "Error during Yarn install"
+      exit 1
+    fi
+
+    echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
   fi
   export PATH=$(yarn bin):$PATH
 }
@@ -424,7 +429,7 @@ install_dependencies() {
     swiftenv rehash
     echo "Finished restoring cached Swift version"
   fi
-  
+
   # swiftenv expects the following environment variables to refer to
   # swiftenv internals
   if PLATFORM= URL= VERSION= swiftenv install -s $SWIFT_VERSION

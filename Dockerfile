@@ -273,18 +273,23 @@ USER root
 
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
+ENV NVM_VERSION=0.35.3
+
 # Install node.js
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd ~/.nvm && \
-    git checkout v0.34.0 && \
+    git checkout v$NVM_VERSION && \
     cd /
 
 ENV ELM_VERSION=0.19.0-bugfix6
 ENV YARN_VERSION=1.13.0
 
+ENV NETLIFY_NODE_VERSION="10.20.1"
+
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
-         nvm install --no-progress 10 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         nvm install --no-progress $NETLIFY_NODE_VERSION && \
+         npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 

@@ -39,7 +39,7 @@ pipeline {
             docker.image("netlify/build:${env.BRANCH_NAME}").push()
             docker.image("netlify/build:${env.GIT_COMMIT}").push()
             if (env.BRANCH_NAME == 'xenial') {
-              docker.image("netlify/build:{$env.BRANCH_NAME}").push('latest')
+              docker.image("netlify/build:${env.BRANCH_NAME}").push('latest')
             }
           }
         }

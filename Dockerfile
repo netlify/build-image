@@ -281,7 +281,7 @@ RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd /
 
 ENV ELM_VERSION=0.19.0-bugfix6
-ENV YARN_VERSION=1.13.0
+ENV YARN_VERSION=1.22.4
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress 10 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \

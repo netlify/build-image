@@ -257,9 +257,10 @@ RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A170311380
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
+ENV RUBY_VERSION=2.7.1
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
-                  rvm use 2.6.2 --default && rvm cleanup all"
+                  rvm install $RUBY_VERSION && rvm use $RUBY_VERSION && gem install bundler && \
+                  rvm use $RUBY_VERSION --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 USER root

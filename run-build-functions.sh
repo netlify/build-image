@@ -201,6 +201,7 @@ install_dependencies() {
   then
     echo "Started restoring cached node version"
     rm -rf "$NVM_DIR/versions/node"
+    mkdir "$NVM_DIR/versions/node"
     cp -p -r $NETLIFY_CACHE_DIR/node_version/* $NVM_DIR/versions/node/
     echo "Finished restoring cached node version"
   fi

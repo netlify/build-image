@@ -42,6 +42,7 @@ mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.venv
 mkdir -p $NETLIFY_CACHE_DIR/wapm_packages
 mkdir -p $NETLIFY_CACHE_DIR/.build
+mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
@@ -239,6 +240,9 @@ install_dependencies() {
       echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
     fi
   fi
+
+  # Automatically installed Build plugins
+  restore_cwd_cache ".netlify/plugins" "build plugins"
 
   # Ruby version
   local tmprv="${RUBY_VERSION:=$defaultRubyVersion}"
@@ -671,6 +675,7 @@ cache_artifacts() {
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory "wapm_packages" "wapm packages"
   cache_cwd_directory ".build" "swift build"
+  cache_cwd_directory ".netlify/plugins" "build plugins"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache" "pip cache"

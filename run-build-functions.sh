@@ -237,6 +237,10 @@ install_dependencies() {
   fi
 
   # Automatically installed Build plugins
+  if [ ! -d "$PWD/.netlify" ]
+  then
+    mkdir "$PWD/.netlify"
+  fi
   restore_cwd_cache ".netlify/plugins" "build plugins"
 
   # Ruby version

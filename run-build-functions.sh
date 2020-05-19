@@ -99,28 +99,23 @@ run_yarn() {
   fi
 
 
-  if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
+  echo "Installing NPM modules using Yarn version $(yarn --version)"
+  run_npm_set_temp
+
+  # Remove the cache-folder flag if the user set any.
+  # We want to control where to put the cache
+  # to be able to store it internally after the build.
+  local yarn_local="${YARN_FLAGS/--cache-folder * /}"
+  # The previous pattern doesn't match the end of the string.
+  # This removes the flag from the end of the string.
+  yarn_local="${yarn_local%--cache-folder *}"
+
+  if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
   then
-    echo "Installing NPM modules using Yarn version $(yarn --version)"
-    run_npm_set_temp
-
-    # Remove the cache-folder flag if the user set any.
-    # We want to control where to put the cache
-    # to be able to store it internally after the build.
-    local yarn_local="${YARN_FLAGS/--cache-folder * /}"
-    # The previous pattern doesn't match the end of the string.
-    # This removes the flag from the end of the string.
-    yarn_local="${yarn_local%--cache-folder *}"
-
-    if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
-    then
-      echo "NPM modules installed using Yarn"
-    else
-      echo "Error during Yarn install"
-      exit 1
-    fi
-
-    echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
+    echo "NPM modules installed using Yarn"
+  else
+    echo "Error during Yarn install"
+    exit 1
   fi
   export PATH=$(yarn bin):$PATH
 }

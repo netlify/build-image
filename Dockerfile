@@ -470,7 +470,6 @@ ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
 #populate local package cache
 RUN dotnet new
 
-
 ################################################################################
 #
 # Swift
@@ -483,6 +482,22 @@ RUN git clone --depth 1 https://github.com/kylef/swiftenv.git "$SWIFTENV_ROOT"
 ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
 RUN swiftenv install ${NETLIFY_BUILD_SWIFT_VERSION}
 RUN swift --version
+
+################################################################################
+#
+# Racket
+#
+################################################################################
+# Based on https://github.com/jackfirth/racket-docker
+
+USER root
+
+ENV RACKET_VERSION "7.6"
+
+RUN wget --output-document=racket-install.sh -q https://mirror.racket-lang.org/installers/${RACKET_VERSION}/racket-${RACKET_VERSION}-x86_64-linux.sh && \
+    echo "yes\n1\n" | sh racket-install.sh --create-dir --unix-style --dest /usr/ && \
+    rm racket-install.sh
+
 
 WORKDIR /
 

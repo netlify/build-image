@@ -35,6 +35,8 @@ The specific patch versions included will depend on when the image was last buil
   * 21 (default)
 * Elixir
   * 1.7 (default)
+* Racket
+  * 7.6 (default)
 
 ### Tools
 

@@ -374,7 +374,7 @@ install_dependencies() {
   if [ -f requirements.txt ]
   then
     echo "Installing pip dependencies"
-    restore_home_cache ".cache" "pip cache"
+    restore_home_cache ".cache" "~/.cache"
     if pip install -r requirements.txt
     then
       echo "Pip dependencies installed"
@@ -677,7 +677,7 @@ cache_artifacts() {
   cache_cwd_directory ".netlify/plugins" "build plugins"
 
   cache_home_directory ".yarn_cache" "yarn cache"
-  cache_home_directory ".cache" "pip cache"
+  cache_home_directory ".cache" "~/.cache"
   cache_home_directory ".cask" "emacs cask dependencies"
   cache_home_directory ".emacs.d" "emacs cache"
   cache_home_directory ".m2" "maven dependencies"

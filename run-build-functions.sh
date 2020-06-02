@@ -160,6 +160,17 @@ run_npm() {
   export PATH=$(npm bin):$PATH
 }
 
+check_python_version() {
+  if source $HOME/python${PYTHON_VERSION}/bin/activate
+  then
+    echo "Python version set to ${PYTHON_VERSION}"
+  else
+    echo "Error setting python version from $1"
+    echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
+    exit 1
+  fi
+}
+
 install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
@@ -167,25 +178,20 @@ install_dependencies() {
   local defaultPHPVersion=$4
   local installGoVersion=$5
   local defaultSwiftVersion=$6
+  local defaultPythonVersion=$7
 
   # Python Version
   if [ -f runtime.txt ]
   then
     PYTHON_VERSION=$(cat runtime.txt)
-    if source $HOME/python${PYTHON_VERSION}/bin/activate
-    then
-      echo "Python version set to ${PYTHON_VERSION}"
-    else
-      echo "Error setting python version from runtime.txt"
-      echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
-      exit 1
-    fi
+    check_python_version "runtime.txt"
   elif [ -f Pipfile ]
   then
     echo "Found Pipfile restoring Pipenv virtualenv"
     restore_cwd_cache ".venv" "python virtualenv"
   else
-    source $HOME/python2.7/bin/activate
+    PYTHON_VERSION=$defaultPythonVersion
+    check_python_version "the PYTHON_VERSION environment variable"
   fi
 
   # Node version

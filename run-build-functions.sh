@@ -576,23 +576,6 @@ install_dependencies() {
     fi
   fi
 
-  # zip-it-and-ship-it
-  if [ -n "$ZISI_VERSION" ]
-  then
-    echo "Installing Zip-it-and-ship-it $ZISI_VERSION"
-
-    zisiOut=$(binrc install -c $NETLIFY_BUILD_BASE/.binrc netlify/zip-it-and-ship-it $ZISI_VERSION)
-    if [ $? -eq 0 ]
-    then
-      ln -s $zisiOut /opt/buildhome/.binrc/bin/zip-it-and-ship-it_${ZISI_VERSION}
-      ln -s /opt/buildhome/.binrc/bin/zip-it-and-ship-it_${ZISI_VERSION} /opt/buildhome/.binrc/bin/zip-it-and-ship-it
-      echo zip-it-and-ship-it version: $(zip-it-and-ship-it --version)
-    else
-      echo "Error during Zip-it-and-ship-it $ZISI_VERSION install: $zisiOut"
-      exit 1
-    fi
-  fi
-
   # Cask
   if [ -f Cask ]
   then
@@ -789,39 +772,6 @@ set_go_import_path() {
     ln -s $PWD $importPath
 
     cd $importPath
-  fi
-}
-
-prep_functions() {
-  local functionsDir=$1
-  local zisiTempDir=$2
-
-  if [[ -z "$functionsDir" ]]; then
-    echo "Skipping functions preparation step: no functions directory set"
-    return 0
-  else
-    echo Function Dir: $functionsDir
-  fi
-
-  if [[ ! -d "$functionsDir" ]]; then
-    echo "Skipping functions preparation step: $functionsDir not found"
-    return 0
-  fi
-
-  if [[ -z "$zisiTempDir" ]]; then
-    echo "Skipping functions preparation step: no temp directory set"
-  else
-    echo TempDir: $zisiTempDir
-  fi
-  # ZISI will create this foler if it doesn't exist, we don't need to check for it
-
-  echo Prepping functions with zip-it-and-ship-it $(zip-it-and-ship-it --version)
-
-  if zip-it-and-ship-it $functionsDir $zisiTempDir; then
-    echo "Prepping functions complete"
-  else
-    echo "Error prepping functions"
-    exit 1
   fi
 }
 

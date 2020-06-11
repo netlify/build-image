@@ -776,7 +776,7 @@ set_go_import_path() {
 }
 
 find_running_procs() {
-  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/usr/local/bin/buildbot" | grep -v [d]efunct | grep -v "[build]"
+  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/usr/local/bin/buildbot" | grep -v [d]efunct | grep -vw '\[build\]'
 }
 
 report_lingering_procs() {

@@ -18,7 +18,7 @@ if [[ ! -d $NETLIFY_REPO_DIR ]]; then
 fi
 cd $NETLIFY_REPO_DIR
 
-: ${NODE_VERSION="10"}
+: ${NODE_VERSION="12.18.0"}
 : ${RUBY_VERSION="2.7.1"}
 : ${YARN_VERSION="1.22.4"}
 : ${PHP_VERSION="5.6"}

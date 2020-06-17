@@ -260,7 +260,7 @@ ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
 ENV RUBY_VERSION=2.7.1
 # Also preinstall Ruby 2.6.2, as many customers are pinned to it and installing is slow
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.6.2 && \
+                  rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
                   rvm install $RUBY_VERSION && rvm use $RUBY_VERSION && gem install bundler && \
                   rvm use $RUBY_VERSION --default && rvm cleanup all"
 

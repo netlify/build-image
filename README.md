@@ -6,7 +6,7 @@ If you're having problems with your build, you can also use these tools to test 
 
 ## Available images
 
-Netlify maintains multiple build images for testing new development as well as supporting legacy builds. Each image uses a different version of Ubuntu Linux, with a slightly different list of included language and software versions. 
+Netlify maintains multiple build images for testing new development as well as supporting legacy builds. Each image uses a different version of Ubuntu Linux, with a slightly different list of included language and software versions.
 
 The following images are currently available:
 
@@ -86,6 +86,16 @@ T=tmp/tmp.XXXXX ./test-tools/test-build.sh path/to/site/repo 'your build command
 ## Contributing
 
 Pull requests welcome, as long as they're not overly specific to a niche use-case.
+
+### Running to Contribute
+
+Testing a script or a change to the container?
+
+- Ensure docker is installed
+- Pull and open this repository
+- Run `docker build -t yourtestcontainername .`. This will build the container locally on your system with the appropriate scripts copied to it. (NOTE: It's going to take a little while.)
+- Update the `start-image` script to use the name of your container.
+- Follow the `Testing Locally` section above. NOTE: You'll need to run the `start-image` script from the root directory, not from within the `test-tools` directory, as the start image script. looks for the `.sh` files from a relative path that assumes the root.
 
 ## More info
 

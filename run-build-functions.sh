@@ -458,7 +458,7 @@ install_dependencies() {
   if [ -f package.json ]
   then
     restore_cwd_cache node_modules "node modules"
-    if [ -f yarn.lock ] || [ ! -z $USE_YARN ]
+    if ([ -f yarn.lock ] && [ ! "$USE_YARN" = "false" ]) || [ "$USE_YARN" = "true" ]
     then
       run_yarn $YARN_VERSION
     else
@@ -471,7 +471,7 @@ install_dependencies() {
   then
     if ! [ $(which bower) ]
     then
-      if [ -f yarn.lock ] || [ ! -z $USE_YARN ]
+      if ([ -f yarn.lock ] && [ ! "$USE_YARN" = "false" ]) || [ "$USE_YARN" = "true" ]
       then
         echo "Installing bower with Yarn"
         yarn add bower

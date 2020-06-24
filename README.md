@@ -87,6 +87,8 @@ T=tmp/tmp.XXXXX ./test-tools/test-build.sh path/to/site/repo 'your build command
 
 Pull requests welcome, as long as they're not overly specific to a niche use-case.
 
+Please see our [contributing documentation](CONTRIBUTING.md).
+
 ## More info
 
 How we use this and some best practices are documented here: https://www.netlify.com/blog/2016/10/18/how-our-build-bots-build-sites/

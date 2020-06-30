@@ -46,7 +46,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
-mkdir -p $NETLIFY_CACHE_DIR/.cache
+mkdir -p $NETLIFY_CACHE_DIR/.cache/pip
 mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.emacs.d
 mkdir -p $NETLIFY_CACHE_DIR/.m2
@@ -380,7 +380,7 @@ install_dependencies() {
   if [ -f requirements.txt ]
   then
     echo "Installing pip dependencies"
-    restore_home_cache ".cache" "pip cache"
+    restore_home_cache ".cache/pip" "pip cache"
     if pip install -r requirements.txt
     then
       echo "Pip dependencies installed"
@@ -666,7 +666,7 @@ cache_artifacts() {
   cache_cwd_directory ".netlify/plugins" "build plugins"
 
   cache_home_directory ".yarn_cache" "yarn cache"
-  cache_home_directory ".cache" "pip cache"
+  cache_home_directory ".cache/pip" "pip cache"
   cache_home_directory ".cask" "emacs cask dependencies"
   cache_home_directory ".emacs.d" "emacs cache"
   cache_home_directory ".m2" "maven dependencies"

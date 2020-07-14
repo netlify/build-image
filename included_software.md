@@ -45,6 +45,9 @@ The specific patch versions included will depend on when the image was last buil
   * NPM - `NPM_VERSION`
     * Version corresponding with Node.js version. (default)
     * Any version available via NPM.
+  * PNPM - `PNPM_VERSION`
+    * 5.4.0 (default)
+    * Any version available via NPM.
   * bower
 * Python
   * pip

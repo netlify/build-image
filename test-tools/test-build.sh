@@ -19,6 +19,7 @@ fi
 : ${NODE_VERSION="10"}
 : ${RUBY_VERSION="2.6.2"}
 : ${YARN_VERSION="1.13.0"}
+: ${PNPM_VERSION="5.3.0"}
 : ${NPM_VERSION=""}
 : ${HUGO_VERSION="0.54.0"}
 : ${PHP_VERSION="5.6"}

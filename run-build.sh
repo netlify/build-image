@@ -21,13 +21,14 @@ cd $NETLIFY_REPO_DIR
 : ${NODE_VERSION="12.18.0"}
 : ${RUBY_VERSION="2.7.1"}
 : ${YARN_VERSION="1.22.4"}
+: ${PNPM_VERSION="5.4.0"}
 : ${PHP_VERSION="5.6"}
 : ${GO_VERSION="1.14.4"}
 : ${SWIFT_VERSION="5.2"}
 : ${PYTHON_VERSION="2.7"}
 
 echo "Installing dependencies"
-install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION $GO_VERSION $SWIFT_VERSION $PYTHON_VERSION
+install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PNPM_VERSION $PHP_VERSION $GO_VERSION $SWIFT_VERSION $PYTHON_VERSION
 
 echo "Installing missing commands"
 install_missing_commands

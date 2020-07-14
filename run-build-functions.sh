@@ -46,6 +46,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
+mkdir -p $NETLIFY_CACHE_DIR/.pnpm-store
 if [[ "$NETLIFY_CACHE_PIP_SUBDIRECTORY" == "true" ]]; then
   mkdir -p $NETLIFY_CACHE_DIR/.cache/pip
 else
@@ -61,6 +62,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gocache
 mkdir -p $NETLIFY_CACHE_DIR/.wasmer/cache
 
 : ${YARN_FLAGS=""}
+: ${PNPM_FLAGS=""}
 : ${NPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
@@ -124,6 +126,47 @@ run_yarn() {
   export PATH=$(yarn bin):$PATH
 }
 
+run_pnpm() {
+  local pnpm_version=$1
+  restore_home_cache ".pnpm-store" "pnpm store"
+
+  if [ $(which pnpm) ] && [ "$(pnpm --version)" != "$pnpm_version" ]
+  then
+    echo "Found pnpm version ($(pnpm --version)) that doesn't match expected ($pnpm_version)"
+    npm uninstall pnpm -g
+  fi
+
+  if ! [ $(which pnpm) ]
+  then
+    echo "Installing pnpm at version $pnpm_version"
+    npm install -g pnpm@$pnpm_version
+  fi
+
+  echo "Installing NPM modules using PNPM version $(pnpm --version)"
+  run_npm_set_temp
+
+  # Remove the store-dir flag if the user set any.
+  # We want to control where to put the cache
+  # to be able to store it internally after the build.
+  if [ -f .npmrc ]
+  then
+    sed -i '/store-dir/d' .npmrc
+  fi
+  local pnpm_local="${PNPM_FLAGS/--store-dir * /}"
+  # The previous pattern doesn't match the end of the string.
+  # This removes the flag from the end of the string.
+  pnpm_local="${pnpm_local%--store-dir *}"
+
+  if pnpm install --store-dir $NETLIFY_BUILD_BASE/.pnpm-store ${pnpm_local:+"$pnpm_local"}
+  then
+    echo "NPM modules installed using PNPM"
+  else
+    echo "Error during PNPM install"
+    exit 1
+  fi
+  export PATH=$(pnpm bin):$PATH
+}
+
 run_npm_set_temp() {
   # Make sure we're not limited by space in the /tmp mount
   mkdir $HOME/tmp
@@ -179,10 +222,11 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
-  local defaultPHPVersion=$4
-  local installGoVersion=$5
-  local defaultSwiftVersion=$6
-  local defaultPythonVersion=$7
+  local defaultPnpmVersion=$4
+  local defaultPHPVersion=$5
+  local installGoVersion=$6
+  local defaultSwiftVersion=$7
+  local defaultPythonVersion=$8
 
   # Python Version
   if [ -f runtime.txt ]
@@ -462,13 +506,16 @@ install_dependencies() {
 
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
+  : ${PNPM_VERSION="$defaultPnpmVersion"}
 
   if [ -f package.json ]
   then
     restore_cwd_cache node_modules "node modules"
-    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
+    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
     then
       run_yarn $YARN_VERSION
+    elif [ "$NETLIFY_USE_PNPM" = "true" ] || ([ "$NETLIFY_USE_PNPM" != "false" ] && [ -f pnpm-lock.yaml ])
+      run_pnpm $PNPM_VERSION
     else
       run_npm
     fi
@@ -479,10 +526,13 @@ install_dependencies() {
   then
     if ! [ $(which bower) ]
     then
-      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
+      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
       then
         echo "Installing bower with Yarn"
         yarn add bower
+      elif [ "$NETLIFY_USE_PNPM" = "true" ] || ([ "$NETLIFY_USE_PNPM" != "false" ] && [ -f pnpm-lock.yaml ])
+        echo "Installing bower with PNPM"
+        pnpm add bower
       else
         echo "Installing bower with NPM"
         npm install bower
@@ -674,6 +724,7 @@ cache_artifacts() {
   cache_cwd_directory ".netlify/plugins" "build plugins"
 
   cache_home_directory ".yarn_cache" "yarn cache"
+  cache_home_directory ".pnpm-store" "pnpm store"
   if [[ "$NETLIFY_CACHE_PIP_SUBDIRECTORY" == "true" ]]; then
     cache_home_directory ".cache/pip" "pip cache"
   else

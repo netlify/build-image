@@ -9,6 +9,7 @@ docker run --rm -t -i \
 	-e NPM_VERSION \
 	-e RUBY_VERSION \
 	-e YARN_VERSION \
+	-e PNPM_VERSION \
 	-e HUGO_VERSION \
 	-e PHP_VERSION \
 	-e GO_VERSION \

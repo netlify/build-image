@@ -290,12 +290,13 @@ RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
 
 ENV ELM_VERSION=0.19.0-bugfix6
 ENV YARN_VERSION=1.22.4
+ENV PNPM_VERSION=5.4.0
 
 ENV NETLIFY_NODE_VERSION="12.18.0"
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
-         npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         npm install -g sm grunt-cli bower elm@$ELM_VERSION pnpm@$PNPM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 

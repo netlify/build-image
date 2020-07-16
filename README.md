@@ -6,7 +6,7 @@ If you're having problems with your build, you can also use these tools to test 
 
 ## Available images
 
-Netlify maintains multiple build images for testing new development as well as supporting legacy builds. Each image uses a different version of Ubuntu Linux, with a slightly different list of included language and software versions. 
+Netlify maintains multiple build images for testing new development as well as supporting legacy builds. Each image uses a different version of Ubuntu Linux, with a slightly different list of included language and software versions.
 
 The following images are currently available:
 
@@ -54,7 +54,7 @@ If the command works correctly, you should see a new prompt, with the user `buil
 In the buildbot shell, run `build` followed by your site build command. For example, for a site build command of `npm run build`, you would run the following:
 
 ```
-build npm run build
+/opt/build/bin/build npm run build
 ```
 
 This will run the build as it would run on Netlify, displaying logs in your terminal as it goes. When you are done testing, you can exit the buildbot shell by typing `exit`.

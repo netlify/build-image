@@ -15,6 +15,6 @@ docker run --rm -t -i \
 	-e SWIFT_VERSION \
 	-e PYTHON_VERSION \
 	-v ${REPO_PATH}:/opt/repo \
-	-v ${BASE_PATH}/run-build.sh:/usr/local/bin/build \
-	-v ${BASE_PATH}/run-build-functions.sh:/usr/local/bin/run-build-functions.sh \
+	-v ${BASE_PATH}/run-build.sh:/opt/build/bin/build \
+	-v ${BASE_PATH}/run-build-functions.sh:/opt/build/bin/run-build-functions.sh \
 	$NETLIFY_IMAGE /bin/bash

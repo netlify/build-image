@@ -55,6 +55,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         git \
         git-lfs \
         gifsicle \
+        gnuplot \
         gobject-introspection \
         graphicsmagick \
         graphviz \

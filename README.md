@@ -54,7 +54,7 @@ If the command works correctly, you should see a new prompt, with the user `buil
 In the buildbot shell, run `build` followed by your site build command. For example, for a site build command of `npm run build`, you would run the following:
 
 ```
-build npm run build
+/opt/build-bin/build npm run build
 ```
 
 This will run the build as it would run on Netlify, displaying logs in your terminal as it goes. When you are done testing, you can exit the buildbot shell by typing `exit`.

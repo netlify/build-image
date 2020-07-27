@@ -466,7 +466,7 @@ install_dependencies() {
   if [ -f package.json ]
   then
     restore_cwd_cache node_modules "node modules"
-    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
+    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
     then
       run_yarn $YARN_VERSION
     else
@@ -479,7 +479,7 @@ install_dependencies() {
   then
     if ! [ $(which bower) ]
     then
-      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
+      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
       then
         echo "Installing bower with Yarn"
         yarn add bower
@@ -788,7 +788,7 @@ set_go_import_path() {
 }
 
 find_running_procs() {
-  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/opt/build/bin/buildbot" | grep -v [d]efunct | grep -vw '\[build\]'
+  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/usr/local/bin/buildbot" | grep -v [d]efunct | grep -vw '\[build\]'
 }
 
 report_lingering_procs() {

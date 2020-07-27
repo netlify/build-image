@@ -485,8 +485,10 @@ WORKDIR /
 USER root
 
 # Add buildscript for local testing
-ADD run-build-functions.sh /usr/local/bin/run-build-functions.sh
-ADD run-build.sh /usr/local/bin/build
+ENV BUILD_BIN_DIR "/opt/build-bin"
+RUN mkdir -p ${BUILD_BIN_DIR}
+ADD run-build-functions.sh ${BUILD_BIN_DIR}/run-build-functions.sh
+ADD run-build.sh ${BUILD_BIN_DIR}/build
 ADD buildbot-git-config /root/.gitconfig
 RUN rm -r /tmp/*
 

@@ -41,7 +41,7 @@ chmod +w $T
 mkdir -p $T/cache
 chmod a+w $T/cache
 
-SCRIPT="/usr/local/bin/build $2"
+SCRIPT="/opt/build-bin/build $2"
 
 docker run --rm \
        -e NODE_VERSION \
@@ -55,8 +55,8 @@ docker run --rm \
        -e GO_IMPORT_PATH \
        -e SWIFT_VERSION \
        -v "${REPO_PATH}:/opt/repo" \
-       -v "${BASE_PATH}/run-build.sh:/usr/local/bin/build" \
-       -v "${BASE_PATH}/run-build-functions.sh:/usr/local/bin/run-build-functions.sh" \
+       -v "${BASE_PATH}/run-build.sh:/opt/build-bin/build" \
+       -v "${BASE_PATH}/run-build-functions.sh:/opt/build-bin/run-build-functions.sh" \
        -v $PWD/$T/cache:/opt/buildhome/cache \
        -w /opt/build \
        -it \

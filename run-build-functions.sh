@@ -46,11 +46,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
-if [[ "$NETLIFY_CACHE_PIP_SUBDIRECTORY" == "true" ]]; then
-  mkdir -p $NETLIFY_CACHE_DIR/.cache/pip
-else
-  mkdir -p $NETLIFY_CACHE_DIR/.cache
-fi
+mkdir -p $NETLIFY_CACHE_DIR/.cache/pip
 mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.emacs.d
 mkdir -p $NETLIFY_CACHE_DIR/.m2
@@ -384,11 +380,7 @@ install_dependencies() {
   if [ -f requirements.txt ]
   then
     echo "Installing pip dependencies"
-    if [[ "$NETLIFY_CACHE_PIP_SUBDIRECTORY" == "true" ]]; then
-      restore_home_cache ".cache/pip" "pip cache"
-    else
-      restore_home_cache ".cache" "pip cache"
-    fi
+    restore_home_cache ".cache/pip" "pip cache"
     if pip install -r requirements.txt
     then
       echo "Pip dependencies installed"
@@ -674,11 +666,7 @@ cache_artifacts() {
   cache_cwd_directory ".netlify/plugins" "build plugins"
 
   cache_home_directory ".yarn_cache" "yarn cache"
-  if [[ "$NETLIFY_CACHE_PIP_SUBDIRECTORY" == "true" ]]; then
-    cache_home_directory ".cache/pip" "pip cache"
-  else
-    cache_home_directory ".cache" "pip cache"
-  fi
+  cache_home_directory ".cache/pip" "pip cache"
   cache_home_directory ".cask" "emacs cask dependencies"
   cache_home_directory ".emacs.d" "emacs cache"
   cache_home_directory ".m2" "maven dependencies"

@@ -299,6 +299,8 @@ RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 
+ENV CYPRESS_CACHE_FOLDER="./node_modules/CypressBinary"
+
 USER root
 
 ################################################################################

@@ -85,7 +85,7 @@ run_yarn() {
   # Check the version of yarn installed globally
   if [ $(which yarn) ] && [ "$(YARN_IGNORE_PATH=1 yarn --version)" != "$yarn_version" ]
   then
-    echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
+    echo "Global yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
     rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
     npm uninstall yarn -g
   fi

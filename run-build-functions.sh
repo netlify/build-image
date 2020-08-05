@@ -113,8 +113,8 @@ run_yarn() {
   then
     # The cache-folder flag is deprecated in Yarn 2
     # Override the environment variable if the user set any.
+    # To use the global cache, the user should set YARN_ENABLE_GLOBAL_CACHE
     export YARN_GLOBAL_FOLDER="$NETLIFY_BUILD_BASE/.yarn_cache"
-    export YARN_ENABLE_GLOBAL_CACHE=1
   else
     # Remove the cache-folder flag if the user set any.
     yarn_local="${yarn_local/--cache-folder * /}"

@@ -454,6 +454,8 @@ install_dependencies() {
 
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
+  : ${CYPRESS_CACHE_FOLDER="./node_modules/.cache/CypressBinary"}
+  export CYPRESS_CACHE_FOLDER
 
   if [ -f package.json ]
   then

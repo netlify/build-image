@@ -456,8 +456,9 @@ install_dependencies() {
   # Homebrew from Brewfile
   if [ -f Brewfile.netlify ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
   then
-    echo "Installing Homebrew dependencies from ${HOMEBREW_BUNDLE_FILE:-Brewfile.netlify}"
-    brew bundle --file Brewfile.netlify
+    : ${HOMEBREW_BUNDLE_FILE:="Brewfile.netlify"}
+    echo "Installing Homebrew dependencies from ${HOMEBREW_BUNDLE_FILE}"
+    brew bundle
   fi
 
   # NPM Dependencies

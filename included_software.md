@@ -77,5 +77,5 @@ The specific patch versions included will depend on when the image was last buil
   - this is not production ready
   - it might be removed or changed significantly
   - Any linux formula is supported: https://formulae.brew.sh/formula-linux/
-  - Formulae from a `Brewfile` are installed automatically via [`brew bundle`](https://github.com/Homebrew/homebrew-bundle#readme)
+  - Formulae from a `Brewfile.netlify` are installed automatically via [`brew bundle`](https://github.com/Homebrew/homebrew-bundle#readme)
   - `HOMEBREW_BUNDLE_FILE` is respected

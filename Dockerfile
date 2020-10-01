@@ -107,6 +107,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libgif-dev \
         libglib2.0-dev \
         libgmp3-dev \
+        libgsl2 \
+        libgsl-dev \
         libgtk-3-0 \
         libgtk2.0-0 \
         libicu-dev \
@@ -143,6 +145,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php5.6-sqlite3 \
         php5.6-curl \
         php5.6-zip \
+        php5.6-intl \
         php7.2 \
         php7.2-xml \
         php7.2-mbstring \
@@ -150,6 +153,15 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.2-sqlite3 \
         php7.2-curl \
         php7.2-zip \
+        php7.2-intl \
+        php7.4 \
+        php7.4-xml \
+        php7.4-mbstring \
+        php7.4-gd \
+        php7.4-sqlite3 \
+        php7.4-curl \
+        php7.4-zip \
+        php7.4-intl \
         pngcrush \
         python-setuptools \
         python \
@@ -158,6 +170,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         python3-dev \
         python3.7 \
         python3.7-dev \
+        rlwrap \
         rsync \
         software-properties-common \
         sqlite3 \
@@ -247,9 +260,12 @@ RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A170311380
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
+ENV RUBY_VERSION=2.7.1
+# Also preinstall Ruby 2.6.2, as many customers are pinned to it and installing is slow
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
-                  rvm use 2.6.2 --default && rvm cleanup all"
+                  rvm install $RUBY_VERSION && rvm use $RUBY_VERSION && gem install bundler && \
+                  rvm use $RUBY_VERSION --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 USER root
@@ -263,18 +279,23 @@ USER root
 
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
+ENV NVM_VERSION=0.35.3
+
 # Install node.js
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd ~/.nvm && \
-    git checkout v0.34.0 && \
+    git checkout v$NVM_VERSION && \
     cd /
 
 ENV ELM_VERSION=0.19.0-bugfix6
-ENV YARN_VERSION=1.13.0
+ENV YARN_VERSION=1.22.4
+
+ENV NETLIFY_NODE_VERSION="12.18.0"
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
-         nvm install 10 && nvm use 10 && npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         nvm install --no-progress $NETLIFY_NODE_VERSION && \
+         npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 
@@ -302,6 +323,7 @@ RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
     /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
     ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.2
 
+RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install "setuptools<45"
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 
 USER root
@@ -339,17 +361,6 @@ RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs
 
 ################################################################################
 #
-# Zip-it-and-ship-it
-#
-################################################################################
-
-ENV ZIP_IT_AND_SHIP_IT_VERSION 0.3.1
-
-RUN binrc install netlify/zip-it-and-ship-it ${ZIP_IT_AND_SHIP_IT_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/zip-it-and-ship-it_${ZIP_IT_AND_SHIP_IT_VERSION} && \
-    ln -s /usr/local/bin/zip-it-and-ship-it_${ZIP_IT_AND_SHIP_IT_VERSION} /usr/local/bin/zip-it-and-ship-it
-
-################################################################################
-#
 # Clojure
 #
 ################################################################################
@@ -363,6 +374,8 @@ RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
     curl -sL https://github.com/boot-clj/boot-bin/releases/download/2.5.2/boot.sh > boot && \
     chmod +x boot && \
     ln -s /opt/boot-clj/boot /usr/local/bin/boot
+
+RUN curl -sL https://download.clojure.org/install/linux-install-1.10.1.492.sh | bash
 
 USER buildbot
 
@@ -426,9 +439,9 @@ ENV PATH "$PATH:/opt/buildhome/.gimme/bin"
 ENV GOPATH "/opt/buildhome/.gimme_cache/gopath"
 ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
-ENV GIMME_GO_VERSION "1.12"
+ENV GIMME_GO_VERSION "1.14.4"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
-RUN gimme
+RUN gimme | bash
 
 ################################################################################
 #
@@ -451,6 +464,21 @@ ENV PATH "$PATH:/opt/buildhome/.dotnet"
 ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
 #populate local package cache
 RUN dotnet new
+
+
+################################################################################
+#
+# Swift
+#
+################################################################################
+USER buildbot
+ENV NETLIFY_BUILD_SWIFT_VERSION 5.2
+ENV SWIFTENV_ROOT "/opt/buildhome/.swiftenv"
+RUN git clone --depth 1 https://github.com/kylef/swiftenv.git "$SWIFTENV_ROOT"
+ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
+RUN swiftenv install ${NETLIFY_BUILD_SWIFT_VERSION}
+RUN swift --version
+
 WORKDIR /
 
 ################################################################################
@@ -465,8 +493,9 @@ ENV PATH "$PATH:/opt/buildhome/.cargo/bin"
 USER root
 
 # Add buildscript for local testing
-ADD run-build-functions.sh /usr/local/bin/run-build-functions.sh
-ADD run-build.sh /usr/local/bin/build
+RUN mkdir -p /opt/build-bin
+ADD run-build-functions.sh /opt/build-bin/run-build-functions.sh
+ADD run-build.sh /opt/build-bin/build
 ADD buildbot-git-config /root/.gitconfig
 RUN rm -r /tmp/*
 

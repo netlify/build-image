@@ -17,6 +17,7 @@ export GIMME_CGO_ENABLED=true
 
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
+export SWIFTENV_ROOT="${SWIFTENV_ROOT:-${HOME}/.swiftenv}"
 
 # Pipenv configuration
 export PIPENV_RUNTIME=2.7
@@ -32,6 +33,7 @@ NC="\033[0m" # No Color
 # language versions
 mkdir -p $NETLIFY_CACHE_DIR/node_version
 mkdir -p $NETLIFY_CACHE_DIR/ruby_version
+mkdir -p $NETLIFY_CACHE_DIR/swift_version
 
 # pwd caches
 mkdir -p $NETLIFY_CACHE_DIR/node_modules
@@ -39,10 +41,12 @@ mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.venv
 mkdir -p $NETLIFY_CACHE_DIR/wapm_packages
+mkdir -p $NETLIFY_CACHE_DIR/.build
+mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
-mkdir -p $NETLIFY_CACHE_DIR/.cache
+mkdir -p $NETLIFY_CACHE_DIR/.cache/pip
 mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.emacs.d
 mkdir -p $NETLIFY_CACHE_DIR/.m2
@@ -164,31 +168,38 @@ run_npm() {
   export PATH=$(npm bin):$PATH
 }
 
+check_python_version() {
+  if source $HOME/python${PYTHON_VERSION}/bin/activate
+  then
+    echo "Python version set to ${PYTHON_VERSION}"
+  else
+    echo "Error setting python version from $1"
+    echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
+    exit 1
+  fi
+}
+
 install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
   local defaultPHPVersion=$4
   local installGoVersion=$5
+  local defaultSwiftVersion=$6
+  local defaultPythonVersion=$7
 
   # Python Version
   if [ -f runtime.txt ]
   then
     PYTHON_VERSION=$(cat runtime.txt)
-    if source $HOME/python${PYTHON_VERSION}/bin/activate
-    then
-      echo "Python version set to ${PYTHON_VERSION}"
-    else
-      echo "Error setting python version from runtime.txt"
-      echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
-      exit 1
-    fi
+    check_python_version "runtime.txt"
   elif [ -f Pipfile ]
   then
     echo "Found Pipfile restoring Pipenv virtualenv"
     restore_cwd_cache ".venv" "python virtualenv"
   else
-    source $HOME/python2.7/bin/activate
+    PYTHON_VERSION=$defaultPythonVersion
+    check_python_version "the PYTHON_VERSION environment variable"
   fi
 
   # Node version
@@ -199,7 +210,8 @@ install_dependencies() {
   if [[ $(ls $NETLIFY_CACHE_DIR/node_version/) ]]
   then
     echo "Started restoring cached node version"
-    rm -rf $NVM_DIR/versions/node/*
+    rm -rf "$NVM_DIR/versions/node"
+    mkdir "$NVM_DIR/versions/node"
     cp -p -r $NETLIFY_CACHE_DIR/node_version/* $NVM_DIR/versions/node/
     echo "Finished restoring cached node version"
   fi
@@ -214,7 +226,7 @@ install_dependencies() {
     echo "Attempting node version '$NODE_VERSION' from .node-version"
   fi
 
-  if nvm install $NODE_VERSION
+  if nvm install --no-progress $NODE_VERSION
   then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us
@@ -237,6 +249,13 @@ install_dependencies() {
       echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
     fi
   fi
+
+  # Automatically installed Build plugins
+  if [ ! -d "$PWD/.netlify" ]
+  then
+    mkdir "$PWD/.netlify"
+  fi
+  restore_cwd_cache ".netlify/plugins" "build plugins"
 
   # Ruby version
   local tmprv="${RUBY_VERSION:=$defaultRubyVersion}"
@@ -290,13 +309,32 @@ install_dependencies() {
     fi
   fi
 
-  if ! gem list -i "^bundler$" > /dev/null 2>&1
+  # get bundler version
+  local bundler_version
+  if [ -f Gemfile.lock ]
   then
-    if ! gem install bundler
-    then
-      echo "Error installing bundler"
-      exit 1
-    fi
+     bundler_version="$(cat Gemfile.lock | grep -C1 '^BUNDLED WITH$' | tail -n1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' | tr -d \\n)"
+  fi
+
+  if ! [ -z "$bundler_version" ]
+  then
+      echo "Using bundler version $bundler_version from Gemfile.lock"
+  fi
+
+  if ! gem list -i "^bundler$" -v "$bundler_version" > /dev/null 2>&1
+  then
+      local bundler_gem_name
+      if [ -z "$bundler_version" ]
+      then
+          bundler_gem_name=bundler
+      else
+          bundler_gem_name="bundler:$bundler_version"
+      fi
+      if ! gem install "$bundler_gem_name" --no-document
+      then
+          echo "Error installing bundler"
+          exit 1
+      fi
   fi
 
   # Java version
@@ -324,8 +362,15 @@ install_dependencies() {
     restore_cwd_cache ".bundle" "ruby gems"
     if install_deps Gemfile.lock $RUBY_VERSION $NETLIFY_CACHE_DIR/gemfile-sha || [ ! -d .bundle ]
     then
+      local bundle_command
+      if [ -z "$bundler_version" ]
+      then
+          bundle_command="bundle"
+      else
+          bundle_command="bundle _${bundler_version}_"
+      fi
       echo "Installing gem bundle"
-      if bundle install --path $NETLIFY_CACHE_DIR/bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs ${BUNDLER_FLAGS:+"$BUNDLER_FLAGS"}
+      if $bundle_command install --path $NETLIFY_CACHE_DIR/bundle --binstubs=$NETLIFY_CACHE_DIR/binstubs ${BUNDLER_FLAGS:+"$BUNDLER_FLAGS"}
       then
       export PATH=$NETLIFY_CACHE_DIR/binstubs:$PATH
         echo "Gem bundle installed"
@@ -343,7 +388,7 @@ install_dependencies() {
   if [ -f requirements.txt ]
   then
     echo "Installing pip dependencies"
-    restore_home_cache ".cache" "pip cache"
+    restore_home_cache ".cache/pip" "pip cache"
     if pip install -r requirements.txt
     then
       echo "Pip dependencies installed"
@@ -371,13 +416,59 @@ install_dependencies() {
     fi
   fi
 
+  # Swift Version
+  : ${SWIFT_VERSION="$defaultSwiftVersion"}
+  if [ -f .swift-version ]
+  then
+    SWIFT_VERSION=$(cat .swift-version)
+    echo "Attempting Swift version '$SWIFT_VERSION' from .swift-version"
+  fi
+
+  swiftenv global ${SWIFT_VERSION} > /dev/null 2>&1
+  export CUSTOM_SWIFT=$?
+
+  if [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
+  then
+    echo "Started restoring cached Swift version"
+    rm -rf $SWIFTENV_ROOT/versions/$SWIFT_VERSION
+    cp -p -r $NETLIFY_CACHE_DIR/swift_version/${SWIFT_VERSION} $SWIFTENV_ROOT/versions/
+    swiftenv rehash
+    echo "Finished restoring cached Swift version"
+  fi
+
+  # swiftenv expects the following environment variables to refer to
+  # swiftenv internals
+  if PLATFORM= URL= VERSION= swiftenv install -s $SWIFT_VERSION
+  then
+    echo "Using Swift version $SWIFT_VERSION"
+  else
+    echo "Failed to install Swift version '$SWIFT_VERSION'"
+    exit 1
+  fi
+
+  # SPM dependencies
+  if [ -f Package.swift ]
+  then
+    echo "Building Swift Package"
+    restore_cwd_cache ".build" "swift build"
+    if swift build
+    then
+      echo "Swift package Built"
+    else
+      echo "Error building Swift package"
+      exit 1
+    fi
+  fi
+
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
+  : ${CYPRESS_CACHE_FOLDER="./node_modules/.cache/CypressBinary"}
+  export CYPRESS_CACHE_FOLDER
 
   if [ -f package.json ]
   then
     restore_cwd_cache node_modules "node modules"
-    if [ -f yarn.lock ]
+    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
     then
       run_yarn $YARN_VERSION
     else
@@ -390,7 +481,7 @@ install_dependencies() {
   then
     if ! [ $(which bower) ]
     then
-      if [ -f yarn.lock ]
+      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
       then
         echo "Installing bower with Yarn"
         yarn add bower
@@ -495,23 +586,6 @@ install_dependencies() {
     fi
   fi
 
-  # zip-it-and-ship-it
-  if [ -n "$ZISI_VERSION" ]
-  then
-    echo "Installing Zip-it-and-ship-it $ZISI_VERSION"
-
-    zisiOut=$(binrc install -c $NETLIFY_BUILD_BASE/.binrc netlify/zip-it-and-ship-it $ZISI_VERSION)
-    if [ $? -eq 0 ]
-    then
-      ln -s $zisiOut /opt/buildhome/.binrc/bin/zip-it-and-ship-it_${ZISI_VERSION}
-      ln -s /opt/buildhome/.binrc/bin/zip-it-and-ship-it_${ZISI_VERSION} /opt/buildhome/.binrc/bin/zip-it-and-ship-it
-      echo zip-it-and-ship-it version: $(zip-it-and-ship-it --version)
-    else
-      echo "Error during Zip-it-and-ship-it $ZISI_VERSION install: $zisiOut"
-      exit 1
-    fi
-  fi
-
   # Cask
   if [ -f Cask ]
   then
@@ -553,7 +627,7 @@ install_dependencies() {
       exit 1
     fi
   else
-    gimme
+    gimme | bash
     if [ $? -eq 0 ]
     then
       source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
@@ -613,10 +687,12 @@ cache_artifacts() {
   cache_cwd_directory "bower_components" "bower components"
   cache_cwd_directory "node_modules" "node modules"
   cache_cwd_directory ".venv" "python virtualenv"
-  cache_cwd_directory "wapm_packages", "wapm packages"
+  cache_cwd_directory "wapm_packages" "wapm packages"
+  cache_cwd_directory ".build" "swift build"
+  cache_cwd_directory ".netlify/plugins" "build plugins"
 
   cache_home_directory ".yarn_cache" "yarn cache"
-  cache_home_directory ".cache" "pip cache"
+  cache_home_directory ".cache/pip" "pip cache"
   cache_home_directory ".cask" "emacs cask dependencies"
   cache_home_directory ".emacs.d" "emacs cache"
   cache_home_directory ".m2" "maven dependencies"
@@ -656,6 +732,20 @@ cache_artifacts() {
     fi
   else
     rm -rf $NETLIFY_CACHE_DIR/ruby_version
+  fi
+
+  # cache the version of Swift installed
+  if [[ "$CUSTOM_SWIFT" -ne "0" ]]
+  then
+    if ! [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
+    then
+      rm -rf $NETLIFY_CACHE_DIR/swift_version
+      mkdir $NETLIFY_CACHE_DIR/swift_version
+      mv $SWIFTENV_ROOT/versions/$SWIFT_VERSION $NETLIFY_CACHE_DIR/swift_version/
+      echo "Cached Swift version $SWIFT_VERSION"
+    fi
+  else
+    rm -rf $NETLIFY_CACHE_DIR/swift_version
   fi
 }
 
@@ -713,41 +803,8 @@ set_go_import_path() {
   fi
 }
 
-prep_functions() {
-  local functionsDir=$1
-  local zisiTempDir=$2
-
-  if [[ -z "$functionsDir" ]]; then
-    echo "Skipping functions preparation step: no functions directory set"
-    return 0
-  else
-    echo Function Dir: $functionsDir
-  fi
-
-  if [[ ! -d "$functionsDir" ]]; then
-    echo "Skipping functions preparation step: $functionsDir not found"
-    return 0
-  fi
-
-  if [[ -z "$zisiTempDir" ]]; then
-    echo "Skipping functions preparation step: no temp directory set"
-  else
-    echo TempDir: $zisiTempDir
-  fi
-  # ZISI will create this foler if it doesn't exist, we don't need to check for it
-
-  echo Prepping functions with zip-it-and-ship-it $(zip-it-and-ship-it --version)
-
-  if zip-it-and-ship-it $functionsDir $zisiTempDir; then
-    echo "Prepping functions complete"
-  else
-    echo "Error prepping functions"
-    exit 1
-  fi
-}
-
 find_running_procs() {
-  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/usr/local/bin/buildbot" | grep -v [d]efunct | grep -v "[build]"
+  ps aux | grep -v [p]s | grep -v [g]rep | grep -v [b]ash | grep -v "/opt/build-bin/buildbot" | grep -v [d]efunct | grep -vw '\[build\]'
 }
 
 report_lingering_procs() {

@@ -14,15 +14,19 @@ The specific patch versions included will depend on when the image was last buil
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
   * 10 (default)
   * Any version that `nvm` can install.
-* Python - `runtime.txt` or `Pipfile`
+* Python - `PYTHON_VERSION`, `runtime.txt`, `Pipfile`
   * 2.7 (default)
   * 3.5
   * 3.7
 * PHP - `PHP_VERSION`
   * 5.6 (default)
   * 7.2
+  * 7.4
 * Go - `GO_VERSION`
   * 1.12 (default)
+* Swift - `SWIFT_VERSION`, `.swift-version`
+  * 5.2 (default)
+  * Any version that `swiftenv` can install newer than `4.x`. Versions `4.x` and below will not work due to incompatible shared libraries.
 * Java
   * 8 (default)
 * Emacs

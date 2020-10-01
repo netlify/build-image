@@ -45,7 +45,7 @@ Run the following command to start the interactive shell within the container:
 ./test-tools/start-image.sh path/to/site/repo
 ```
 
-If you receive a `command not found` message, make sure you are in the baase of the build-image repository.
+If you receive a `command not found` message, make sure you are in the base of the build-image repository.
 
 If the command works correctly, you should see a new prompt, with the user `buildbot`.
 
@@ -54,7 +54,7 @@ If the command works correctly, you should see a new prompt, with the user `buil
 In the buildbot shell, run `build` followed by your site build command. For example, for a site build command of `npm run build`, you would run the following:
 
 ```
-build npm run build
+/opt/build-bin/build npm run build
 ```
 
 This will run the build as it would run on Netlify, displaying logs in your terminal as it goes. When you are done testing, you can exit the buildbot shell by typing `exit`.
@@ -86,6 +86,8 @@ T=tmp/tmp.XXXXX ./test-tools/test-build.sh path/to/site/repo 'your build command
 ## Contributing
 
 Pull requests welcome, as long as they're not overly specific to a niche use-case.
+
+Please see our [contributing documentation](CONTRIBUTING.md).
 
 ## More info
 

@@ -109,13 +109,17 @@ run_yarn() {
   # The previous pattern doesn't match the end of the string.
   # This removes the flag from the end of the string.
   yarn_local="${yarn_local%--cache-folder *}"
-
-  if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
+  if [ "$SKIP_NPM_DEPENDENCY_INSTALL" != "true" ]
   then
-    echo "NPM modules installed using Yarn"
+    if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
+    then
+      echo "NPM modules installed using Yarn"
+    else
+      echo "Error during Yarn install"
+      exit 1
+    fi
   else
-    echo "Error during Yarn install"
-    exit 1
+    echo "Skipping NPM modules install"
   fi
   export PATH=$(yarn bin):$PATH
 }
@@ -145,14 +149,19 @@ run_npm() {
 
   if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then
-    echo "Installing NPM modules using NPM version $(npm --version)"
-    run_npm_set_temp
-    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
+    if [ "$SKIP_NPM_DEPENDENCY_INSTALL" != "true" ]
     then
-      echo "NPM modules installed"
+      echo "Installing NPM modules using NPM version $(npm --version)"
+      run_npm_set_temp
+      if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
+      then
+        echo "NPM modules installed"
+      else
+        echo "Error during NPM install"
+        exit 1
+      fi
     else
-      echo "Error during NPM install"
-      exit 1
+      echo "Skipping NPM modules install"
     fi
 
     echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
@@ -460,7 +469,7 @@ install_dependencies() {
   if [ -f package.json ]
   then
     restore_cwd_cache node_modules "node modules"
-    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
+    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
     then
       run_yarn $YARN_VERSION
     else
@@ -473,7 +482,7 @@ install_dependencies() {
   then
     if ! [ $(which bower) ]
     then
-      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
+      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
       then
         echo "Installing bower with Yarn"
         yarn add bower

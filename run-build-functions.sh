@@ -99,7 +99,7 @@ run_yarn() {
   fi
 
 
-  echo "Installing NPM modules using Yarn version $(yarn --version)"
+  echo "Installing Node modules using Yarn version $(yarn --version)"
   run_npm_set_temp
 
   # Remove the cache-folder flag if the user set any.
@@ -113,7 +113,7 @@ run_yarn() {
   then
     if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
     then
-      echo "NPM modules installed using Yarn"
+      echo "Node modules installed using Yarn"
     else
       echo "Error during Yarn install"
       exit 1
@@ -151,17 +151,17 @@ run_npm() {
   then
     if [ "$NETLIFY_INSTALL_JS_DEPENDENCIES" != "false" ]
     then
-      echo "Installing NPM modules using NPM version $(npm --version)"
+      echo "Installing Node modules using NPM version $(npm --version)"
       run_npm_set_temp
       if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
       then
-        echo "NPM modules installed"
+        echo "Node modules installed"
       else
-        echo "Error during NPM install"
+        echo "Error during Node install"
         exit 1
       fi
     else
-      echo "Skipping NPM modules install"
+      echo "Skipping Node modules install"
     fi
 
     echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha

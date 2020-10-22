@@ -109,7 +109,7 @@ run_yarn() {
   # The previous pattern doesn't match the end of the string.
   # This removes the flag from the end of the string.
   yarn_local="${yarn_local%--cache-folder *}"
-  if [ "$SKIP_NPM_DEPENDENCY_INSTALL" != "true" ]
+  if [ "$NETLIFY_INSTALL_JS_DEPENDENCIES" != "false" ]
   then
     if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
     then
@@ -149,7 +149,7 @@ run_npm() {
 
   if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then
-    if [ "$SKIP_NPM_DEPENDENCY_INSTALL" != "true" ]
+    if [ "$NETLIFY_INSTALL_JS_DEPENDENCIES" != "false" ]
     then
       echo "Installing NPM modules using NPM version $(npm --version)"
       run_npm_set_temp

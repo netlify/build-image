@@ -119,7 +119,7 @@ run_yarn() {
       exit 1
     fi
   else
-    echo "Skipping NPM modules install"
+    echo "Skipping Node modules install"
   fi
   export PATH=$(yarn bin):$PATH
 }

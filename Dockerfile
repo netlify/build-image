@@ -375,7 +375,7 @@ RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
     chmod +x boot && \
     ln -s /opt/boot-clj/boot /usr/local/bin/boot
 
-RUN curl -sL https://download.clojure.org/install/linux-install-1.10.1.492.sh | bash
+RUN curl -sL https://download.clojure.org/install/linux-install-1.10.1.727.sh | bash
 
 USER buildbot
 

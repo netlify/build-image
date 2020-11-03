@@ -455,6 +455,7 @@ install_dependencies() {
   if [ -f Brewfile.netlify ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
   then
     : ${HOMEBREW_BUNDLE_FILE:="Brewfile.netlify"}
+    export HOMEBREW_BUNDLE_FILE
     echo "Installing Homebrew dependencies from ${HOMEBREW_BUNDLE_FILE}"
     brew bundle
   fi
@@ -467,7 +468,7 @@ install_dependencies() {
   if [ -f package.json ]
   then
     restore_cwd_cache node_modules "node modules"
-    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
+    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
     then
       run_yarn $YARN_VERSION
     else
@@ -480,7 +481,7 @@ install_dependencies() {
   then
     if ! [ $(which bower) ]
     then
-      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]) 
+      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
       then
         echo "Installing bower with Yarn"
         yarn add bower

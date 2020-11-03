@@ -455,6 +455,7 @@ install_dependencies() {
   if [ -f Brewfile.netlify ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
   then
     : ${HOMEBREW_BUNDLE_FILE:="Brewfile.netlify"}
+    export HOMEBREW_BUNDLE_FILE
     echo "Installing Homebrew dependencies from ${HOMEBREW_BUNDLE_FILE}"
     brew bundle
   fi

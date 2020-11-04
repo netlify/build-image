@@ -426,8 +426,9 @@ install_dependencies() {
 
   # swiftenv expects the following environment variables to refer to
   # swiftenv internals
-  if [ -f .swift-version -o -f Package.swift ]
-    if PLATFORM= URL= VERSION= swiftenv install -s $SWIFT_VERSION
+  if [ -f .swift-version ] || [ -f Package.swift ]
+  then
+    if PLATFORM='' URL='' VERSION='' swiftenv install -s $SWIFT_VERSION
     then
       echo "Using Swift version $SWIFT_VERSION"
     else

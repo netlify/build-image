@@ -415,9 +415,6 @@ install_dependencies() {
     echo "Attempting Swift version '$SWIFT_VERSION' from .swift-version"
   fi
 
-  swiftenv global ${SWIFT_VERSION} > /dev/null 2>&1
-  export CUSTOM_SWIFT=$?
-
   if [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
   then
     echo "Started restoring cached Swift version"
@@ -429,12 +426,14 @@ install_dependencies() {
 
   # swiftenv expects the following environment variables to refer to
   # swiftenv internals
-  if PLATFORM= URL= VERSION= swiftenv install -s $SWIFT_VERSION
-  then
-    echo "Using Swift version $SWIFT_VERSION"
-  else
-    echo "Failed to install Swift version '$SWIFT_VERSION'"
-    exit 1
+  if [ -f .swift-version -o -f Package.swift ]
+    if PLATFORM= URL= VERSION= swiftenv install -s $SWIFT_VERSION
+    then
+      echo "Using Swift version $SWIFT_VERSION"
+    else
+      echo "Failed to install Swift version '$SWIFT_VERSION'"
+      exit 1
+    fi
   fi
 
   # SPM dependencies
@@ -700,7 +699,7 @@ cache_artifacts() {
   fi
 
   # cache the version of Swift installed
-  if [[ "$CUSTOM_SWIFT" -ne "0" ]]
+  if [ -d $SWIFTENV_ROOT/versions/$SWIFT_VERSION ]
   then
     if ! [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
     then

@@ -176,8 +176,7 @@ install_dependencies() {
   local defaultYarnVersion=$3
   local defaultPHPVersion=$4
   local installGoVersion=$5
-  local defaultSwiftVersion=$6
-  local defaultPythonVersion=$7
+  local defaultPythonVersion=$6
 
   # Python Version
   if [ -f runtime.txt ]
@@ -408,26 +407,34 @@ install_dependencies() {
   fi
 
   # Swift Version
-  : ${SWIFT_VERSION="$defaultSwiftVersion"}
+  defaultSwiftVersion="5.2"
   if [ -f .swift-version ]
   then
     SWIFT_VERSION=$(cat .swift-version)
     echo "Attempting Swift version '$SWIFT_VERSION' from .swift-version"
   fi
 
-  if [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
+  # If Package.swift is present and no Swift version is set, use a default
+  if [ -f Package.swift ]
   then
-    echo "Started restoring cached Swift version"
-    rm -rf $SWIFTENV_ROOT/versions/$SWIFT_VERSION
-    cp -p -r $NETLIFY_CACHE_DIR/swift_version/${SWIFT_VERSION} $SWIFTENV_ROOT/versions/
-    swiftenv rehash
-    echo "Finished restoring cached Swift version"
+    : ${SWIFT_VERSION="$defaultSwiftVersion"}
   fi
 
-  # swiftenv expects the following environment variables to refer to
-  # swiftenv internals
-  if [ -f .swift-version ] || [ -f Package.swift ]
+  if [ -n "$SWIFT_VERSION" ]
   then
+    export SWIFT_VERSION=$SWIFT_VERSION
+
+    if [ -n "$SWIFT_VERSION" ] && [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
+    then
+      echo "Started restoring cached Swift version"
+      rm -rf $SWIFTENV_ROOT/versions/$SWIFT_VERSION
+      cp -p -r $NETLIFY_CACHE_DIR/swift_version/${SWIFT_VERSION} $SWIFTENV_ROOT/versions/
+      swiftenv rehash
+      echo "Finished restoring cached Swift version"
+    fi
+
+    # swiftenv expects the following environment variables to refer to
+    # swiftenv internals
     if PLATFORM='' URL='' VERSION='' swiftenv install -s $SWIFT_VERSION
     then
       echo "Using Swift version $SWIFT_VERSION"

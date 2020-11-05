@@ -658,14 +658,6 @@ install_dependencies() {
     restore_home_cache ".cargo/registry" "rust deps"
     check_rust_target_cacheability && restore_home_cache "repo/target" "rust compile output"
     source $HOME/.cargo/env
-    cargo build --release
-    if [ $? -eq 0 ]
-    then
-      echo "Rust dependencies installed and compiled."
-    else
-      echo "Error during Rust code compilation."
-      exit 1
-    fi
   fi
 
   # Setup project GOPATH

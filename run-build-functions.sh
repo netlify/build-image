@@ -40,7 +40,6 @@ mkdir -p $NETLIFY_CACHE_DIR/node_modules
 mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.venv
-mkdir -p $NETLIFY_CACHE_DIR/wapm_packages
 mkdir -p $NETLIFY_CACHE_DIR/.build
 mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
@@ -54,7 +53,6 @@ mkdir -p $NETLIFY_CACHE_DIR/.boot
 mkdir -p $NETLIFY_CACHE_DIR/.composer
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gopath
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gocache
-mkdir -p $NETLIFY_CACHE_DIR/.wasmer/cache
 mkdir -p $NETLIFY_CACHE_DIR/.homebrew-cache
 mkdir -p $NETLIFY_CACHE_DIR/.cargo/registry
 
@@ -645,22 +643,6 @@ install_dependencies() {
     fi
   fi
 
-  # WAPM version
-  source $HOME/.wasmer/wasmer.sh
-  if [ -f wapm.toml ] || [ -f wapm.lock ]
-  then
-    restore_home_cache ".wasmer/cache" "wasmer cache"
-    restore_cwd_cache "wapm_packages" "wapm packages"
-    wapm install
-    if [ $? -eq 0 ]
-    then
-      echo "Wapm packages installed"
-    else
-      echo "Error during Wapm install"
-      exit 1
-    fi
-  fi
-
   # Restore cache if available
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
@@ -687,7 +669,6 @@ cache_artifacts() {
   cache_cwd_directory "bower_components" "bower components"
   cache_cwd_directory "node_modules" "node modules"
   cache_cwd_directory ".venv" "python virtualenv"
-  cache_cwd_directory "wapm_packages" "wapm packages"
   cache_cwd_directory ".build" "swift build"
   cache_cwd_directory ".netlify/plugins" "build plugins"
   check_rust_target_cacheability && cache_cwd_directory target "rust compile output"
@@ -699,7 +680,6 @@ cache_artifacts() {
   cache_home_directory ".m2" "maven dependencies"
   cache_home_directory ".boot" "boot dependencies"
   cache_home_directory ".composer" "composer dependencies"
-  cache_home_directory ".wasmer/cache", "wasmer cache"
   cache_home_directory ".homebrew-cache", "homebrew cache"
   cache_home_directory ".cargo/registry" "rust deps"
 

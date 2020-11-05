@@ -56,7 +56,6 @@ mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gopath
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gocache
 mkdir -p $NETLIFY_CACHE_DIR/.wasmer/cache
 mkdir -p $NETLIFY_CACHE_DIR/.cargo/registry
-mkdir -p $NETLIFY_CACHE_DIR/repo/target
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}

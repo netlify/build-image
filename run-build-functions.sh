@@ -644,10 +644,10 @@ install_dependencies() {
     fi
   fi
 
-  # Restore cache if available
+  # Rust
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
-    restore_home_cache ".cargo/registry" "rust deps"
+    restore_home_cache ".cargo/registry" "rust download cache"
     check_rust_target_cacheability && restore_cwd_cache "target" "rust compile output"
     source $HOME/.cargo/env
   fi
@@ -682,7 +682,7 @@ cache_artifacts() {
   cache_home_directory ".boot" "boot dependencies"
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".homebrew-cache", "homebrew cache"
-  cache_home_directory ".cargo/registry" "rust deps"
+  cache_home_directory ".cargo/registry" "rust download cache"
 
   # Don't follow the Go import path or we'll store
   # the origin repo twice.

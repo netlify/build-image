@@ -424,9 +424,8 @@ install_dependencies() {
   then
     if [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
     then
-      mkdir -p "$SWIFTENV_ROOT/versions"
       echo "Started restoring cached Swift version"
-      rm -rf "$SWIFTENV_ROOT/versions/$SWIFT_VERSION"
+      mkdir -p "$SWIFTENV_ROOT/versions"
       cp -p -r "$NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION/" "$SWIFTENV_ROOT/versions/"
       swiftenv rehash
       echo "Finished restoring cached Swift version"

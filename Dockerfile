@@ -48,6 +48,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         emacs25-nox \
         esl-erlang \
         expect \
+        file \
         fontconfig \
         fontconfig-config \
         g++ \
@@ -465,7 +466,6 @@ ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
 #populate local package cache
 RUN dotnet new
 
-
 ################################################################################
 #
 # Swift
@@ -478,6 +478,20 @@ RUN git clone --depth 1 https://github.com/kylef/swiftenv.git "$SWIFTENV_ROOT"
 ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
 RUN swiftenv install ${NETLIFY_BUILD_SWIFT_VERSION}
 RUN swift --version
+
+################################################################################
+#
+# Homebrew
+#
+################################################################################
+USER buildbot
+RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+ENV PATH "/opt/buildhome/.linuxbrew/bin:$PATH"
+ENV HOMEBREW_PREFIX "/opt/buildhome/.linuxbrew"
+ENV HOMEBREW_CELLAR "/opt/buildhome/.linuxbrew/Cellar"
+ENV HOMEBREW_REPOSITORY "/opt/buildhome/.linuxbrew/Homebrew"
+ENV HOMEBREW_CACHE "/opt/buildhome/.homebrew-cache"
+RUN brew tap homebrew/bundle
 
 WORKDIR /
 

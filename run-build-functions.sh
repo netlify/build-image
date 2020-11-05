@@ -705,13 +705,13 @@ cache_artifacts() {
   fi
 
   # cache the version of Swift installed
-  if [ -d $SWIFTENV_ROOT/versions/$SWIFT_VERSION ]
+  if [ -n "$SWIFT_VERSION" ] && [ -d "$SWIFTENV_ROOT/versions/$SWIFT_VERSION" ]
   then
     if ! [ -d $NETLIFY_CACHE_DIR/swift_version/$SWIFT_VERSION ]
     then
       rm -rf $NETLIFY_CACHE_DIR/swift_version
       mkdir $NETLIFY_CACHE_DIR/swift_version
-      mv $SWIFTENV_ROOT/versions/$SWIFT_VERSION $NETLIFY_CACHE_DIR/swift_version/
+      mv "$SWIFTENV_ROOT/versions/$SWIFT_VERSION" $NETLIFY_CACHE_DIR/swift_version/
       echo "Cached Swift version $SWIFT_VERSION"
     fi
   else

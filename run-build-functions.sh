@@ -652,11 +652,11 @@ install_dependencies() {
     fi
   fi
 
-  # Install rust dependencies and compile the code.
+  # Restore cache if available
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
     restore_home_cache ".cargo/registry" "rust deps"
-    check_rust_target_cacheability && restore_home_cache "repo/target" "rust compile output"
+    check_rust_target_cacheability && restore_cwd_cache "target" "rust compile output"
     source $HOME/.cargo/env
   fi
 

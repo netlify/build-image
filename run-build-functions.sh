@@ -460,6 +460,14 @@ install_dependencies() {
     fi
   fi
 
+  # Homebrew from Brewfile
+  if [ -f Brewfile.netlify ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
+  then
+    : ${HOMEBREW_BUNDLE_FILE:="Brewfile.netlify"}
+    echo "Installing Homebrew dependencies from ${HOMEBREW_BUNDLE_FILE}"
+    brew bundle
+  fi
+
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
   : ${CYPRESS_CACHE_FOLDER="./node_modules/.cache/CypressBinary"}
@@ -667,12 +675,6 @@ install_dependencies() {
     mkdir -p "$(dirname $GOPATH/src/$GO_IMPORT_PATH)"
     rm -rf $GOPATH/src/$GO_IMPORT_PATH
     ln -s /opt/buildhome/repo ${GOPATH}/src/$GO_IMPORT_PATH
-  fi
-
-  # Homebrew from Brewfile
-  if [ -f Brewfile ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
-  then
-    brew bundle
   fi
 }
 

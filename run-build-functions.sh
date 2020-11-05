@@ -689,6 +689,7 @@ cache_artifacts() {
   cache_cwd_directory "wapm_packages" "wapm packages"
   cache_cwd_directory ".build" "swift build"
   cache_cwd_directory ".netlify/plugins" "build plugins"
+  check_rust_target_cacheability && cache_cwd_directory target "rust compile output"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache/pip" "pip cache"
@@ -699,7 +700,6 @@ cache_artifacts() {
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".wasmer/cache", "wasmer cache"
   cache_home_directory ".cargo/registry" "rust deps"
-  check_rust_target_cacheability && cache_home_directory "repo/target" "rust compile output"
 
   # Don't follow the Go import path or we'll store
   # the origin repo twice.

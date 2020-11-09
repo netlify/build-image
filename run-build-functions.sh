@@ -17,7 +17,10 @@ export GIMME_CGO_ENABLED=true
 
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
+
+# Swift configuration
 export SWIFTENV_ROOT="${SWIFTENV_ROOT:-${HOME}/.swiftenv}"
+DEFAULT_SWIFT_VERSION="5.2"
 
 # Pipenv configuration
 export PIPENV_RUNTIME=2.7
@@ -407,7 +410,6 @@ install_dependencies() {
   fi
 
   # Swift Version
-  defaultSwiftVersion="5.2"
   if [ -f .swift-version ]
   then
     SWIFT_VERSION=$(cat .swift-version)
@@ -417,7 +419,7 @@ install_dependencies() {
   # If Package.swift is present and no Swift version is set, use a default
   if [ -f Package.swift ]
   then
-    : ${SWIFT_VERSION="$defaultSwiftVersion"}
+    : ${SWIFT_VERSION="$DEFAULT_SWIFT_VERSION"}
   fi
 
   if [ -n "$SWIFT_VERSION" ]

@@ -26,14 +26,18 @@ cd $NETLIFY_REPO_DIR
 : ${SWIFT_VERSION="5.2"}
 : ${PYTHON_VERSION="2.7"}
 
-echo "Installing dependencies"
-install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION $GO_VERSION $SWIFT_VERSION $PYTHON_VERSION
+if [[ -n $SKIP_DEPENDENCIES ]]; then
+  echo "SKIP_DEPENDENCIES set, skipping dependencies installation"
+else
+  echo "Installing dependencies"
+  install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PHP_VERSION $GO_VERSION $SWIFT_VERSION $PYTHON_VERSION
 
-echo "Installing missing commands"
-install_missing_commands
+  echo "Installing missing commands"
+  install_missing_commands
 
-echo "Verify run directory"
-set_go_import_path
+  echo "Verify run directory"
+  set_go_import_path
+fi
 
 echo "Executing user command: $cmd"
 eval "$cmd"

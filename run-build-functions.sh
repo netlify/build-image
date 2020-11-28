@@ -57,7 +57,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.composer
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gopath
 mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gocache
 mkdir -p $NETLIFY_CACHE_DIR/.homebrew-cache
-mkdir -p $NETLIFY_CACHE_DIR/.cargo/registry
+mkdir -p $NETLIFY_CACHE_DIR/.cargo
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
@@ -648,7 +648,9 @@ install_dependencies() {
   # Rust
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
-    restore_home_cache ".cargo/registry" "rust download cache"
+    restore_home_cache ".rustup" "rust rustup cache"
+    restore_home_cache ".cargo/registry" "rust cargo registry cache"
+    restore_home_cache ".cargo/bin" "rust cargo bin cache"
     restore_cwd_cache "target" "rust compile output"
     source $HOME/.cargo/env
   fi
@@ -673,7 +675,7 @@ cache_artifacts() {
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"
   cache_cwd_directory ".netlify/plugins" "build plugins"
-  cache_cwd_directory target "rust compile output"
+  cache_cwd_directory "target" "rust compile output"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache/pip" "pip cache"
@@ -683,7 +685,9 @@ cache_artifacts() {
   cache_home_directory ".boot" "boot dependencies"
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".homebrew-cache", "homebrew cache"
-  cache_home_directory ".cargo/registry" "rust download cache"
+  cache_home_directory ".rustup" "rust rustup cache"
+  cache_home_directory ".cargo/registry" "rust cargo registry cache"
+  cache_home_directory ".cargo/bin" "rust cargo bin cache"
 
   # Don't follow the Go import path or we'll store
   # the origin repo twice.

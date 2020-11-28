@@ -24,9 +24,6 @@ The specific patch versions included will depend on when the image was last buil
   * 7.4
 * Go - `GO_VERSION`
   * 1.12 (default)
-* Swift - `SWIFT_VERSION`, `.swift-version`
-  * 5.2 (default)
-  * Any version that `swiftenv` can install newer than `4.x`. Versions `4.x` and below will not work due to incompatible shared libraries.
 * Java
   * 8 (default)
 * Emacs
@@ -35,6 +32,10 @@ The specific patch versions included will depend on when the image was last buil
   * 21 (default)
 * Elixir
   * 1.7 (default)
+* Swift - `SWIFT_VERSION`, `.swift-version`
+  * Not installed by default.
+  * Supports any version that `swiftenv` can install later than `4.x`. Versions `4.x` and earlier will not work due to incompatible shared libraries.
+  * 5.2 is installed if `Package.swift` is present and no version is specified with `SWIFT_VERSION` or `.swift-version`.
 
 ### Tools
 

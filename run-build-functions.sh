@@ -60,12 +60,6 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo/registry
 : ${NPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
-check_rust_target_cacheability() {
-  # Check if repo/target is ignored by the repository. If it is, it's OK to
-  # cache it.
-  git --git-dir=${NETLIFY_REPO_DIR}/.git check-ignore -q ${NETLIFY_REPO_DIR}/target
-}
-
 install_deps() {
   [ -f $1 ] || return 0
   [ -f $3 ] || return 0
@@ -648,7 +642,7 @@ install_dependencies() {
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
     restore_home_cache ".cargo/registry" "rust download cache"
-    check_rust_target_cacheability && restore_cwd_cache "target" "rust compile output"
+    restore_cwd_cache "target" "rust compile output"
     source $HOME/.cargo/env
   fi
 
@@ -672,7 +666,7 @@ cache_artifacts() {
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"
   cache_cwd_directory ".netlify/plugins" "build plugins"
-  check_rust_target_cacheability && cache_cwd_directory target "rust compile output"
+  cache_cwd_directory target "rust compile output"
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache/pip" "pip cache"

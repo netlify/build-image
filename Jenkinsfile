@@ -1,3 +1,13 @@
+void setBuildStatus(String message, String state) {
+  step([
+      $class: "GitHubCommitStatusSetter",
+      reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/netlify/build-image"],
+      contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
+      errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+      statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
+  ]);
+}
+
 pipeline {
   agent any
 
@@ -24,10 +34,7 @@ pipeline {
       steps {
         script {
           size = sh(returnStdout: true, script: "docker image inspect netlify/build:${env.GIT_COMMIT} --format='{{.Size}}'").trim()
-          pullRequest.createStatus(status: 'success',
-                                  context: 'continuous-integration/jenkins/pr-merge/tests',
-                                  description: 'Size is ${size}',
-                                  targetUrl: "${env.JOB_URL}/testResults")
+          setBuildStatus("Size is ${size}", "SUCCESS")
         }
       }
     }

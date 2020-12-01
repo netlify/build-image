@@ -7,7 +7,7 @@ pipeline {
         not { anyOf { branch 'staging' ; branch 'xenial' ; branch 'trusty  ' ; buildingTag() } }
       }
       steps {
-        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} ."
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} -t netlify/build:${env.GIT_COMMIT} ."
       }
     }
 
@@ -17,6 +17,18 @@ pipeline {
       }
       steps {
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --build-arg NF_IMAGE_TAG=${env.BRANCH_NAME} -t netlify/build:${env.BRANCH_NAME} -t netlify/build:${env.GIT_COMMIT} ."
+      }
+    }
+
+    stage("Notify Size") {
+      steps {
+        script {
+          size = sh(returnStdout: true, script: "docker image inspect netlify/build:${env.GIT_COMMIT} --format='{{.Size}}'").trim()
+          pullRequest.createStatus(status: 'success',
+                                  context: 'continuous-integration/jenkins/pr-merge/tests',
+                                  description: 'Size is ${size}',
+                                  targetUrl: "${env.JOB_URL}/testResults")
+        }
       }
     }
 

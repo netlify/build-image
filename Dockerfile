@@ -490,7 +490,7 @@ WORKDIR /
 # Rust toolchain & rustup
 #
 ################################################################################
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
 ENV PATH "$PATH:/opt/buildhome/.cargo/bin"
 
 # Cleanup

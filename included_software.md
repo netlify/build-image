@@ -66,6 +66,8 @@ The specific patch versions included will depend on when the image was last buil
   * Any version installable via `binrc`.
 * Gutenburg - `GUTENBERG_VERSION`
   * Any version installable via `binrc`.
+* Zola - `ZOLA_VERSION`
+  * Any version installable via `binrc`.
 * [jq](https://stedolan.github.io/jq/) - 1.5
 * [ImageMagick](https://www.imagemagick.org) - 6.7.7
 * [GNU Make](https://www.gnu.org/software/make/) - 3.81

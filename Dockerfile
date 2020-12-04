@@ -475,7 +475,7 @@ ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
 #
 ################################################################################
 USER buildbot
-RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/calavera/install/fc565dc04a2035287b90de7eab16933e59827734/install.sh)"
 ENV PATH "/opt/buildhome/.linuxbrew/bin:$PATH"
 ENV HOMEBREW_PREFIX "/opt/buildhome/.linuxbrew"
 ENV HOMEBREW_CELLAR "/opt/buildhome/.linuxbrew/Cellar"

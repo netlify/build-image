@@ -76,6 +76,8 @@ The specific patch versions included will depend on when the image was last buil
 * [GNU Make](https://www.gnu.org/software/make/) - 3.81
 * OptiPNG - 0.6.4
 * [Doxygen](http://www.doxygen.org) - 1.8.6
+* Rust
+  * rustup
 
 * [Homebrew](https://brew.sh/) - **EARLY ALPHA**
   - this is not production ready

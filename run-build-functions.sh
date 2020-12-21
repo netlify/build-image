@@ -145,6 +145,8 @@ run_npm() {
       fi
     fi
   fi
+  
+  restore_home_cache ".npm" "npm cache"
 
   if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then
@@ -677,6 +679,7 @@ cache_artifacts() {
   cache_cwd_directory ".netlify/plugins" "build plugins"
   cache_cwd_directory "target" "rust compile output"
 
+  cache_home_directory ".npm" "npm cache"
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache/pip" "pip cache"
   cache_home_directory ".cask" "emacs cask dependencies"

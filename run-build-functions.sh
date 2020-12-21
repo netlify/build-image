@@ -145,21 +145,19 @@ run_npm() {
       fi
     fi
   fi
+  
+  restore_home_cache ".npm" "npm cache"
 
-  if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
+  echo "Installing NPM modules using NPM version $(npm --version)"
+  run_npm_set_temp
+  if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
   then
-    echo "Installing NPM modules using NPM version $(npm --version)"
-    run_npm_set_temp
-    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
-    then
-      echo "NPM modules installed"
-    else
-      echo "Error during NPM install"
-      exit 1
-    fi
-
-    echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
+    echo "NPM modules installed"
+  else
+    echo "Error during NPM install"
+    exit 1
   fi
+
   export PATH=$(npm bin):$PATH
 }
 
@@ -677,6 +675,7 @@ cache_artifacts() {
   cache_cwd_directory ".netlify/plugins" "build plugins"
   cache_cwd_directory "target" "rust compile output"
 
+  cache_home_directory ".npm" "npm cache"
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache/pip" "pip cache"
   cache_home_directory ".cask" "emacs cask dependencies"

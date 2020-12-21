@@ -1,0 +1,15 @@
+name: Check-Size
+
+on: push
+
+jobs:
+  check-size:
+    name: Check image size
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Docker image
+        run: docker build . --file Dockerfile.dummy --build-arg NF_IMAGE_VERSION=$GITHUB_SHA -t netlify/build:$GITHUB_SHA
+      - name: Check image size
+        run: docker image inspect netlify/build:$GITHUB_SHA --format='{{.Size}}'

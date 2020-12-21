@@ -21,4 +21,4 @@ jobs:
           name: Test XYZ
           conclusion: neutral
           output: |
-            {"summary":"Size is ${{ steps.size.outputs.size }}"}
+            {"title":"Size is ${{ steps.size.outputs.size }}", "summary": "ok"}

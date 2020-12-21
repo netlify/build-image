@@ -146,20 +146,16 @@ run_npm() {
     fi
   fi
 
-  if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
+  echo "Installing NPM modules using NPM version $(npm --version)"
+  run_npm_set_temp
+  if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
   then
-    echo "Installing NPM modules using NPM version $(npm --version)"
-    run_npm_set_temp
-    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
-    then
-      echo "NPM modules installed"
-    else
-      echo "Error during NPM install"
-      exit 1
-    fi
-
-    echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
+    echo "NPM modules installed"
+  else
+    echo "Error during NPM install"
+    exit 1
   fi
+
   export PATH=$(npm bin):$PATH
 }
 

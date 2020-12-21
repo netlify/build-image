@@ -19,6 +19,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: Test XYZ
-          conclusion: ${{ job.status }}
+          conclusion: neutral
           output: |
             {"summary":"Size is ${{ steps.size.outputs.size }}"}

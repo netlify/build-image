@@ -150,13 +150,21 @@ run_npm() {
 
   echo "Installing NPM modules using NPM version $(npm --version)"
   run_npm_set_temp
-  if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
+  if [ -f package-lock.json ]
   then
-    echo "NPM modules installed"
+    if ! npm ci
+    then
+      echo "Error during NPM ci"
+      exit 1
+    fi
   else
-    echo "Error during NPM install"
-    exit 1
+    if ! npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
+    then
+      echo "Error during NPM install"
+      exit 1
+    fi
   fi
+  echo "NPM modules installed"
 
   export PATH=$(npm bin):$PATH
 }

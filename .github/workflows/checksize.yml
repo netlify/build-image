@@ -12,7 +12,7 @@ jobs:
       - name: Build Docker image
         run: docker build . --file Dockerfile.dummy --build-arg NF_IMAGE_VERSION=$GITHUB_SHA -t netlify/build:$GITHUB_SHA
       - name: Check image size
-        run: docker image inspect netlify/build:$GITHUB_SHA --format='{{.Size}}'
+        run: echo "::set-output name=size::$(docker image inspect netlify/build:$GITHUB_SHA --format='{{.Size}}')"
         id: size
       - uses: LouisBrunner/checks-action@v1.1.1
         if: always()
@@ -21,4 +21,4 @@ jobs:
           name: Test XYZ
           conclusion: ${{ job.status }}
           output: |
-            {"summary":${{ steps.size.outputs.summary }}}
+            {"summary":"Size is ${{ steps.size.outputs.size }}"}

@@ -13,8 +13,15 @@ jobs:
         run: docker build . --file Dockerfile.dummy --build-arg NF_IMAGE_VERSION=$GITHUB_SHA -t netlify/build:$GITHUB_SHA
       - name: Check image size
         run: |
-          SIZE=$(docker image inspect netlify/build:$GITHUB_SHA --format='{{.Size}}')
-          curl -d '{"name":"Image size", "head_sha":"${{ github.sha }}", "conclusion":"neutral", "output":{"title":"'$SIZE'", "summary":"foo"}}' \
+          docker pull netlify/build:latest
+          OLD=$(docker image inspect netlify/build:latest --format='{{.Size}}')
+          NEW=$(docker image inspect netlify/build:$GITHUB_SHA --format='{{.Size}}')
+          if (( NEW > OLD )); then
+            MSG="PR image is $(expr $NEW / $OLD)% larger than default"
+          else
+            MSG="PR image is $(expr $OLD / $NEW)% smaller than default"
+          fi
+          curl -d '{"name":"Image size", "head_sha":"${{ github.sha }}", "conclusion":"neutral", "output":{"title":"'$MSG'", "summary":"foo"}}' \
             -H 'Content-Type: application/json' \
             -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
             -X POST https://api.github.com/repos/${{ github.repository }}/check-runs

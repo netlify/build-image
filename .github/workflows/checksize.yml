@@ -1,35 +1,18 @@
-name: Check-Size
-
+name: Image
 on: push
 
 jobs:
-  check-size:
-    name: Check image size
+  Build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
       - name: Build Docker image
         run: docker build . --file Dockerfile.dummy --build-arg NF_IMAGE_VERSION=$GITHUB_SHA -t netlify/build:$GITHUB_SHA
-      - name: Check image size
-        run: |
-          docker pull netlify/build:latest
-          OLD=$(docker image inspect netlify/build:latest --format='{{.Size}}')
-          NEW=$(docker image inspect netlify/build:$GITHUB_SHA --format='{{.Size}}')
-          if (( NEW > OLD )); then
-            MSG="PR image is $(expr $NEW / $OLD)% larger than default"
-          else
-            MSG="PR image is $(expr $OLD / $NEW)% smaller than default"
-          fi
-          curl -d '{"name":"Image size", "head_sha":"${{ github.sha }}", "conclusion":"neutral", "output":{"title":"'$MSG'", "summary":"foo"}}' \
-            -H 'Content-Type: application/json' \
-            -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
-            -X POST https://api.github.com/repos/${{ github.repository }}/check-runs
-      # - uses: LouisBrunner/checks-action@v1.1.1
-      #   if: always()
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     name: Test XYZ
-      #     conclusion: neutral
-      #     output: |
-      #       {"title":"Size is ${{ steps.size.outputs.size }}", "summary": "ok"}
+      - name: Pull Xenial
+        run: docker pull netlify/build:xenial
+      - uses: vbrown608/whalescale@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          currentTag: netlify/build:${{ github.sha }}
+          defaultTag: netlify/build:xenial

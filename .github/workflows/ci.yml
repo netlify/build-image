@@ -1,4 +1,4 @@
-name: Image
+name: CI
 on: push
 
 jobs:
@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build Docker image
-        run: docker build . --file Dockerfile.dummy --build-arg NF_IMAGE_VERSION=$GITHUB_SHA -t netlify/build:$GITHUB_SHA
+        run: docker build . --build-arg NF_IMAGE_VERSION=$GITHUB_SHA -t netlify/build:$GITHUB_SHA
       - name: Pull Xenial
         run: docker pull netlify/build:xenial
       - uses: vbrown608/whalescale@main

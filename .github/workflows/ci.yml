@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build Docker image
         run: docker build . --build-arg NF_IMAGE_VERSION=$GITHUB_SHA -t netlify/build:$GITHUB_SHA
-      - uses: vbrown608/whalescale@main
+      - uses: vbrown608/whalescale@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           currentTag: netlify/build:${{ github.sha }}

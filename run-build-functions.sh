@@ -678,7 +678,7 @@ cache_artifacts() {
 
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
-    cache_cwd_directory "target" "rust compile output"
+    cache_cwd_directory_fast_copy "target" "rust compile output"
   fi
 
   cache_home_directory ".yarn_cache" "yarn cache"
@@ -756,6 +756,17 @@ move_cache() {
   fi
 }
 
+fast_copy_cache() {
+  local src=$1
+  local dst=$2
+  if [ -d $src ]
+  then
+    echo "Started $3"
+    cp --reflink=always $src $dst
+    echo "Finished $3"
+  fi
+}
+
 restore_home_cache() {
   move_cache "$NETLIFY_CACHE_DIR/$1" "$HOME/$1" "restoring cached $2"
 }
@@ -770,6 +781,10 @@ restore_cwd_cache() {
 
 cache_cwd_directory() {
   move_cache "$PWD/$1" "$NETLIFY_CACHE_DIR/$1" "saving $2"
+}
+
+cache_cwd_directory_fast_copy() {
+  fast_copy_cache "$PWD/$1" "$NETLIFY_CACHE_DIR/$1" "saving $2"
 }
 
 install_missing_commands() {

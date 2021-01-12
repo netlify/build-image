@@ -675,7 +675,11 @@ cache_artifacts() {
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"
   cache_cwd_directory ".netlify/plugins" "build plugins"
-  cache_cwd_directory "target" "rust compile output"
+
+  if [ -f Cargo.toml ] || [ -f Cargo.lock ]
+  then
+    cache_cwd_directory "target" "rust compile output"
+  fi
 
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache/pip" "pip cache"

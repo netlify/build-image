@@ -686,7 +686,7 @@ cache_artifacts() {
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".homebrew-cache", "homebrew cache"
   
-  if if [ -f Cargo.toml ] || [ -f Cargo.lock ]
+  if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
     cache_home_directory ".rustup" "rust rustup cache"
     cache_home_directory ".cargo/registry" "rust cargo registry cache"

@@ -85,9 +85,10 @@ run_yarn() {
   fi
   restore_home_cache ".yarn_cache" "yarn cache"
 
-  if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]
+  # Check the version of yarn installed globally
+  if [ $(which yarn) ] && [ "$(YARN_IGNORE_PATH=1 yarn --version)" != "$yarn_version" ]
   then
-    echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
+    echo "Global yarn version ($(yarn --version)) doesn't match expected ($yarn_version)"
     rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
     npm uninstall yarn -g
   fi
@@ -101,19 +102,32 @@ run_yarn() {
     export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
   fi
 
+  yarn_version=$(yarn --version)
 
-  echo "Installing NPM modules using Yarn version $(yarn --version)"
+
+  echo "Installing NPM modules using Yarn version $yarn_version"
   run_npm_set_temp
 
-  # Remove the cache-folder flag if the user set any.
+  local yarn_local="$YARN_FLAGS"
+
   # We want to control where to put the cache
   # to be able to store it internally after the build.
-  local yarn_local="${YARN_FLAGS/--cache-folder * /}"
-  # The previous pattern doesn't match the end of the string.
-  # This removes the flag from the end of the string.
-  yarn_local="${yarn_local%--cache-folder *}"
+  if [[ "${yarn_version%%.*}" -gt "1" ]]
+  then
+    # The cache-folder flag is deprecated in Yarn 2
+    # Override the environment variable if the user set any.
+    # To use the global cache, the user should set YARN_ENABLE_GLOBAL_CACHE
+    export YARN_GLOBAL_FOLDER="$NETLIFY_BUILD_BASE/.yarn_cache"
+  else
+    # Remove the cache-folder flag if the user set any.
+    yarn_local="${yarn_local/--cache-folder * /}"
+    # The previous pattern doesn't match the end of the string.
+    # This removes the flag from the end of the string.
+    yarn_local="${yarn_local%--cache-folder *}"
+    yarn_local="--cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}"
+  fi
 
-  if yarn install --cache-folder $NETLIFY_BUILD_BASE/.yarn_cache ${yarn_local:+"$yarn_local"}
+  if yarn install ${yarn_local:+"$yarn_local"}
   then
     echo "NPM modules installed using Yarn"
   else

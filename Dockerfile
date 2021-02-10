@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 as build-image
 
 LABEL maintainer Netlify
 
@@ -471,3 +471,19 @@ ENV NF_IMAGE_VERSION ${NF_IMAGE_VERSION:-latest}
 
 ARG NF_IMAGE_TAG
 ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}
+
+
+################################################################################
+#
+# Test stage Dockerfile
+#
+################################################################################
+
+FROM build-image as build-image-test
+
+USER buildbot
+ADD --chown=buildbot package.json /opt/buildhome/test-env/package.json
+RUN /bin/bash -c "cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i &&\
+                  ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
+                  ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh"
+ADD --chown=buildbot tests /opt/buildhome/test-env/tests

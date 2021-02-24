@@ -114,6 +114,7 @@ run_yarn() {
     # to using the global one (which, for now, is alwasy yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
     if YARN_IGNORE_PATH=1 yarn workspaces info
     then
+      local package_locations
       # Extract all the packages and respective locations. .data will be a JSON object like
       # {
       #   "my-package-1": {
@@ -124,7 +125,7 @@ run_yarn() {
       #   (...)
       # }
       # We need to cache all the node_module dirs, or we'll always be installing them on each run
-      local package_locations=($(YARN_IGNORE_PATH=1 yarn --json workspaces info | jq -r '.data | fromjson | to_entries | .[].value.location | @sh'| tr -d \'))
+      mapfile -t package_locations <<< "$(YARN_IGNORE_PATH=1 yarn --json workspaces info | jq -r '.data | fromjson | to_entries | .[].value.location')"
       restore_js_workspaces_cache "${package_locations[@]}"
     else
       echo "No workspace detected"
@@ -788,11 +789,11 @@ cache_artifacts() {
 move_cache() {
   local src=$1
   local dst=$2
-  if [ -d $src ]
+  if [ -d "$src" ]
   then
     echo "Started $3"
-    rm -rf $dst
-    mv $src $dst
+    rm -rf "$dst"
+    mv "$src" "$dst"
     echo "Finished $3"
   fi
 }
@@ -837,7 +838,7 @@ restore_js_workspaces_cache() {
   # Retrieve hoisted node_modules
   move_cache "$cache_dir/node_modules" "$NETLIFY_REPO_DIR/node_modules" "restoring workspace root node modules"
   # Keep a record of the workspaces in the project in order to cache them later
-  echo "${locations[@]}" > "$NETLIFY_TMP_DIR/.workspace_locations"
+  printf '%s\n' "${locations[@]}" > "$NETLIFY_TMP_DIR/.workspace_locations"
 }
 
 #
@@ -859,7 +860,9 @@ cache_node_modules() {
 #
 cache_js_workspaces() {
   local cache_dir="$NETLIFY_CACHE_DIR/js-workspaces"
-  local locations=($(cat "$NETLIFY_TMP_DIR/.workspace_locations"))
+  local locations
+  mapfile -t locations <<< "$(cat "$NETLIFY_TMP_DIR/.workspace_locations")"
+
   for location in "${locations[@]}"; do
     mkdir -p "$cache_dir/$location"
     move_cache "$NETLIFY_REPO_DIR/$location/node_modules" "$cache_dir/$location/node_modules" "saving workspace $location node modules"

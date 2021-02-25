@@ -60,10 +60,6 @@ mkdir -p $NETLIFY_CACHE_DIR/.gimme_cache/gocache
 mkdir -p $NETLIFY_CACHE_DIR/.homebrew-cache
 mkdir -p $NETLIFY_CACHE_DIR/.cargo
 
-
-# tmp dir
-NETLIFY_TMP_DIR=$(mktemp -d)
-
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
@@ -838,30 +834,30 @@ restore_js_workspaces_cache() {
   # Retrieve hoisted node_modules
   move_cache "$cache_dir/node_modules" "$NETLIFY_REPO_DIR/node_modules" "restoring workspace root node modules"
   # Keep a record of the workspaces in the project in order to cache them later
-  printf '%s\n' "${locations[@]}" > "$NETLIFY_TMP_DIR/.workspace_locations"
+  NETLIFY_JS_WORKSPACE_LOCATIONS=$(printf '%s\n' "${locations[@]}")
 }
 
 #
 # Caches node_modules dirs for a js project. Either detects the presence of js workspaces
-# via the `.workspace_locations` file, or looks at the node_modules in the cwd.
+# via the `NETLIFY_JS_WORKSPACE_LOCATIONS` variable, or looks at the node_modules in the cwd.
 #
 cache_node_modules() {
-  if [ -f "$NETLIFY_TMP_DIR/.workspace_locations" ]
+  if [ -z "$NETLIFY_JS_WORKSPACE_LOCATIONS" ]
   then
-    cache_js_workspaces
-  else
     cache_cwd_directory "node_modules" "node modules"
+  else
+    cache_js_workspaces
   fi
 }
 
 #
 # Caches node_modules dirs from js workspaces. It acts based on the presence of a
-# `.workspace_locations` file previously generated in `restore_js_workspaces_cache()`
+# `NETLIFY_JS_WORKSPACE_LOCATIONS` variable previously set in `restore_js_workspaces_cache()`
 #
 cache_js_workspaces() {
   local cache_dir="$NETLIFY_CACHE_DIR/js-workspaces"
   local locations
-  mapfile -t locations <<< "$(cat "$NETLIFY_TMP_DIR/.workspace_locations")"
+  mapfile -t locations <<< "$NETLIFY_JS_WORKSPACE_LOCATIONS"
 
   for location in "${locations[@]}"; do
     mkdir -p "$cache_dir/$location"

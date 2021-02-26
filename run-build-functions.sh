@@ -108,9 +108,11 @@ run_yarn() {
   if [ "$NETLIFY_YARN_WORKSPACES" = "true" ]
   then
     echo "NETLIFY_YARN_WORKSPACES feature flag set"
+    local workspace_output
     # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
     # to using the global one (which, for now, is alwasy yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
-    if YARN_IGNORE_PATH=1 yarn workspaces info
+    workspace_output=$(YARN_IGNORE_PATH=1 yarn workspaces info)
+    if $?
     then
       local package_locations
       # Extract all the packages and respective locations. .data will be a JSON object like
@@ -123,7 +125,7 @@ run_yarn() {
       #   (...)
       # }
       # We need to cache all the node_module dirs, or we'll always be installing them on each run
-      mapfile -t package_locations <<< "$(YARN_IGNORE_PATH=1 yarn --json workspaces info | jq -r '.data | fromjson | to_entries | .[].value.location')"
+      mapfile -t package_locations <<< "$workspace_output"
       restore_js_workspaces_cache "${package_locations[@]}"
     else
       echo "No workspace detected"

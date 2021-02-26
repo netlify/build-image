@@ -39,8 +39,10 @@ mkdir -p $NETLIFY_CACHE_DIR/ruby_version
 mkdir -p $NETLIFY_CACHE_DIR/swift_version
 
 # pwd caches
+NETLIFY_JS_WORKSPACES_CACHE_DIR="$NETLIFY_CACHE_DIR/js-workspaces"
+
+mkdir -p $NETLIFY_JS_WORKSPACES_CACHE_DIR
 mkdir -p $NETLIFY_CACHE_DIR/node_modules
-mkdir -p $NETLIFY_CACHE_DIR/js-workspaces
 mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.venv
@@ -827,14 +829,14 @@ restore_js_workspaces_cache() {
   # Keep a record of the workspaces in the project in order to cache them later
   NETLIFY_JS_WORKSPACE_LOCATIONS=("$@")
 
-  local cache_dir="$NETLIFY_CACHE_DIR/js-workspaces"
-
   # Retrieve each workspace node_modules
   for location in "${NETLIFY_JS_WORKSPACE_LOCATIONS[@]}"; do
-    move_cache "$cache_dir/$location/node_modules" "$NETLIFY_REPO_DIR/$location/node_modules" "restoring workspace $location node modules"
+    move_cache "$NETLIFY_JS_WORKSPACES_CACHE_DIR/$location/node_modules" \
+      "$NETLIFY_REPO_DIR/$location/node_modules" \
+      "restoring workspace $location node modules"
   done
   # Retrieve hoisted node_modules
-  move_cache "$cache_dir/node_modules" "$NETLIFY_REPO_DIR/node_modules" "restoring workspace root node modules"
+  move_cache "$NETLIFY_JS_WORKSPACES_CACHE_DIR/node_modules" "$NETLIFY_REPO_DIR/node_modules" "restoring workspace root node modules"
 }
 
 #
@@ -856,14 +858,14 @@ cache_node_modules() {
 # `NETLIFY_JS_WORKSPACE_LOCATIONS` variable previously set in `restore_js_workspaces_cache()`
 #
 cache_js_workspaces() {
-  local cache_dir="$NETLIFY_CACHE_DIR/js-workspaces"
-
   for location in "${NETLIFY_JS_WORKSPACE_LOCATIONS[@]}"; do
-    mkdir -p "$cache_dir/$location"
-    move_cache "$NETLIFY_REPO_DIR/$location/node_modules" "$cache_dir/$location/node_modules" "saving workspace $location node modules"
+    mkdir -p "$NETLIFY_JS_WORKSPACES_CACHE_DIR/$location"
+    move_cache "$NETLIFY_REPO_DIR/$location/node_modules" \
+      "$NETLIFY_JS_WORKSPACES_CACHE_DIR/$location/node_modules" \
+      "saving workspace $location node modules"
   done
   # Retrieve hoisted node_modules
-  move_cache "$NETLIFY_REPO_DIR/node_modules" "$cache_dir/node_modules" "saving workspace root node modules"
+  move_cache "$NETLIFY_REPO_DIR/node_modules" "$NETLIFY_JS_WORKSPACES_CACHE_DIR/node_modules" "saving workspace root node modules"
 }
 
 cache_cwd_directory() {

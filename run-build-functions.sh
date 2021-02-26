@@ -824,17 +824,17 @@ restore_cwd_cache() {
 # Expects:
 # $@ each argument should be a package location relative to the repo's root
 restore_js_workspaces_cache() {
-  local locations=("$@")
+  # Keep a record of the workspaces in the project in order to cache them later
+  NETLIFY_JS_WORKSPACE_LOCATIONS=("$@")
+
   local cache_dir="$NETLIFY_CACHE_DIR/js-workspaces"
 
   # Retrieve each workspace node_modules
-  for location in "${locations[@]}"; do
+  for location in "${NETLIFY_JS_WORKSPACE_LOCATIONS[@]}"; do
     move_cache "$cache_dir/$location/node_modules" "$NETLIFY_REPO_DIR/$location/node_modules" "restoring workspace $location node modules"
   done
   # Retrieve hoisted node_modules
   move_cache "$cache_dir/node_modules" "$NETLIFY_REPO_DIR/node_modules" "restoring workspace root node modules"
-  # Keep a record of the workspaces in the project in order to cache them later
-  NETLIFY_JS_WORKSPACE_LOCATIONS=$(printf '%s\n' "${locations[@]}")
 }
 
 #
@@ -842,7 +842,8 @@ restore_js_workspaces_cache() {
 # via the `NETLIFY_JS_WORKSPACE_LOCATIONS` variable, or looks at the node_modules in the cwd.
 #
 cache_node_modules() {
-  if [ -z "$NETLIFY_JS_WORKSPACE_LOCATIONS" ]
+  # Check the number of workspace locations detected
+  if [ "${#NETLIFY_JS_WORKSPACE_LOCATIONS[@]}" -eq 0 ]
   then
     cache_cwd_directory "node_modules" "node modules"
   else
@@ -856,10 +857,8 @@ cache_node_modules() {
 #
 cache_js_workspaces() {
   local cache_dir="$NETLIFY_CACHE_DIR/js-workspaces"
-  local locations
-  mapfile -t locations <<< "$NETLIFY_JS_WORKSPACE_LOCATIONS"
 
-  for location in "${locations[@]}"; do
+  for location in "${NETLIFY_JS_WORKSPACE_LOCATIONS[@]}"; do
     mkdir -p "$cache_dir/$location"
     move_cache "$NETLIFY_REPO_DIR/$location/node_modules" "$cache_dir/$location/node_modules" "saving workspace $location node modules"
   done

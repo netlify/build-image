@@ -111,7 +111,7 @@ run_yarn() {
     local workspace_output
     local workspace_exit_code
     # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
-    # to using the global one (which, for now, is alwasy yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
+    # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
     workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info )"
     workspace_exit_code=$?
     if [ $workspace_exit_code -eq 0 ]

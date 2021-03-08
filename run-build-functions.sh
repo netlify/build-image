@@ -39,6 +39,9 @@ mkdir -p $NETLIFY_CACHE_DIR/ruby_version
 mkdir -p $NETLIFY_CACHE_DIR/swift_version
 
 # pwd caches
+NETLIFY_JS_WORKSPACES_CACHE_DIR="$NETLIFY_CACHE_DIR/js-workspaces"
+
+mkdir -p $NETLIFY_JS_WORKSPACES_CACHE_DIR
 mkdir -p $NETLIFY_CACHE_DIR/node_modules
 mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
@@ -102,6 +105,38 @@ run_yarn() {
   fi
 
 
+  if [ "$NETLIFY_YARN_WORKSPACES" = "true" ]
+  then
+    echo "NETLIFY_YARN_WORKSPACES feature flag set"
+    local workspace_output
+    local workspace_exit_code
+    # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
+    # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
+    workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info )"
+    workspace_exit_code=$?
+    if [ $workspace_exit_code -eq 0 ]
+    then
+      local package_locations
+      # Extract all the packages and respective locations. .data will be a JSON object like
+      # {
+      #   "my-package-1": {
+      #     "location": "packages/blog-1",
+      #     "workspaceDependencies": [],
+      #     "mismatchedWorkspaceDependencies": []
+      #   },
+      #   (...)
+      # }
+      # We need to cache all the node_module dirs, or we'll always be installing them on each run
+      mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
+      restore_js_workspaces_cache "${package_locations[@]}"
+    else
+      echo "No workspace detected"
+      restore_cwd_cache node_modules "node modules"
+    fi
+  else
+    restore_cwd_cache node_modules "node modules"
+  fi
+
   echo "Installing NPM modules using Yarn version $(yarn --version)"
   run_npm_set_temp
 
@@ -130,6 +165,8 @@ run_npm_set_temp() {
 }
 
 run_npm() {
+  restore_cwd_cache node_modules "node modules"
+
   if [ -n "$NPM_VERSION" ]
   then
     if [ "$(npm --version)" != "$NPM_VERSION" ]
@@ -475,7 +512,6 @@ install_dependencies() {
 
   if [ -f package.json ]
   then
-    restore_cwd_cache node_modules "node modules"
     if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
     then
       run_yarn $YARN_VERSION
@@ -669,9 +705,17 @@ install_dependencies() {
 #
 cache_artifacts() {
   echo "Caching artifacts"
+
   cache_cwd_directory ".bundle" "ruby gems"
   cache_cwd_directory "bower_components" "bower components"
-  cache_cwd_directory "node_modules" "node modules"
+
+  if [ "$NETLIFY_YARN_WORKSPACES" == "true" ]
+  then
+    cache_node_modules
+  else
+    cache_cwd_directory "node_modules" "node modules"
+  fi
+
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"
   cache_cwd_directory ".netlify/plugins" "build plugins"
@@ -690,7 +734,7 @@ cache_artifacts() {
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".homebrew-cache", "homebrew cache"
   cache_home_directory ".rustup" "rust rustup cache"
-  
+
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
     cache_home_directory ".cargo/registry" "rust cargo registry cache"
@@ -747,11 +791,11 @@ cache_artifacts() {
 move_cache() {
   local src=$1
   local dst=$2
-  if [ -d $src ]
+  if [ -d "$src" ]
   then
     echo "Started $3"
-    rm -rf $dst
-    mv $src $dst
+    rm -rf "$dst"
+    mv "$src" "$dst"
     echo "Finished $3"
   fi
 }
@@ -777,6 +821,55 @@ cache_home_directory() {
 
 restore_cwd_cache() {
   move_cache "$NETLIFY_CACHE_DIR/$1" "$PWD/$1" "restoring cached $2"
+}
+
+#
+# Restores node_modules dirs cached for js workspaces
+# See https://github.com/netlify/pod-workflow/issues/139/ for more context
+#
+# Expects:
+# $@ each argument should be a package location relative to the repo's root
+restore_js_workspaces_cache() {
+  # Keep a record of the workspaces in the project in order to cache them later
+  NETLIFY_JS_WORKSPACE_LOCATIONS=("$@")
+
+  # Retrieve each workspace node_modules
+  for location in "${NETLIFY_JS_WORKSPACE_LOCATIONS[@]}"; do
+    move_cache "$NETLIFY_JS_WORKSPACES_CACHE_DIR/$location/node_modules" \
+      "$NETLIFY_REPO_DIR/$location/node_modules" \
+      "restoring workspace $location node modules"
+  done
+  # Retrieve hoisted node_modules
+  move_cache "$NETLIFY_JS_WORKSPACES_CACHE_DIR/node_modules" "$NETLIFY_REPO_DIR/node_modules" "restoring workspace root node modules"
+}
+
+#
+# Caches node_modules dirs for a js project. Either detects the presence of js workspaces
+# via the `NETLIFY_JS_WORKSPACE_LOCATIONS` variable, or looks at the node_modules in the cwd.
+#
+cache_node_modules() {
+  # Check the number of workspace locations detected
+  if [ "${#NETLIFY_JS_WORKSPACE_LOCATIONS[@]}" -eq 0 ]
+  then
+    cache_cwd_directory "node_modules" "node modules"
+  else
+    cache_js_workspaces
+  fi
+}
+
+#
+# Caches node_modules dirs from js workspaces. It acts based on the presence of a
+# `NETLIFY_JS_WORKSPACE_LOCATIONS` variable previously set in `restore_js_workspaces_cache()`
+#
+cache_js_workspaces() {
+  for location in "${NETLIFY_JS_WORKSPACE_LOCATIONS[@]}"; do
+    mkdir -p "$NETLIFY_JS_WORKSPACES_CACHE_DIR/$location"
+    move_cache "$NETLIFY_REPO_DIR/$location/node_modules" \
+      "$NETLIFY_JS_WORKSPACES_CACHE_DIR/$location/node_modules" \
+      "saving workspace $location node modules"
+  done
+  # Retrieve hoisted node_modules
+  move_cache "$NETLIFY_REPO_DIR/node_modules" "$NETLIFY_JS_WORKSPACES_CACHE_DIR/node_modules" "saving workspace root node modules"
 }
 
 cache_cwd_directory() {

@@ -1,0 +1,16 @@
+ name: release-please
+ on:
+   push:
+     branches:
+       - master
+ jobs:
+   release-please:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: GoogleCloudPlatform/release-please-action@v2
+         with:
+           # We can't rely on the GITHUB_TOKEN as we need to trigger
+           # further actions and the GITHUB_TOKEN doesn't allow it
+           token: ${{ secrets.NODE_PKG_RELEASE_TOKEN }}
+           release-type: node
+           package-name: "@netlify/build-image"

@@ -3,9 +3,8 @@
   "version": "3.6.1",
   "description": "This repository contains the tools to make the build image Netlify uses to build a site from git (for continuous deployment.)",
   "main": "index.js",
+  "private": "true",
   "scripts": {
-    "version": "auto-changelog -p -t keepachangelog -l false --starting-commit 9d2e26a && git add CHANGELOG.md",
-    "release": "git push && git push --tags && gh-release"
   },
   "repository": {
     "type": "git",
@@ -18,7 +17,5 @@
   },
   "homepage": "https://github.com/netlify/build-image#readme",
   "devDependencies": {
-    "auto-changelog": "^1.10.2",
-    "gh-release": "^3.4.0"
   }
 }

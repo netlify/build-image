@@ -11,7 +11,7 @@ LABEL maintainer Netlify
 ENV LANGUAGE en_US:en
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-ENV PANDOC_VERSION 2.4
+ENV PANDOC_VERSION 2.12
 
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
@@ -34,165 +34,165 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu xenial contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
-        advancecomp \
-        apache2-utils \
-        autoconf \
-        automake \
-        bison \
-        build-essential \
-        bzr \
-        cmake \
-        curl \
-        doxygen \
-        elixir \
-        emacs25-nox \
-        esl-erlang \
-        expect \
-        file \
-        fontconfig \
-        fontconfig-config \
-        g++ \
-        gawk \
-        git \
-        git-lfs \
-        gifsicle \
-        gobject-introspection \
-        graphicsmagick \
-        graphviz \
-        gtk-doc-tools \
-        gnupg2 \
-        imagemagick \
-        jpegoptim \
-        jq \
-        language-pack-ar \
-        language-pack-ca \
-        language-pack-cs \
-        language-pack-da \
-        language-pack-de \
-        language-pack-el \
-        language-pack-es \
-        language-pack-eu \
-        language-pack-fi \
-        language-pack-fr \
-        language-pack-gl \
-        language-pack-he \
-        language-pack-hi \
-        language-pack-it \
-        language-pack-ja \
-        language-pack-ka \
-        language-pack-ko \
-        language-pack-nn \
-        language-pack-pl \
-        language-pack-pt \
-        language-pack-ro \
-        language-pack-ru \
-        language-pack-sv \
-        language-pack-ta \
-        language-pack-th \
-        language-pack-tr \
-        language-pack-uk \
-        language-pack-vi \
-        language-pack-zh-hans \
-        language-pack-zh-hant \
-        libasound2 \
-        libcurl3 \
-        libcurl3-gnutls \
-        libcurl3-openssl-dev \
-        libenchant1c2a \
-        libexif-dev \
-        libffi-dev \
-        libfontconfig1 \
-        libgconf-2-4 \
-        libgd-dev \
-        libgdbm-dev \
-        libgif-dev \
-        libglib2.0-dev \
-        libgmp3-dev \
-        libgsl2 \
-        libgsl-dev \
-        libgtk-3-0 \
-        libgtk2.0-0 \
-        libicu-dev \
-        libimage-exiftool-perl \
-        libjpeg-progs \
-        libjpeg-turbo8-dev \
-        libmagickwand-dev \
-        libmcrypt-dev \
-        libncurses5-dev \
-        libnss3 \
-        libpng12-dev \
-        libreadline6-dev \
-        librsvg2-bin \
-        libsm6 \
-        libsqlite3-dev \
-        libssl-dev \
-        libtiff5-dev \
-        libwebp-dev \
-        libwebp5 \
-        libxml2-dev \
-        libxrender1 \
-        libxslt-dev \
-        libxss1 \
-        libxtst6 \
-        libyaml-dev \
-        mercurial \
-        nasm \
-        openjdk-8-jdk \
-        optipng \
-        php5.6 \
-        php5.6-xml \
-        php5.6-mbstring \
-        php5.6-gd \
-        php5.6-sqlite3 \
-        php5.6-curl \
-        php5.6-zip \
-        php5.6-intl \
-        php7.2 \
-        php7.2-xml \
-        php7.2-mbstring \
-        php7.2-gd \
-        php7.2-sqlite3 \
-        php7.2-curl \
-        php7.2-zip \
-        php7.2-intl \
-        php7.4 \
-        php7.4-xml \
-        php7.4-mbstring \
-        php7.4-gd \
-        php7.4-sqlite3 \
-        php7.4-curl \
-        php7.4-zip \
-        php7.4-intl \
-        pngcrush \
-        python-setuptools \
-        python \
-        python-dev \
-        python3 \
-        python3-dev \
-        python3.7 \
-        python3.7-dev \
-        rlwrap \
-        rsync \
-        software-properties-common \
-        sqlite3 \
-        ssh \
-        strace \
-        swig \
-        tree \
-        unzip \
-        virtualenv \
-        wget \
-        xfonts-base \
-        xfonts-75dpi \
-        xvfb \
-        zip \
-# dotnet core dependencies
-	libunwind8-dev \
-	libicu-dev \
-	libcurl3 \
-	liblttng-ust0 \
-	libkrb5-3 \
-        && \
+    advancecomp \
+    apache2-utils \
+    autoconf \
+    automake \
+    bison \
+    build-essential \
+    bzr \
+    cmake \
+    curl \
+    doxygen \
+    elixir \
+    emacs25-nox \
+    esl-erlang \
+    expect \
+    file \
+    fontconfig \
+    fontconfig-config \
+    g++ \
+    gawk \
+    git \
+    git-lfs \
+    gifsicle \
+    gobject-introspection \
+    graphicsmagick \
+    graphviz \
+    gtk-doc-tools \
+    gnupg2 \
+    imagemagick \
+    jpegoptim \
+    jq \
+    language-pack-ar \
+    language-pack-ca \
+    language-pack-cs \
+    language-pack-da \
+    language-pack-de \
+    language-pack-el \
+    language-pack-es \
+    language-pack-eu \
+    language-pack-fi \
+    language-pack-fr \
+    language-pack-gl \
+    language-pack-he \
+    language-pack-hi \
+    language-pack-it \
+    language-pack-ja \
+    language-pack-ka \
+    language-pack-ko \
+    language-pack-nn \
+    language-pack-pl \
+    language-pack-pt \
+    language-pack-ro \
+    language-pack-ru \
+    language-pack-sv \
+    language-pack-ta \
+    language-pack-th \
+    language-pack-tr \
+    language-pack-uk \
+    language-pack-vi \
+    language-pack-zh-hans \
+    language-pack-zh-hant \
+    libasound2 \
+    libcurl3 \
+    libcurl3-gnutls \
+    libcurl3-openssl-dev \
+    libenchant1c2a \
+    libexif-dev \
+    libffi-dev \
+    libfontconfig1 \
+    libgconf-2-4 \
+    libgd-dev \
+    libgdbm-dev \
+    libgif-dev \
+    libglib2.0-dev \
+    libgmp3-dev \
+    libgsl2 \
+    libgsl-dev \
+    libgtk-3-0 \
+    libgtk2.0-0 \
+    libicu-dev \
+    libimage-exiftool-perl \
+    libjpeg-progs \
+    libjpeg-turbo8-dev \
+    libmagickwand-dev \
+    libmcrypt-dev \
+    libncurses5-dev \
+    libnss3 \
+    libpng12-dev \
+    libreadline6-dev \
+    librsvg2-bin \
+    libsm6 \
+    libsqlite3-dev \
+    libssl-dev \
+    libtiff5-dev \
+    libwebp-dev \
+    libwebp5 \
+    libxml2-dev \
+    libxrender1 \
+    libxslt-dev \
+    libxss1 \
+    libxtst6 \
+    libyaml-dev \
+    mercurial \
+    nasm \
+    openjdk-8-jdk \
+    optipng \
+    php5.6 \
+    php5.6-xml \
+    php5.6-mbstring \
+    php5.6-gd \
+    php5.6-sqlite3 \
+    php5.6-curl \
+    php5.6-zip \
+    php5.6-intl \
+    php7.2 \
+    php7.2-xml \
+    php7.2-mbstring \
+    php7.2-gd \
+    php7.2-sqlite3 \
+    php7.2-curl \
+    php7.2-zip \
+    php7.2-intl \
+    php7.4 \
+    php7.4-xml \
+    php7.4-mbstring \
+    php7.4-gd \
+    php7.4-sqlite3 \
+    php7.4-curl \
+    php7.4-zip \
+    php7.4-intl \
+    pngcrush \
+    python-setuptools \
+    python \
+    python-dev \
+    python3 \
+    python3-dev \
+    python3.7 \
+    python3.7-dev \
+    rlwrap \
+    rsync \
+    software-properties-common \
+    sqlite3 \
+    ssh \
+    strace \
+    swig \
+    tree \
+    unzip \
+    virtualenv \
+    wget \
+    xfonts-base \
+    xfonts-75dpi \
+    xvfb \
+    zip \
+    # dotnet core dependencies
+    libunwind8-dev \
+    libicu-dev \
+    libcurl3 \
+    liblttng-ust0 \
+    libkrb5-3 \
+    && \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
@@ -206,9 +206,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 #
 ################################################################################
 
-RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb && \
-    dpkg -i wkhtmltox_0.12.5-1.xenial_amd64.deb && \
-    rm wkhtmltox_0.12.5-1.xenial_amd64.deb && \
+RUN wget -nv https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.xenial_amd64.deb && \
+    dpkg -i wkhtmltox_0.12.6-1.xenial_amd64.deb && \
+    rm wkhtmltox_0.12.6-1.xenial_amd64.deb && \
     wkhtmltopdf -V
 
 # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
@@ -227,14 +227,14 @@ WORKDIR /tmp
 
 # this actually builds v8.6.2
 RUN \
-  curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/archive/v8.6.2.tar.gz && \
-  tar xvf vips-8.6.2.tar.gz && \
-  cd libvips-8.6.2 && \
-  ./autogen.sh && \
-  ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
-  make && \
-  make install && \
-  ldconfig
+    curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/archive/v8.6.2.tar.gz && \
+    tar xvf vips-8.6.2.tar.gz && \
+    cd libvips-8.6.2 && \
+    ./autogen.sh && \
+    ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
+    make && \
+    make install && \
+    ldconfig
 
 
 WORKDIR /
@@ -264,9 +264,9 @@ ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
 ENV RUBY_VERSION=2.7.1
 # Also preinstall Ruby 2.6.2, as many customers are pinned to it and installing is slow
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
-                  rvm install $RUBY_VERSION && rvm use $RUBY_VERSION && gem install bundler && \
-                  rvm use $RUBY_VERSION --default && rvm cleanup all"
+    rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
+    rvm install $RUBY_VERSION && rvm use $RUBY_VERSION && gem install bundler && \
+    rvm use $RUBY_VERSION --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 USER root
@@ -295,10 +295,10 @@ ENV YARN_VERSION=1.22.4
 ENV NETLIFY_NODE_VERSION="12.18.0"
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
-         nvm install --no-progress $NETLIFY_NODE_VERSION && \
-         npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
-             bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
-         nvm alias default node && nvm cache clear"
+    nvm install --no-progress $NETLIFY_NODE_VERSION && \
+    npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+    bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
+    nvm alias default node && nvm cache clear"
 
 USER root
 

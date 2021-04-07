@@ -3,7 +3,6 @@
    push:
      branches:
        - xenial
-       - chore/use_gh_app
  jobs:
    release-please:
      runs-on: ubuntu-latest

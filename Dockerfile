@@ -41,10 +41,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         build-essential \
         bzr \
         cmake \
-        curl \
         doxygen \
         elixir \
-        emacs25-nox \
+        emacs-nox \
         esl-erlang \
         expect \
         file \
@@ -94,7 +93,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         language-pack-zh-hans \
         language-pack-zh-hant \
         libasound2 \
-        libcurl3 \
+        libcurl4 \
         libcurl3-gnutls \
         libcurl3-openssl-dev \
         libenchant1c2a \
@@ -107,7 +106,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libgif-dev \
         libglib2.0-dev \
         libgmp3-dev \
-        libgsl2 \
+        libgsl23 \
         libgsl-dev \
         libgtk-3-0 \
         libgtk2.0-0 \
@@ -119,7 +118,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libmcrypt-dev \
         libncurses5-dev \
         libnss3 \
-        libpng12-dev \
+        libpng-dev \
         libreadline6-dev \
         librsvg2-bin \
         libsm6 \
@@ -127,33 +126,18 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libssl-dev \
         libtiff5-dev \
         libwebp-dev \
-        libwebp5 \
+        libwebp6 \
         libxml2-dev \
         libxrender1 \
         libxslt-dev \
         libxss1 \
         libxtst6 \
+        libvips-dev \
         libyaml-dev \
         mercurial \
         nasm \
         openjdk-8-jdk \
         optipng \
-        php5.6 \
-        php5.6-xml \
-        php5.6-mbstring \
-        php5.6-gd \
-        php5.6-sqlite3 \
-        php5.6-curl \
-        php5.6-zip \
-        php5.6-intl \
-        php7.2 \
-        php7.2-xml \
-        php7.2-mbstring \
-        php7.2-gd \
-        php7.2-sqlite3 \
-        php7.2-curl \
-        php7.2-zip \
-        php7.2-intl \
         php7.4 \
         php7.4-xml \
         php7.4-mbstring \
@@ -188,7 +172,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 # dotnet core dependencies
 	libunwind8-dev \
 	libicu-dev \
-	libcurl3 \
 	liblttng-ust0 \
 	libkrb5-3 \
         && \
@@ -205,9 +188,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 #
 ################################################################################
 
-RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb && \
-    dpkg -i wkhtmltox_0.12.5-1.xenial_amd64.deb && \
-    rm wkhtmltox_0.12.5-1.xenial_amd64.deb && \
+RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.focal_amd64.deb && \
+    dpkg -i wkhtmltox_0.12.5-1.focal_amd64.deb && \
+    rm wkhtmltox_0.12.5-1.focal_amd64.deb && \
     wkhtmltopdf -V
 
 # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
@@ -215,28 +198,6 @@ RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-
     dpkg -i pandoc-$PANDOC_VERSION-1-amd64.deb && \
     rm pandoc-$PANDOC_VERSION-1-amd64.deb && \
     pandoc -v
-
-################################################################################
-#
-# Libvips
-#
-################################################################################
-
-WORKDIR /tmp
-
-# this actually builds v8.6.2
-RUN \
-  curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/archive/v8.6.2.tar.gz && \
-  tar xvf vips-8.6.2.tar.gz && \
-  cd libvips-8.6.2 && \
-  ./autogen.sh && \
-  ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
-  make && \
-  make install && \
-  ldconfig
-
-
-WORKDIR /
 
 ################################################################################
 #

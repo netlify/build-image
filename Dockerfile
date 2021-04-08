@@ -16,22 +16,21 @@ ENV PANDOC_VERSION 2.4
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y update && \
-    apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https curl && \
+    apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https curl gnupg && \
     echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
-    apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
-    apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ xenial main' && \
+    curl -L https://packagecloud.io/github/git-lfs/gpgkey | apt-key add - && \
+    apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ focal main' && \
     add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
-    add-apt-repository -y ppa:rwky/graphicsmagick && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     add-apt-repository -y ppa:kelleyk/emacs && \
-    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu xenial contrib' && \
+    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu focal contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \

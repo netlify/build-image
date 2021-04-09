@@ -243,14 +243,14 @@ RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     git checkout v$NVM_VERSION && \
     cd /
 
-ENV ELM_VERSION=0.19.0-bugfix6
+ENV ELM_VERSION=0.19.1-5
 ENV YARN_VERSION=1.22.4
 
 ENV NETLIFY_NODE_VERSION="12.18.0"
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
-         npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         npm install -g grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 
@@ -270,8 +270,8 @@ RUN virtualenv -p python2.7 /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
     ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.11
 
-RUN virtualenv -p python3.8 /opt/buildhome/python3.7 && \
-    /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
+RUN virtualenv -p python3.8 /opt/buildhome/python3.8 && \
+    /bin/bash -c 'source /opt/buildhome/python3.8/bin/activate' && \
     ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.2
 
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install "setuptools<45"

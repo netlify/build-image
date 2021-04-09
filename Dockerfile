@@ -24,7 +24,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
     curl -L https://packagecloud.io/github/git-lfs/gpgkey | apt-key add - && \
     apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ focal main' && \
-    add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
@@ -93,8 +92,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         language-pack-zh-hant \
         libasound2 \
         libcurl4 \
-        libcurl3-gnutls \
-        libcurl3-openssl-dev \
+        libcurl4-gnutls-dev \
         libenchant1c2a \
         libexif-dev \
         libffi-dev \
@@ -149,10 +147,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.4-intl \
         pngcrush \
         python-setuptools \
-        python \
-        python3 \
-        python3-dev \
-        python3.8 \
         python3.8-dev \
         rlwrap \
         rsync \
@@ -215,7 +209,7 @@ RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A170311380
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
-ENV RUBY_VERSION=2.7.1
+ENV RUBY_VERSION=2.7.2
 # Also preinstall Ruby 2.6.2, as many customers are pinned to it and installing is slow
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \

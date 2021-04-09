@@ -22,8 +22,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
-    curl -L https://packagecloud.io/github/git-lfs/gpgkey | apt-key add - && \
-    apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ focal main' && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:deadsnakes/ppa && \

@@ -11,7 +11,6 @@ LABEL maintainer Netlify
 ENV LANGUAGE en_US:en
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-ENV PANDOC_VERSION 2.4
 
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
@@ -125,6 +124,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libsqlite3-dev \
         libssl-dev \
         libtiff5-dev \
+        libtool \
         libwebp-dev \
         libwebp6 \
         libxml2-dev \
@@ -138,6 +138,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         nasm \
         openjdk-8-jdk \
         optipng \
+        pandoc \
         php7.4 \
         php7.4-xml \
         php7.4-mbstring \
@@ -149,11 +150,10 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         pngcrush \
         python-setuptools \
         python \
-        python-dev \
         python3 \
         python3-dev \
-        python3.7 \
-        python3.7-dev \
+        python3.8 \
+        python3.8-dev \
         rlwrap \
         rsync \
         software-properties-common \
@@ -184,7 +184,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 
 ################################################################################
 #
-# Pandoc
+# Wkhtmltopdf
 #
 ################################################################################
 
@@ -192,12 +192,6 @@ RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5
     dpkg -i wkhtmltox_0.12.5-1.focal_amd64.deb && \
     rm wkhtmltox_0.12.5-1.focal_amd64.deb && \
     wkhtmltopdf -V
-
-# install Pandoc (more recent version to what is provided in Ubuntu 14.04)
-RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-amd64.deb && \
-    dpkg -i pandoc-$PANDOC_VERSION-1-amd64.deb && \
-    rm pandoc-$PANDOC_VERSION-1-amd64.deb && \
-    pandoc -v
 
 ################################################################################
 #
@@ -272,17 +266,13 @@ ENV PIPENV_RUNTIME 2.7
 
 USER buildbot
 
-RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
+RUN virtualenv -p python2.7 /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
     ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.11
 
-RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
-    /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.6
-
-RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
+RUN virtualenv -p python3.8 /opt/buildhome/python3.7 && \
     /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.2
+    ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.2
 
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install "setuptools<45"
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
@@ -343,27 +333,6 @@ USER buildbot
 RUN lein
 
 RUN boot -u
-
-################################################################################
-#
-# PHP
-#
-################################################################################
-
-USER root
-
-# set default to 5.6
-RUN update-alternatives --set php /usr/bin/php5.6 && \
-    update-alternatives --set phar /usr/bin/phar5.6 && \
-    update-alternatives --set phar.phar /usr/bin/phar.phar5.6
-
-RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/72bb6f65aa902c76c7ca35514f58cf79a293657d/web/installer -O - | php -- --quiet && \
-    mv composer.phar /usr/local/bin/composer
-
-USER buildbot
-
-RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php5.6 /opt/buildhome/.php/php
-ENV PATH "/opt/buildhome/.php:$PATH"
 
 ################################################################################
 #

@@ -11,6 +11,7 @@ LABEL maintainer Netlify
 ENV LANGUAGE en_US:en
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
+ENV PANDOC_VERSION 2.13
 
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
@@ -134,7 +135,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         nasm \
         openjdk-8-jdk \
         optipng \
-        pandoc \
         php7.4 \
         php7.4-xml \
         php7.4-mbstring \
@@ -173,17 +173,22 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get autoremove -y && \
     unset DEBIAN_FRONTEND
 
-
 ################################################################################
 #
-# Wkhtmltopdf
+# Pandoc & Wkhtmltopdf
 #
 ################################################################################
 
-RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.focal_amd64.deb && \
-    dpkg -i wkhtmltox_0.12.5-1.focal_amd64.deb && \
-    rm wkhtmltox_0.12.5-1.focal_amd64.deb && \
+RUN wget -nv https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_amd64.deb && \
+    dpkg -i wkhtmltox_0.12.6-1.focal_amd64.deb && \
+    rm wkhtmltox_0.12.6-1.focal_amd64.deb && \
     wkhtmltopdf -V
+
+# install Pandoc (more recent version to what is provided in Ubuntu 14.04)
+RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-amd64.deb && \
+    dpkg -i pandoc-$PANDOC_VERSION-1-amd64.deb && \
+    rm pandoc-$PANDOC_VERSION-1-amd64.deb && \
+    pandoc -v
 
 ################################################################################
 #

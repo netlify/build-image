@@ -354,6 +354,27 @@ RUN curl -sL https://github.com/lz4/lz4/archive/v${LZ4_VERSION}.tar.gz | tar xzv
 
 ################################################################################
 #
+# PHP
+#
+################################################################################
+
+USER root
+
+# set default to 7.4
+RUN update-alternatives --set php /usr/bin/php7.4 && \
+    update-alternatives --set phar /usr/bin/phar7.4 && \
+    update-alternatives --set phar.phar /usr/bin/phar.phar7.4
+
+RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/76a7060ccb93902cd7576b67264ad91c8a2700e2/web/installer -O - -q | php -- --quiet && \
+    mv composer.phar /usr/local/bin/composer
+
+USER buildbot
+
+RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php7.4 /opt/buildhome/.php/php
+ENV PATH "/opt/buildhome/.php:$PATH"
+
+################################################################################
+#
 # Go
 #
 ################################################################################

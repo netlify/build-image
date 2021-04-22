@@ -1,4 +1,4 @@
-## Included Software: Xenial
+## Included Software: Focal
 
 This is the **Focal** build image. It runs on Ubuntu version 20.04 (aka Focal Fossa), and includes the languages and software versions listed below.
 

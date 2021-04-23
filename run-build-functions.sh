@@ -690,14 +690,6 @@ install_dependencies() {
     restore_cwd_cache "target" "rust compile output"
     source $HOME/.cargo/env
   fi
-
-  # Setup project GOPATH
-  if [ -n "$GO_IMPORT_PATH" ]
-  then
-    mkdir -p "$(dirname $GOPATH/src/$GO_IMPORT_PATH)"
-    rm -rf $GOPATH/src/$GO_IMPORT_PATH
-    ln -s /opt/buildhome/repo ${GOPATH}/src/$GO_IMPORT_PATH
-  fi
 }
 
 #

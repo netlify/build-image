@@ -890,8 +890,7 @@ set_go_import_path() {
     local importPath="$GOPATH/src/$GO_IMPORT_PATH"
     local dirPath="$(dirname $importPath)"
 
-    rm -rf $dirPath
-    mkdir -p $dirPath
+    rm -rf $importPath
     ln -s $PWD $importPath
 
     cd $importPath

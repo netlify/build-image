@@ -883,6 +883,7 @@ set_go_import_path() {
     local dirPath="$(dirname $importPath)"
 
     rm -rf $importPath
+    mkdir -p $dirPath
     ln -s $PWD $importPath
 
     cd $importPath

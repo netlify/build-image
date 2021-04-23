@@ -4,7 +4,7 @@ pipeline {
   stages {
     stage("Test Build") {
       when {
-        not { anyOf { branch 'staging' ; branch 'xenial' ; branch 'trusty' ; buildingTag() } }
+        not { anyOf { branch 'staging' ; branch 'xenial' ; branch 'trusty' ; branch 'focal' ; buildingTag() } }
       }
       steps {
         sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} ."

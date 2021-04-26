@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 LABEL maintainer Netlify
 
@@ -11,27 +11,23 @@ LABEL maintainer Netlify
 ENV LANGUAGE en_US:en
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-ENV PANDOC_VERSION 2.4
+ENV PANDOC_VERSION 2.13
 
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y update && \
-    apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https gnupg-curl && \
+    apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https curl gnupg && \
     echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
-    apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
-    apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ xenial main' && \
-    add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
-    add-apt-repository -y ppa:rwky/graphicsmagick && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     add-apt-repository -y ppa:kelleyk/emacs && \
-    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu xenial contrib' && \
+    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu focal contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -42,10 +38,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         build-essential \
         bzr \
         cmake \
-        curl \
         doxygen \
         elixir \
-        emacs25-nox \
+        emacs-nox \
         esl-erlang \
         expect \
         file \
@@ -95,9 +90,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         language-pack-zh-hans \
         language-pack-zh-hant \
         libasound2 \
-        libcurl3 \
-        libcurl3-gnutls \
-        libcurl3-openssl-dev \
+        libcurl4 \
+        libcurl4-gnutls-dev \
         libenchant1c2a \
         libexif-dev \
         libffi-dev \
@@ -108,7 +102,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libgif-dev \
         libglib2.0-dev \
         libgmp3-dev \
-        libgsl2 \
+        libgsl23 \
         libgsl-dev \
         libgtk-3-0 \
         libgtk2.0-0 \
@@ -120,41 +114,27 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libmcrypt-dev \
         libncurses5-dev \
         libnss3 \
-        libpng12-dev \
+        libpng-dev \
         libreadline6-dev \
         librsvg2-bin \
         libsm6 \
         libsqlite3-dev \
         libssl-dev \
         libtiff5-dev \
+        libtool \
         libwebp-dev \
-        libwebp5 \
+        libwebp6 \
         libxml2-dev \
         libxrender1 \
         libxslt-dev \
         libxss1 \
         libxtst6 \
+        libvips-dev \
         libyaml-dev \
         mercurial \
         nasm \
         openjdk-8-jdk \
         optipng \
-        php5.6 \
-        php5.6-xml \
-        php5.6-mbstring \
-        php5.6-gd \
-        php5.6-sqlite3 \
-        php5.6-curl \
-        php5.6-zip \
-        php5.6-intl \
-        php7.2 \
-        php7.2-xml \
-        php7.2-mbstring \
-        php7.2-gd \
-        php7.2-sqlite3 \
-        php7.2-curl \
-        php7.2-zip \
-        php7.2-intl \
         php7.4 \
         php7.4-xml \
         php7.4-mbstring \
@@ -165,12 +145,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.4-intl \
         pngcrush \
         python-setuptools \
-        python \
-        python-dev \
-        python3 \
-        python3-dev \
-        python3.7 \
-        python3.7-dev \
+        python3.8-dev \
         rlwrap \
         rsync \
         software-properties-common \
@@ -189,7 +164,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 # dotnet core dependencies
 	libunwind8-dev \
 	libicu-dev \
-	libcurl3 \
 	liblttng-ust0 \
 	libkrb5-3 \
         && \
@@ -199,16 +173,15 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get autoremove -y && \
     unset DEBIAN_FRONTEND
 
-
 ################################################################################
 #
-# Pandoc
+# Pandoc & Wkhtmltopdf
 #
 ################################################################################
 
-RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb && \
-    dpkg -i wkhtmltox_0.12.5-1.xenial_amd64.deb && \
-    rm wkhtmltox_0.12.5-1.xenial_amd64.deb && \
+RUN wget -nv https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_amd64.deb && \
+    dpkg -i wkhtmltox_0.12.6-1.focal_amd64.deb && \
+    rm wkhtmltox_0.12.6-1.focal_amd64.deb && \
     wkhtmltopdf -V
 
 # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
@@ -216,28 +189,6 @@ RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-
     dpkg -i pandoc-$PANDOC_VERSION-1-amd64.deb && \
     rm pandoc-$PANDOC_VERSION-1-amd64.deb && \
     pandoc -v
-
-################################################################################
-#
-# Libvips
-#
-################################################################################
-
-WORKDIR /tmp
-
-# this actually builds v8.6.2
-RUN \
-  curl -sLo vips-8.6.2.tar.gz https://github.com/jcupitt/libvips/archive/v8.6.2.tar.gz && \
-  tar xvf vips-8.6.2.tar.gz && \
-  cd libvips-8.6.2 && \
-  ./autogen.sh && \
-  ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
-  make && \
-  make install && \
-  ldconfig
-
-
-WORKDIR /
 
 ################################################################################
 #
@@ -261,7 +212,7 @@ RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A170311380
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
-ENV RUBY_VERSION=2.7.1
+ENV RUBY_VERSION=2.7.2
 # Also preinstall Ruby 2.6.2, as many customers are pinned to it and installing is slow
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
@@ -289,14 +240,14 @@ RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     git checkout v$NVM_VERSION && \
     cd /
 
-ENV ELM_VERSION=0.19.0-bugfix6
-ENV YARN_VERSION=1.22.4
+ENV ELM_VERSION=0.19.1-5
+ENV YARN_VERSION=1.22.10
 
 ENV NETLIFY_NODE_VERSION="12.18.0"
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
-         npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
+         npm install -g grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 
@@ -312,17 +263,13 @@ ENV PIPENV_RUNTIME 2.7
 
 USER buildbot
 
-RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
+RUN virtualenv -p python2.7 /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
     ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.11
 
-RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
-    /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.6
-
-RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
-    /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.2
+RUN virtualenv -p python3.8 /opt/buildhome/python3.8 && \
+    /bin/bash -c 'source /opt/buildhome/python3.8/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.2
 
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install "setuptools<45"
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
@@ -355,7 +302,7 @@ USER root
 #
 ################################################################################
 
-ENV HUGO_VERSION 0.54.0
+ENV HUGO_VERSION 0.82.0
 
 RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_${HUGO_VERSION} && \
     ln -s /usr/local/bin/hugo_${HUGO_VERSION} /usr/local/bin/hugo
@@ -386,27 +333,6 @@ RUN boot -u
 
 ################################################################################
 #
-# PHP
-#
-################################################################################
-
-USER root
-
-# set default to 5.6
-RUN update-alternatives --set php /usr/bin/php5.6 && \
-    update-alternatives --set phar /usr/bin/phar5.6 && \
-    update-alternatives --set phar.phar /usr/bin/phar.phar5.6
-
-RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/72bb6f65aa902c76c7ca35514f58cf79a293657d/web/installer -O - | php -- --quiet && \
-    mv composer.phar /usr/local/bin/composer
-
-USER buildbot
-
-RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php5.6 /opt/buildhome/.php/php
-ENV PATH "/opt/buildhome/.php:$PATH"
-
-################################################################################
-#
 # Cask
 #
 ################################################################################
@@ -425,6 +351,27 @@ RUN curl -sL https://github.com/lz4/lz4/archive/v${LZ4_VERSION}.tar.gz | tar xzv
     make && \
     make install && \
     cd .. && rm -rf lz4-${LZ4_VERSION}
+
+################################################################################
+#
+# PHP
+#
+################################################################################
+
+USER root
+
+# set default to 7.4
+RUN update-alternatives --set php /usr/bin/php7.4 && \
+    update-alternatives --set phar /usr/bin/phar7.4 && \
+    update-alternatives --set phar.phar /usr/bin/phar.phar7.4
+
+RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/76a7060ccb93902cd7576b67264ad91c8a2700e2/web/installer -O - -q | php -- --quiet && \
+    mv composer.phar /usr/local/bin/composer
+
+USER buildbot
+
+RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php7.4 /opt/buildhome/.php/php
+ENV PATH "/opt/buildhome/.php:$PATH"
 
 ################################################################################
 #

@@ -13,4 +13,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           currentTag: netlify/build:${{ github.sha }}
-          defaultTag: netlify/build:xenial
+          defaultTag: netlify/build:focal

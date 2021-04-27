@@ -421,12 +421,14 @@ ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
 # Homebrew
 #
 ################################################################################
+USER root
+RUN mkdir -p /home/linuxbrew/.linuxbrew && chown -R buildbot /home/linuxbrew/
 USER buildbot
-RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/calavera/install/fc565dc04a2035287b90de7eab16933e59827734/install.sh)"
-ENV PATH "/opt/buildhome/.linuxbrew/bin:$PATH"
-ENV HOMEBREW_PREFIX "/opt/buildhome/.linuxbrew"
-ENV HOMEBREW_CELLAR "/opt/buildhome/.linuxbrew/Cellar"
-ENV HOMEBREW_REPOSITORY "/opt/buildhome/.linuxbrew/Homebrew"
+RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+ENV HOMEBREW_PREFIX "/home/linuxbrew/.linuxbrew"
+ENV PATH "${HOMEBREW_PREFIX}/bin:${PATH}"
+ENV HOMEBREW_CELLAR "${HOMEBREW_PREFIX}/Cellar"
+ENV HOMEBREW_REPOSITORY "${HOMEBREW_PREFIX}/Homebrew"
 ENV HOMEBREW_CACHE "/opt/buildhome/.homebrew-cache"
 RUN brew tap homebrew/bundle
 

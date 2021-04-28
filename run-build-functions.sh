@@ -18,7 +18,7 @@ export GIMME_CGO_ENABLED=true
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
 
-#PHP configuration
+# PHP configuration
 DEFAULT_PHP_VERSION="5.6"
 
 # Swift configuration

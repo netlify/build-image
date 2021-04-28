@@ -23,7 +23,7 @@ export SWIFTENV_ROOT="${SWIFTENV_ROOT:-${HOME}/.swiftenv}"
 DEFAULT_SWIFT_VERSION="5.2"
 
 # PHP version
-DEFAULT_PHP_VERSION="5.2"
+DEFAULT_PHP_VERSION="7.4"
 
 # Pipenv configuration
 export PIPENV_RUNTIME=2.7

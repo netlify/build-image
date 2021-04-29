@@ -585,6 +585,15 @@ install_dependencies() {
   if [ -f deps.edn ]
   then
     restore_home_cache ".m2" "maven dependencies"
+    restore_cwd_cache ".cpcache" "clojure classpath"
+    echo "Installing Clojure dependencies"
+    if clojure -Spath -Sforce >/dev/null
+    then
+      echo "Clojure dependencies installed"
+    else
+      echo "Error during Clojure install"
+      exit 1
+    fi
   fi
 
   # Hugo
@@ -706,6 +715,7 @@ cache_artifacts() {
 
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"
+  cache_cwd_directory ".cpcache" "clojure classpath"
   cache_cwd_directory ".netlify/plugins" "build plugins"
   cache_cwd_directory ".netlify/rust-functions-cache" "Rust functions"
 

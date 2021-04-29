@@ -350,6 +350,8 @@ RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
     chmod +x boot && \
     ln -s /opt/boot-clj/boot /usr/local/bin/boot
 
+# TODO: When upgrading to >= 1.10.1.672, also update approach for populating .m2 with clojure deps:
+# In run-build-functions.sh replace `clojure -Spath -Sforce >/dev/null` with more modern `clojure -P`
 RUN curl -sL https://download.clojure.org/install/linux-install-1.10.1.492.sh | bash
 
 USER buildbot

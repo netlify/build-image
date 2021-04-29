@@ -18,6 +18,9 @@ export GIMME_CGO_ENABLED=true
 export NVM_DIR="$HOME/.nvm"
 export RVM_DIR="$HOME/.rvm"
 
+# PHP configuration
+DEFAULT_PHP_VERSION="5.6"
+
 # Swift configuration
 export SWIFTENV_ROOT="${SWIFTENV_ROOT:-${HOME}/.swiftenv}"
 DEFAULT_SWIFT_VERSION="5.2"
@@ -215,9 +218,8 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
-  local defaultPHPVersion=$4
-  local installGoVersion=$5
-  local defaultPythonVersion=$6
+  local installGoVersion=$4
+  local defaultPythonVersion=$5
 
   # Python Version
   if [ -f runtime.txt ]
@@ -372,7 +374,7 @@ install_dependencies() {
   export JAVA_VERSION=default_sdk
 
   # PHP version
-  : ${PHP_VERSION="$defaultPHPVersion"}
+  : ${PHP_VERSION="$DEFAULT_PHP_VERSION"}
   if [ -f /usr/bin/php$PHP_VERSION ]
   then
     if ln -sf /usr/bin/php$PHP_VERSION $HOME/.php/php

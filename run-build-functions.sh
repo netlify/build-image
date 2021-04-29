@@ -581,6 +581,12 @@ install_dependencies() {
     fi
   fi
 
+  # Clojure CLI
+  if [ -f deps.edn ]
+  then
+    restore_home_cache ".m2" "maven dependencies"
+  fi
+
   # Hugo
   if [ -n "$HUGO_VERSION" ]
   then

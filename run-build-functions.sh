@@ -612,6 +612,14 @@ install_dependencies() {
     fi
   fi
 
+  # Clojure CLI
+  if [ -f deps.edn ]
+  then
+    restore_home_cache ".m2" "maven dependencies"
+    restore_home_cache ".gitlibs" "clojure git dependencies"
+    restore_cwd_cache ".cpcache" "clojure classpath"
+  fi
+
   # Hugo
   if [ -n "$HUGO_VERSION" ]
   then
@@ -699,6 +707,7 @@ cache_artifacts() {
 
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"
+  cache_cwd_directory ".cpcache" "clojure classpath"
   cache_cwd_directory ".netlify/plugins" "build plugins"
   cache_cwd_directory ".netlify/rust-functions-cache" "Rust functions"
 
@@ -713,6 +722,7 @@ cache_artifacts() {
   cache_home_directory ".emacs.d" "emacs cache"
   cache_home_directory ".m2" "maven dependencies"
   cache_home_directory ".boot" "boot dependencies"
+  cache_home_directory ".gitlibs" "clojure git dependencies"
   cache_home_directory ".composer" "composer dependencies"
   cache_home_directory ".homebrew-cache", "homebrew cache"
   cache_home_directory ".rustup" "rust rustup cache"
@@ -934,4 +944,3 @@ install_go() {
   fi
 
 }
-

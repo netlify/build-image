@@ -22,6 +22,9 @@ export RVM_DIR="$HOME/.rvm"
 export SWIFTENV_ROOT="${SWIFTENV_ROOT:-${HOME}/.swiftenv}"
 DEFAULT_SWIFT_VERSION="5.2"
 
+# PHP version
+DEFAULT_PHP_VERSION="7.4"
+
 # Pipenv configuration
 export PIPENV_RUNTIME=2.7
 export PIPENV_VENV_IN_PROJECT=1
@@ -215,9 +218,8 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
-  local defaultPHPVersion=$4
-  local installGoVersion=$5
-  local defaultPythonVersion=$6
+  local installGoVersion=$4
+  local defaultPythonVersion=$5
 
   # Python Version
   if [ -f runtime.txt ]
@@ -372,7 +374,7 @@ install_dependencies() {
   export JAVA_VERSION=default_sdk
 
   # PHP version
-  : ${PHP_VERSION="$defaultPHPVersion"}
+  : ${PHP_VERSION="$DEFAULT_PHP_VERSION"}
   if [ -f /usr/bin/php$PHP_VERSION ]
   then
     if ln -sf /usr/bin/php$PHP_VERSION $HOME/.php/php

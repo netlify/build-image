@@ -733,13 +733,6 @@ cache_artifacts() {
     cache_home_directory ".cargo/bin" "rust cargo bin cache"
   fi
 
-  # Don't follow the Go import path or we'll store
-  # the origin repo twice.
-  if [ -n "$GO_IMPORT_PATH" ]
-  then
-    unlink $GOPATH/src/$GO_IMPORT_PATH
-  fi
-
   chmod -R +rw $HOME/.gimme_cache
   cache_home_directory ".gimme_cache" "go dependencies"
 
@@ -895,5 +888,12 @@ set_go_import_path() {
     ln -s $PWD $importPath
 
     cd $importPath
+  fi
+}
+
+unset_go_import_path() {
+  if [ -n "$GO_IMPORT_PATH" ]
+  then
+    unlink $GOPATH/src/$GO_IMPORT_PATH
   fi
 }

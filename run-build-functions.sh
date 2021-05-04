@@ -108,35 +108,30 @@ run_yarn() {
   fi
 
 
-  if [ "$NETLIFY_YARN_WORKSPACES" = "true" ]
+  local workspace_output
+  local workspace_exit_code
+  # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
+  # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
+  workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info )"
+  workspace_exit_code=$?
+  if [ $workspace_exit_code -eq 0 ]
   then
-    echo "NETLIFY_YARN_WORKSPACES feature flag set"
-    local workspace_output
-    local workspace_exit_code
-    # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
-    # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
-    workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info )"
-    workspace_exit_code=$?
-    if [ $workspace_exit_code -eq 0 ]
-    then
-      local package_locations
-      # Extract all the packages and respective locations. .data will be a JSON object like
-      # {
-      #   "my-package-1": {
-      #     "location": "packages/blog-1",
-      #     "workspaceDependencies": [],
-      #     "mismatchedWorkspaceDependencies": []
-      #   },
-      #   (...)
-      # }
-      # We need to cache all the node_module dirs, or we'll always be installing them on each run
-      mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
-      restore_js_workspaces_cache "${package_locations[@]}"
-    else
-      echo "No workspace detected"
-      restore_cwd_cache node_modules "node modules"
-    fi
+    echo "Yarn workspaces detected"
+    local package_locations
+    # Extract all the packages and respective locations. .data will be a JSON object like
+    # {
+    #   "my-package-1": {
+    #     "location": "packages/blog-1",
+    #     "workspaceDependencies": [],
+    #     "mismatchedWorkspaceDependencies": []
+    #   },
+    #   (...)
+    # }
+    # We need to cache all the node_module dirs, or we'll always be installing them on each run
+    mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
+    restore_js_workspaces_cache "${package_locations[@]}"
   else
+    echo "No yarn workspaces detected"
     restore_cwd_cache node_modules "node modules"
   fi
 
@@ -711,12 +706,7 @@ cache_artifacts() {
   cache_cwd_directory ".bundle" "ruby gems"
   cache_cwd_directory "bower_components" "bower components"
 
-  if [ "$NETLIFY_YARN_WORKSPACES" == "true" ]
-  then
-    cache_node_modules
-  else
-    cache_cwd_directory "node_modules" "node modules"
-  fi
+  cache_node_modules
 
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"

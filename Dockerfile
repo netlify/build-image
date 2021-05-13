@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 LABEL maintainer Netlify
 
@@ -16,22 +16,20 @@ ENV PANDOC_VERSION 2.4
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y update && \
-    apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https gnupg-curl && \
+    apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https gnupg curl && \
     echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
-    apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
-    apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ xenial main' && \
     add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:rwky/graphicsmagick && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     add-apt-repository -y ppa:kelleyk/emacs && \
-    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu xenial contrib' && \
+    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu bionic contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -95,9 +93,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         language-pack-zh-hans \
         language-pack-zh-hant \
         libasound2 \
-        libcurl3 \
+        libcurl4 \
         libcurl3-gnutls \
-        libcurl3-openssl-dev \
+        libcurl4-openssl-dev \
         libenchant1c2a \
         libexif-dev \
         libffi-dev \
@@ -108,7 +106,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libgif-dev \
         libglib2.0-dev \
         libgmp3-dev \
-        libgsl2 \
+        libgsl23 \
         libgsl-dev \
         libgtk-3-0 \
         libgtk2.0-0 \
@@ -120,15 +118,16 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libmcrypt-dev \
         libncurses5-dev \
         libnss3 \
-        libpng12-dev \
+        libpng-dev \
         libreadline6-dev \
         librsvg2-bin \
         libsm6 \
         libsqlite3-dev \
         libssl-dev \
         libtiff5-dev \
+        libtool \
         libwebp-dev \
-        libwebp5 \
+        libwebp6 \
         libxml2-dev \
         libxrender1 \
         libxslt-dev \
@@ -189,7 +188,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 # dotnet core dependencies
 	libunwind8-dev \
 	libicu-dev \
-	libcurl3 \
+	libcurl4 \
 	liblttng-ust0 \
 	libkrb5-3 \
         && \
@@ -206,9 +205,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 #
 ################################################################################
 
-RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb && \
-    dpkg -i wkhtmltox_0.12.5-1.xenial_amd64.deb && \
-    rm wkhtmltox_0.12.5-1.xenial_amd64.deb && \
+RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb && \
+    dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb && \
+    rm wkhtmltox_0.12.5-1.bionic_amd64.deb && \
     wkhtmltopdf -V
 
 # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
@@ -316,9 +315,9 @@ RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
     ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.11
 
-RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
-    /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.6
+RUN virtualenv -p python3.6 --no-site-packages /opt/buildhome/python3.6 && \
+    /bin/bash -c 'source /opt/buildhome/python3.6/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.6 /opt/buildhome/python3.6.9
 
 RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
     /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \

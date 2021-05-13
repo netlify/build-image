@@ -12,6 +12,7 @@ The following images are currently available:
 
 - `trusty` - Legacy build image for older sites; running Ubuntu 14.04 and [this software](https://github.com/netlify/build-image/blob/trusty/included_software.md)
 - `xenial` - Default build image for all new sites; running Ubuntu 16.04 and [this software](https://github.com/netlify/build-image/blob/xenial/included_software.md)
+- `bionic` - More recent build image for all new sites; running Ubuntu 18.04 and [this software](https://github.com/netlify/build-image/blob/bionic/included_software.md)
 
 Each image name above corresponds to a branch in this repository.
 
@@ -28,7 +29,7 @@ Emulating Netlify's buildbot on your local machine requires the following:
 Open your Docker terminal, and run the following command to pull the default image:
 
 ```
-docker pull netlify/build:xenial
+docker pull netlify/build:bionic
 or
 docker pull netlify/build:v3.0.2 # replace the version with a git tag of the specific version you want to test
 ```

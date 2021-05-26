@@ -185,7 +185,7 @@ run_npm() {
   then
     echo "Installing NPM modules using NPM version $(npm --version)"
     run_npm_set_temp
-    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
+    if npm install ${NPM_FLAGS:+$NPM_FLAGS}
     then
       echo "NPM modules installed"
     else

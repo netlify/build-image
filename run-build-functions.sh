@@ -320,12 +320,6 @@ install_dependencies() {
     export RUBY_VERSION=${crv#ruby-}
     echo "Using ruby version ${RUBY_VERSION}"
   else
-    echo -e "${YELLOW}"
-    echo "** WARNING **"
-    echo "Using custom ruby version ${druby}, this will slow down the build."
-    echo "To ensure fast builds, set the RUBY_VERSION environment variable, or .ruby-version file, to an included ruby version."
-    echo "Included versions: ${rvs[@]#ruby-}"
-    echo -e "${NC}"
     if rvm_install_on_use_flag=1 rvm --quiet-curl --create use ${druby}
     then
       local crv=$(rvm current)

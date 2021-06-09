@@ -140,29 +140,14 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         openjdk-8-jdk \
         optipng \
         php5.6 \
-        php5.6-xml \
-        php5.6-mbstring \
-        php5.6-gd \
-        php5.6-sqlite3 \
-        php5.6-curl \
-        php5.6-zip \
-        php5.6-intl \
-        php7.2 \
-        php7.2-xml \
-        php7.2-mbstring \
-        php7.2-gd \
-        php7.2-sqlite3 \
-        php7.2-curl \
-        php7.2-zip \
-        php7.2-intl \
-        php7.4 \
-        php7.4-xml \
-        php7.4-mbstring \
-        php7.4-gd \
-        php7.4-sqlite3 \
-        php7.4-curl \
-        php7.4-zip \
-        php7.4-intl \
+        php7.0 \
+        php7.0-xml \
+        php7.0-mbstring \
+        php7.0-gd \
+        php7.0-sqlite3 \
+        php7.0-curl \
+        php7.0-zip \
+        php7.0-intl \
         pngcrush \
         python-setuptools \
         python \

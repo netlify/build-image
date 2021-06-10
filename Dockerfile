@@ -140,14 +140,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         openjdk-8-jdk \
         optipng \
         php5.6 \
-        php7.0 \
-        php7.0-xml \
-        php7.0-mbstring \
-        php7.0-gd \
-        php7.0-sqlite3 \
-        php7.0-curl \
-        php7.0-zip \
-        php7.0-intl \
         pngcrush \
         python-setuptools \
         python \
@@ -377,30 +369,24 @@ RUN boot -u
 
 USER root
 
-RUN curl -L -O https://github.com/phpbrew/phpbrew/releases/latest/download/phpbrew.phar && chmod +x phpbrew.phar && \
-    mv phpbrew.phar /usr/local/bin/phpbrew && mkdir -p /opt/phpbrew && phpbrew init --root=/opt/phpbrew && phpbrew update --old
+RUN curl -L -O https://github.com/phpbrew/phpbrew/releases/latest/download/phpbrew.phar && \
+    chmod +x phpbrew.phar && \
+    mv phpbrew.phar /usr/local/bin/phpbrew
 
-RUN /bin/bash -c "source ~/.phpbrew/bashrc"
+RUN mkdir -p /opt/phpbrew && \
+    phpbrew init --root=/opt/phpbrew && \
+    phpbrew update --old
 
 RUN /bin/bash -c "source ~/.phpbrew/bashrc \
-    && phpbrew install 5.6 +curl \
+    && phpbrew install 5.6 +default +curl +mbstring +gd +sqlite +zip +intl \
+    && phpbrew install 7.2 +default +curl +mbstring +gd +sqlite +zip +intl \
+    && phpbrew install 7.4 +default +curl +mbstring +gd +sqlite +zip +intl \
     && phpbrew use php-5.6.40 \
     && which php \
     && php -v"
 
-RUN /bin/bash -c "source ~/.phpbrew/bashrc \
-   && which php"
-
-# set default to 5.6
-#RUN update-alternatives --set php /root/.phpbrew/php/php-5.6.40
-
 RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/72bb6f65aa902c76c7ca35514f58cf79a293657d/web/installer -O - | php -- --quiet && \
     mv composer.phar /usr/local/bin/composer
-
-#USER buildbot
-
-RUN mkdir -p /opt/buildhome/.php && ln -s /opt/phpbrew/php/php-5.6.40 /opt/buildhome/.php/php
-ENV PATH "/opt/buildhome/.php:$PATH"
 
 ################################################################################
 #

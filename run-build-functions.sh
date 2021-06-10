@@ -584,6 +584,13 @@ install_dependencies() {
     fi
   fi
 
+  # Shadow CLJS
+  if [ -f shadow-cljs.edn ]
+  then
+    echo "Using .shadow-cljs/builds cache"
+    restore_cwd_cache ".shadow-cljs/builds" "Shadow Build output"
+  fi
+
   # Hugo
   if [ -n "$HUGO_VERSION" ]
   then
@@ -703,6 +710,7 @@ cache_artifacts() {
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"
   cache_cwd_directory ".netlify/plugins" "build plugins"
+  cache_cwd_directory ".shadow-cljs/build" "shadow-cljs build"
 
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then

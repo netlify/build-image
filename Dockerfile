@@ -142,9 +142,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         nasm \
         openjdk-8-jdk \
         optipng \
-        php7.0 \
-        php7.0-cli \
-        php7.0-bz2 \
+        php5.6 \
         pkg-config \
         pngcrush \
         python-setuptools \
@@ -375,24 +373,23 @@ RUN boot -u
 
 USER root
 
-RUN curl -L -O https://github.com/phpbrew/phpbrew/releases/latest/download/phpbrew.phar && \
-    chmod +x phpbrew.phar && \
-    mv phpbrew.phar /usr/local/bin/phpbrew
+ADD php /tmp/
 
-RUN mkdir -p /opt/phpbrew && \
-    phpbrew init --root=/opt/phpbrew && \
-    phpbrew update --old
+RUN ls /tmp/
+RUN sh -c "dpkg -i /tmp/*.deb"
 
-RUN /bin/bash -c "source ~/.phpbrew/bashrc \
-    && phpbrew install 5.6 +default +curl +mbstring +gd +sqlite +zip +intl \
-    && phpbrew install 7.2 +default +curl +mbstring +gd +sqlite +zip +intl \
-    && phpbrew install 7.4 +default +curl +mbstring +gd +sqlite +zip +intl \
-    && phpbrew use php-5.6.40 \
-    && which php \
-    && php -v"
+# set default to 5.6
+RUN update-alternatives --set php /usr/bin/php5.6 && \
+    update-alternatives --set phar /usr/bin/phar5.6 && \
+    update-alternatives --set phar.phar /usr/bin/phar.phar5.6
 
 RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/72bb6f65aa902c76c7ca35514f58cf79a293657d/web/installer -O - | php -- --quiet && \
     mv composer.phar /usr/local/bin/composer
+
+USER buildbot
+
+RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php5.6 /opt/buildhome/.php/php
+ENV PATH "/opt/buildhome/.php:$PATH"
 
 ################################################################################
 #

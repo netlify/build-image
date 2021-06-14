@@ -373,6 +373,8 @@ ADD lib/php/5.6 /php/5.6
 ADD lib/php/7.2 /php/7.2
 ADD lib/php/7.4 /php/7.4
 
+#RUN apt-get -y update && apt-get -y install libpcre3
+
 RUN sh -c "dpkg -i /php/dependencies/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb"
 RUN sh -c "dpkg -i /php/dependencies/psmisc_22.21-2.1ubuntu0.1_amd64.deb"
 
@@ -389,6 +391,7 @@ RUN update-alternatives --set php /usr/bin/php5.6 && \
 
 RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/72bb6f65aa902c76c7ca35514f58cf79a293657d/web/installer -O - | php -- --quiet && \
     mv composer.phar /usr/local/bin/composer
+
 
 # cleanup php packages after install
 RUN rm -rf /php
@@ -487,6 +490,7 @@ WORKDIR /
 ################################################################################
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
 ENV PATH "$PATH:/opt/buildhome/.cargo/bin"
+
 
 # Cleanup
 USER root

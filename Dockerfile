@@ -375,7 +375,7 @@ USER root
 
 ADD lib/dependencies /tmp/dependencies/
 ADD lib/php/5.6 /tmp/php/5.6
-ADD lib/php/5.6 /tmp/php/7.2
+ADD lib/php/7.2 /tmp/php/7.2
 
 RUN sh -c "dpkg -i /tmp/dependencies/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb"
 RUN sh -c "dpkg -i /tmp/dependencies/psmisc_22.21-2.1ubuntu0.1_amd64.deb"
@@ -384,6 +384,7 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends libzip4
 RUN sh -c "dpkg -i /tmp/dependencies/*.deb"
 RUN sh -c "dpkg -i /tmp/php/5.6/*.deb"
 RUN sh -c "dpkg -i /tmp/php/7.2/*.deb"
+
 
 # set default to 5.6
 RUN update-alternatives --set php /usr/bin/php5.6 && \

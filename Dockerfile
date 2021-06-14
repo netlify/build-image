@@ -122,7 +122,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libnss3 \
         libpng12-dev \
         libreadline6-dev \
-        libreadline-dev \
         librsvg2-bin \
         libsm6 \
         libsqlite3-dev \
@@ -131,19 +130,15 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libwebp-dev \
         libwebp5 \
         libxml2-dev \
-        libxslt1-dev \
         libxrender1 \
         libxslt-dev \
         libxss1 \
         libxtst6 \
         libyaml-dev \
-        libbz2-dev \
         mercurial \
         nasm \
         openjdk-8-jdk \
         optipng \
-        php5.6 \
-        pkg-config \
         pngcrush \
         python-setuptools \
         python \

@@ -373,18 +373,19 @@ RUN boot -u
 
 USER root
 
-ADD lib/dependencies /tmp/dependencies/
-ADD lib/php/5.6 /tmp/php/5.6
-ADD lib/php/7.2 /tmp/php/7.2
+ADD lib/dependencies /php/dependencies/
+ADD lib/php/5.6 /php/5.6
+ADD lib/php/7.2 /php/7.2
+ADD lib/php/7.4 /php/7.4
 
-RUN sh -c "dpkg -i /tmp/dependencies/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb"
-RUN sh -c "dpkg -i /tmp/dependencies/psmisc_22.21-2.1ubuntu0.1_amd64.deb"
-RUN apt-get -y update && apt-get install -y --no-install-recommends libzip4
+RUN sh -c "dpkg -i /php/dependencies/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb"
+RUN sh -c "dpkg -i /php/dependencies/psmisc_22.21-2.1ubuntu0.1_amd64.deb"
 
-RUN sh -c "dpkg -i /tmp/dependencies/*.deb"
-RUN sh -c "dpkg -i /tmp/php/5.6/*.deb"
-RUN sh -c "dpkg -i /tmp/php/7.2/*.deb"
-
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    sh -c "dpkg -i /php/dependencies/*.deb" && \
+    sh -c "dpkg -i /php/5.6/*.deb" && \
+    sh -c "dpkg -i /php/7.2/*.deb" && \
+    sh -c "dpkg -i /php/7.4/*.deb"
 
 # set default to 5.6
 RUN update-alternatives --set php /usr/bin/php5.6 && \
@@ -393,6 +394,9 @@ RUN update-alternatives --set php /usr/bin/php5.6 && \
 
 RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/72bb6f65aa902c76c7ca35514f58cf79a293657d/web/installer -O - | php -- --quiet && \
     mv composer.phar /usr/local/bin/composer
+
+# cleanup php packages after install
+RUN rm -rf /php
 
 USER buildbot
 

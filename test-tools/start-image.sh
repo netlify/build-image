@@ -2,7 +2,7 @@
 
 BASE_PATH=$(pwd)
 REPO_PATH=$(cd $1 && pwd)
-: ${NETLIFY_IMAGE="netlify/build:xenial"}
+: ${NETLIFY_IMAGE="sha256:bb90c768dfa69f00f8ee5ec2dd360e856d34dbc82246f1b68398ea7a41477c70"}
 
 docker run --rm -t -i \
 	-e NODE_VERSION \

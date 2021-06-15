@@ -13,9 +13,7 @@ ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV PANDOC_VERSION 2.4
 
-# language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
-RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get -y update && \
+RUN apt-get -y update && \
     apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https gnupg-curl && \
     echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale && \
@@ -25,7 +23,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
     apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
     apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ xenial main' && \
-    add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:rwky/graphicsmagick && \
@@ -368,21 +365,19 @@ RUN boot -u
 
 USER root
 
-ADD lib/dependencies /php/dependencies/
-ADD lib/php/5.6 /php/5.6
-ADD lib/php/7.2 /php/7.2
-ADD lib/php/7.4 /php/7.4
+COPY lib/dependencies /php/dependencies/
+COPY lib/php/5.6 /php/5.6
+COPY lib/php/7.2 /php/7.2
+COPY lib/php/7.4 /php/7.4
 
-#RUN apt-get -y update && apt-get -y install libpcre3
-
-RUN sh -c "dpkg -i /php/dependencies/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb"
-RUN sh -c "dpkg -i /php/dependencies/psmisc_22.21-2.1ubuntu0.1_amd64.deb"
+RUN dpkg -i /php/dependencies/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb
+RUN dpkg -i /php/dependencies/psmisc_22.21-2.1ubuntu0.1_amd64.deb
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    sh -c "dpkg -i /php/dependencies/*.deb" && \
-    sh -c "dpkg -i /php/5.6/*.deb" && \
-    sh -c "dpkg -i /php/7.2/*.deb" && \
-    sh -c "dpkg -i /php/7.4/*.deb"
+    dpkg -i /php/dependencies/*.deb && \
+    dpkg -i /php/5.6/*.deb && \
+    dpkg -i /php/7.2/*.deb && \
+    dpkg -i /php/7.4/*.deb
 
 # set default to 5.6
 RUN update-alternatives --set php /usr/bin/php5.6 && \

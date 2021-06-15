@@ -387,10 +387,6 @@ RUN update-alternatives --set php /usr/bin/php5.6 && \
 RUN wget -nv https://raw.githubusercontent.com/composer/getcomposer.org/72bb6f65aa902c76c7ca35514f58cf79a293657d/web/installer -O - | php -- --quiet && \
     mv composer.phar /usr/local/bin/composer
 
-
-# cleanup php packages after install
-RUN rm -rf /php
-
 USER buildbot
 
 RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php5.6 /opt/buildhome/.php/php
@@ -486,7 +482,6 @@ WORKDIR /
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
 ENV PATH "$PATH:/opt/buildhome/.cargo/bin"
 
-
 # Cleanup
 USER root
 
@@ -496,6 +491,7 @@ ADD run-build-functions.sh /opt/build-bin/run-build-functions.sh
 ADD run-build.sh /opt/build-bin/build
 ADD buildbot-git-config /root/.gitconfig
 RUN rm -r /tmp/*
+RUN rm -r /php
 
 USER buildbot
 ARG NF_IMAGE_VERSION

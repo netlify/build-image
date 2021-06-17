@@ -57,6 +57,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         gtk-doc-tools \
         gnupg2 \
         imagemagick \
+        iptables \
         jpegoptim \
         jq \
         language-pack-ar \

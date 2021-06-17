@@ -13,9 +13,7 @@ ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV PANDOC_VERSION 2.4
 
-# language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
-RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get -y update && \
+RUN apt-get -y update && \
     apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https gnupg-curl && \
     echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale && \
@@ -25,7 +23,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
     apt-key adv --fetch-keys https://packagecloud.io/github/git-lfs/gpgkey && \
     apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ xenial main' && \
-    add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:rwky/graphicsmagick && \
@@ -139,30 +136,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         nasm \
         openjdk-8-jdk \
         optipng \
-        php5.6 \
-        php5.6-xml \
-        php5.6-mbstring \
-        php5.6-gd \
-        php5.6-sqlite3 \
-        php5.6-curl \
-        php5.6-zip \
-        php5.6-intl \
-        php7.2 \
-        php7.2-xml \
-        php7.2-mbstring \
-        php7.2-gd \
-        php7.2-sqlite3 \
-        php7.2-curl \
-        php7.2-zip \
-        php7.2-intl \
-        php7.4 \
-        php7.4-xml \
-        php7.4-mbstring \
-        php7.4-gd \
-        php7.4-sqlite3 \
-        php7.4-curl \
-        php7.4-zip \
-        php7.4-intl \
         pngcrush \
         python-setuptools \
         python \
@@ -261,7 +234,7 @@ RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A170311380
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
-ENV RUBY_VERSION=2.7.1
+ENV RUBY_VERSION=2.7.2
 # Also preinstall Ruby 2.6.2, as many customers are pinned to it and installing is slow
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
@@ -290,7 +263,7 @@ RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd /
 
 ENV ELM_VERSION=0.19.0-bugfix6
-ENV YARN_VERSION=1.22.4
+ENV YARN_VERSION=1.22.10
 
 ENV NETLIFY_NODE_VERSION="12.18.0"
 
@@ -391,6 +364,20 @@ RUN boot -u
 ################################################################################
 
 USER root
+
+COPY lib/dependencies /php/dependencies/
+COPY lib/php/5.6 /php/5.6
+COPY lib/php/7.2 /php/7.2
+COPY lib/php/7.4 /php/7.4
+
+RUN dpkg -i /php/dependencies/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb
+RUN dpkg -i /php/dependencies/psmisc_22.21-2.1ubuntu0.1_amd64.deb
+
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    dpkg -i /php/dependencies/*.deb && \
+    dpkg -i /php/5.6/*.deb && \
+    dpkg -i /php/7.2/*.deb && \
+    dpkg -i /php/7.4/*.deb
 
 # set default to 5.6
 RUN update-alternatives --set php /usr/bin/php5.6 && \
@@ -504,6 +491,7 @@ ADD run-build-functions.sh /opt/build-bin/run-build-functions.sh
 ADD run-build.sh /opt/build-bin/build
 ADD buildbot-git-config /root/.gitconfig
 RUN rm -r /tmp/*
+RUN rm -r /php
 
 USER buildbot
 ARG NF_IMAGE_VERSION

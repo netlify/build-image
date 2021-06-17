@@ -10,6 +10,7 @@ The specific patch versions included will depend on when the image was last buil
 
 * Ruby - `RUBY_VERSION`, `.ruby-version`
   * 2.6.2 (default)
+  * 2.7.2
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
   * 10 (default)
@@ -44,7 +45,7 @@ The specific patch versions included will depend on when the image was last buil
 
 * Node.js
   * Yarn - `YARN_VERSION`
-    * 1.13.0 (default)
+    * 1.22.10 (default)
     * Any version available via their installer.
   * NPM - `NPM_VERSION`
     * Version corresponding with Node.js version. (default)

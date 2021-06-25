@@ -11,8 +11,8 @@ Netlify maintains multiple build images for testing new development as well as s
 The following images are currently available:
 
 - `trusty` - Legacy build image for older sites; running Ubuntu 14.04 and [this software](https://github.com/netlify/build-image/blob/trusty/included_software.md)
-- `xenial` - Default build image for all new sites; running Ubuntu 16.04 and [this software](https://github.com/netlify/build-image/blob/xenial/included_software.md)
-- `focal` - In development and available for local testing; running Ubuntu 20.04 and [this software](https://github.com/netlify/build-image/blob/focal/included_software.md)
+- `xenial` - Build image for existing sites; running Ubuntu 16.04 and [this software](https://github.com/netlify/build-image/blob/xenial/included_software.md)
+- `focal` - Default build image for all new sites; Running Ubuntu 20.04 and [this software](https://github.com/netlify/build-image/blob/focal/included_software.md)
 
 Each image name above corresponds to a branch in this repository.
 

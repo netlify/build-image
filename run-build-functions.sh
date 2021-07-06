@@ -20,7 +20,7 @@ export RVM_DIR="$HOME/.rvm"
 
 # Swift configuration
 export SWIFTENV_ROOT="${SWIFTENV_ROOT:-${HOME}/.swiftenv}"
-DEFAULT_SWIFT_VERSION="5.2"
+DEFAULT_SWIFT_VERSION="5.4"
 
 # PHP version
 DEFAULT_PHP_VERSION="7.4"

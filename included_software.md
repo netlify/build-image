@@ -34,7 +34,7 @@ The specific patch versions included will depend on when the image was last buil
 * Swift - `SWIFT_VERSION`, `.swift-version`
   * Not installed by default.
   * Supports any version that `swiftenv` can install later than `4.x`. Versions `4.x` and earlier will not work due to incompatible shared libraries.
-  * 5.2 is installed if `Package.swift` is present and no version is specified with `SWIFT_VERSION` or `.swift-version`.
+  * 5.4 is installed if `Package.swift` is present and no version is specified with `SWIFT_VERSION` or `.swift-version`.
 * Rust
   * Not installed by default.
   * Supports any version that `rustup` can install.

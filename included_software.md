@@ -22,7 +22,7 @@ The specific patch versions included will depend on when the image was last buil
 * PHP - `PHP_VERSION`
   * 7.4 (default)
 * Go - `GO_VERSION`
-  * 1.12 (default)
+  * 1.16.5 (default)
 * Java
   * 8 (default)
 * Emacs

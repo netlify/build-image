@@ -232,7 +232,7 @@ USER root
 
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
-ENV NVM_VERSION=0.35.3
+ENV NVM_VERSION=0.38.0
 
 # Install node.js
 USER buildbot

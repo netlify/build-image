@@ -308,7 +308,7 @@ USER root
 #
 ################################################################################
 
-ENV HUGO_VERSION 0.82.0
+ENV HUGO_VERSION 0.85.0
 
 RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_${HUGO_VERSION} && \
     ln -s /usr/local/bin/hugo_${HUGO_VERSION} /usr/local/bin/hugo

@@ -16,8 +16,9 @@ The specific patch versions included will depend on when the image was last buil
   * 10 (default)
   * Any version that `nvm` can install.
 * Python - `PYTHON_VERSION`, `runtime.txt`, `Pipfile`
-  * 2.7 (default)
+  * 3.9 (default)
   * 3.8
+  * 2.7
 * PHP - `PHP_VERSION`
   * 7.4 (default)
 * Go - `GO_VERSION`

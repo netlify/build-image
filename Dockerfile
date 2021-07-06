@@ -145,8 +145,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.4-zip \
         php7.4-intl \
         pngcrush \
-        python-setuptools \
         python3.8-dev \
+        python3.9-dev \
         rlwrap \
         rsync \
         software-properties-common \
@@ -260,19 +260,24 @@ USER root
 #
 ################################################################################
 
-ENV PIPENV_RUNTIME 2.7
+ENV PIPENV_RUNTIME 3.9
+
+USER root
+
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 100 && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 200 && \
+    update-alternatives --set python3 /usr/bin/python3.9
 
 USER buildbot
 
 RUN virtualenv -p python2.7 /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.11
+    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.18
 
-RUN virtualenv -p python3.8 /opt/buildhome/python3.8 && \
-    /bin/bash -c 'source /opt/buildhome/python3.8/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.2
+RUN virtualenv -p python3.9 /opt/buildhome/python3.9 && \
+    /bin/bash -c 'source /opt/buildhome/python3.9/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.9 /opt/buildhome/python3.9.6
 
-RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install "setuptools<45"
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 
 USER root

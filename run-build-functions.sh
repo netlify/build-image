@@ -254,6 +254,7 @@ install_dependencies() {
     echo "Attempting node version '$NODE_VERSION' from .node-version"
   fi
 
+  span_start=$(milliseconds)
   if nvm install --no-progress $NODE_VERSION
   then
     NODE_VERSION=$(nvm current)
@@ -269,6 +270,7 @@ install_dependencies() {
     echo "Failed to install node version '$NODE_VERSION'"
     exit 1
   fi
+  record_span "install_node" span_start
 
   if [ -n "$NPM_TOKEN" ]
   then
@@ -882,4 +884,11 @@ unset_go_import_path() {
   then
     unlink $GOPATH/src/$GO_IMPORT_PATH
   fi
+}
+
+record_span() {
+  local name="$1"
+  local start="$2"
+  local end=`milliseconds`
+  echo "$name $(($end - $start))ms" >> $NETLIFY_SUBSTAGE_TIMES
 }

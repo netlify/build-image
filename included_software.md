@@ -14,7 +14,7 @@ The specific patch versions included will depend on when the image was last buil
   * 3.0
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
-  * 16.4 (default)
+  * 16 (default)
   * Any version that `nvm` can install.
 * Python - `PYTHON_VERSION`, `runtime.txt`, `Pipfile`
   * 3.9 (default)

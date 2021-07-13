@@ -245,7 +245,7 @@ RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
 ENV ELM_VERSION=0.19.1-5
 ENV YARN_VERSION=1.22.10
 
-ENV NETLIFY_NODE_VERSION="16.4.2"
+ENV NETLIFY_NODE_VERSION="16"
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \

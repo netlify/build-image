@@ -144,7 +144,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.4-zip \
         php7.4-intl \
         pngcrush \
-        python3.8-dev \
         python3.9-dev \
         rlwrap \
         rsync \

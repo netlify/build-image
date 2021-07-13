@@ -265,8 +265,7 @@ ENV PIPENV_RUNTIME 3.9
 
 USER root
 
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 100 && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 200 && \
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 100 && \
     update-alternatives --set python3 /usr/bin/python3.9
 
 USER buildbot

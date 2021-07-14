@@ -24,6 +24,9 @@ cd $NETLIFY_REPO_DIR
 : ${GO_VERSION="1.14.4"}
 : ${PYTHON_VERSION="2.7"}
 
+echo "Running pre-deploy hooks"
+run_hooks
+
 echo "Installing dependencies"
 install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $GO_VERSION $PYTHON_VERSION
 

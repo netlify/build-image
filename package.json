@@ -1,6 +1,6 @@
 {
   "name": "@netlify/build-image",
-  "version": "3.8.0",
+  "version": "3.8.1",
   "description": "This repository contains the tools to make the build image Netlify uses to build a site from git (for continuous deployment)",
   "main": "index.js",
   "private": "true",

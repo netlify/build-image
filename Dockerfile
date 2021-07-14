@@ -53,6 +53,7 @@ RUN apt-get -y update && \
         git \
         git-lfs \
         gifsicle \
+        gnuplot \
         gobject-introspection \
         graphicsmagick \
         graphviz \

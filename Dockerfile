@@ -137,6 +137,7 @@ RUN apt-get -y update && \
         openjdk-8-jdk \
         optipng \
         pngcrush \
+        pngquant \
         python-setuptools \
         python \
         python-dev \

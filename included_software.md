@@ -19,7 +19,8 @@ The specific patch versions included will depend on when the image was last buil
   * 2.7 (default)
   * 3.8
 * PHP - `PHP_VERSION`
-  * 7.4 (default)
+  * 7.4
+  * 8.0 (default)
 * Go - `GO_VERSION`
   * 1.12 (default)
 * Java

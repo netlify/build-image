@@ -9,9 +9,9 @@ For instructions on how to run this image locally to test your build, please see
 The specific patch versions included will depend on when the image was last built (except Ruby). It is highly suggested you depend only on minor versions, so that we can ensure the language has the latest updates (especially if security related).
 
 * Ruby - `RUBY_VERSION`, `.ruby-version`
-  * 2.7 (default)
-  * 2.6
-  * 3.0
+  * 2.7.2 (default)
+  * 2.6.6
+  * 3.0.0
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
   * 16 (default)

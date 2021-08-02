@@ -681,6 +681,7 @@ install_dependencies() {
     restore_cwd_cache "target" "rust compile output"
     source $HOME/.cargo/env
   fi
+  restore_cwd_cache ".netlify/rust-functions-cache" "Rust functions"
 }
 
 #
@@ -697,6 +698,7 @@ cache_artifacts() {
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"
   cache_cwd_directory ".netlify/plugins" "build plugins"
+  cache_cwd_directory ".netlify/rust-functions-cache" "Rust functions"
 
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then

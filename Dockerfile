@@ -276,6 +276,10 @@ RUN virtualenv -p python2.7 /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
     ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.18
 
+RUN virtualenv -p python3.8 /opt/buildhome/python3.8 && \
+    /bin/bash -c 'source /opt/buildhome/python3.8/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.10
+
 RUN virtualenv -p python3.9 /opt/buildhome/python3.9 && \
     /bin/bash -c 'source /opt/buildhome/python3.9/bin/activate' && \
     ln -nfs /opt/buildhome/python3.9 /opt/buildhome/python3.9.6

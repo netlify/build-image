@@ -50,8 +50,10 @@ mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.venv
 mkdir -p $NETLIFY_CACHE_DIR/.build
+
+# If you remove this line, please ensure that $NETLIFY_CACHE_DIR/.netlify is
+# still created, as it is used by the Rust functions cache.
 mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
-mkdir -p $NETLIFY_CACHE_DIR/.netlify/rust-functions-cache
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
@@ -682,7 +684,7 @@ install_dependencies() {
     restore_cwd_cache "target" "rust compile output"
     source $HOME/.cargo/env
   fi
-  restore_cwd_cache ".netlify/rust-functions-cache" "Rust functions cache"
+  restore_cwd_cache ".netlify/rust-functions-cache" "Rust functions"
 }
 
 #
@@ -699,7 +701,7 @@ cache_artifacts() {
   cache_cwd_directory ".venv" "python virtualenv"
   cache_cwd_directory ".build" "swift build"
   cache_cwd_directory ".netlify/plugins" "build plugins"
-  cache_cwd_directory ".netlify/rust-functions-cache" "Rust functions cache"
+  cache_cwd_directory ".netlify/rust-functions-cache" "Rust functions"
 
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then

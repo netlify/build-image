@@ -50,9 +50,9 @@ mkdir -p $NETLIFY_CACHE_DIR/.bundle
 mkdir -p $NETLIFY_CACHE_DIR/bower_components
 mkdir -p $NETLIFY_CACHE_DIR/.venv
 mkdir -p $NETLIFY_CACHE_DIR/.build
-
-# If you remove this line, please ensure that $NETLIFY_CACHE_DIR/.netlify is
-# still created, as it is used by the Rust functions cache.
+# .netlify/ needs to exist because we may try to copy the Rust functions cache
+# to .netlify/rust-functions-cache
+mkdir -p $NETLIFY_CACHE_DIR/.netlify
 mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
 # HOME caches

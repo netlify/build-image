@@ -9,19 +9,21 @@ For instructions on how to run this image locally to test your build, please see
 The specific patch versions included will depend on when the image was last built (except Ruby). It is highly suggested you depend only on minor versions, so that we can ensure the language has the latest updates (especially if security related).
 
 * Ruby - `RUBY_VERSION`, `.ruby-version`
-  * 2.6.2 (default)
-  * 2.7.2
+  * 2.7.2 (default)
+  * 2.6.6
+  * 3.0.0
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
-  * 10 (default)
+  * 16 (default)
   * Any version that `nvm` can install.
 * Python - `PYTHON_VERSION`, `runtime.txt`, `Pipfile`
-  * 2.7 (default)
+  * 3.9 (default)
   * 3.8
+  * 2.7
 * PHP - `PHP_VERSION`
   * 7.4 (default)
 * Go - `GO_VERSION`
-  * 1.12 (default)
+  * 1.16 (default)
 * Java
   * 8 (default)
 * Emacs
@@ -33,7 +35,7 @@ The specific patch versions included will depend on when the image was last buil
 * Swift - `SWIFT_VERSION`, `.swift-version`
   * Not installed by default.
   * Supports any version that `swiftenv` can install later than `4.x`. Versions `4.x` and earlier will not work due to incompatible shared libraries.
-  * 5.2 is installed if `Package.swift` is present and no version is specified with `SWIFT_VERSION` or `.swift-version`.
+  * 5.4 is installed if `Package.swift` is present and no version is specified with `SWIFT_VERSION` or `.swift-version`.
 * Rust
   * Not installed by default.
   * Supports any version that `rustup` can install.

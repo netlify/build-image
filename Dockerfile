@@ -26,7 +26,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
-    add-apt-repository -y ppa:kelleyk/emacs && \
     apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu focal contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
@@ -146,7 +145,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.4-intl \
         pngcrush \
         python-setuptools \
-        python3.8-dev \
+        python3-setuptools \
+        python3.9-dev \
         rlwrap \
         rsync \
         software-properties-common \
@@ -214,10 +214,13 @@ ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
 
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
 ENV RUBY_VERSION=2.7.2
-# Also preinstall Ruby 2.6.2, as many customers are pinned to it and installing is slow
+ENV RUBY_2_6_VERSION=2.6.6
+ENV RUBY_3_VERSION=3.0.0
+# Also preinstall Ruby 2.6, as many customers are pinned to it and installing is slow
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
-                  rvm install 2.6.2 && rvm use 2.6.2 && gem install bundler && \
+                  rvm install $RUBY_2_6_VERSION && rvm use $RUBY_2_6_VERSION && gem install bundler && \
                   rvm install $RUBY_VERSION && rvm use $RUBY_VERSION && gem install bundler && \
+                  rvm install $RUBY_3_VERSION && rvm use $RUBY_3_VERSION && gem install bundler && \
                   rvm use $RUBY_VERSION --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -232,7 +235,7 @@ USER root
 
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
-ENV NVM_VERSION=0.35.3
+ENV NVM_VERSION=0.38.0
 
 # Install node.js
 USER buildbot
@@ -244,7 +247,7 @@ RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
 ENV ELM_VERSION=0.19.1-5
 ENV YARN_VERSION=1.22.10
 
-ENV NETLIFY_NODE_VERSION="12.18.0"
+ENV NETLIFY_NODE_VERSION="16"
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
@@ -260,19 +263,27 @@ USER root
 #
 ################################################################################
 
-ENV PIPENV_RUNTIME 2.7
+ENV PIPENV_RUNTIME 3.9
+
+USER root
+
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 100 && \
+    update-alternatives --set python3 /usr/bin/python3.9
 
 USER buildbot
 
 RUN virtualenv -p python2.7 /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.11
+    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.18
 
 RUN virtualenv -p python3.8 /opt/buildhome/python3.8 && \
     /bin/bash -c 'source /opt/buildhome/python3.8/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.2
+    ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.10
 
-RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install "setuptools<45"
+RUN virtualenv -p python3.9 /opt/buildhome/python3.9 && \
+    /bin/bash -c 'source /opt/buildhome/python3.9/bin/activate' && \
+    ln -nfs /opt/buildhome/python3.9 /opt/buildhome/python3.9.6
+
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 
 USER root
@@ -303,7 +314,7 @@ USER root
 #
 ################################################################################
 
-ENV HUGO_VERSION 0.82.0
+ENV HUGO_VERSION 0.85.0
 
 RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_${HUGO_VERSION} && \
     ln -s /usr/local/bin/hugo_${HUGO_VERSION} /usr/local/bin/hugo
@@ -388,7 +399,7 @@ ENV PATH "$PATH:/opt/buildhome/.gimme/bin"
 ENV GOPATH "/opt/buildhome/.gimme_cache/gopath"
 ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
-ENV GIMME_GO_VERSION "1.14.4"
+ENV GIMME_GO_VERSION "1.16.5"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
 RUN gimme | bash
 

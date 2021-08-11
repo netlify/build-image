@@ -18,11 +18,11 @@ if [[ ! -d $NETLIFY_REPO_DIR ]]; then
 fi
 cd $NETLIFY_REPO_DIR
 
-: ${NODE_VERSION="12.18.0"}
+: ${NODE_VERSION="16"}
 : ${RUBY_VERSION="2.7.2"}
-: ${YARN_VERSION="1.22.4"}
-: ${GO_VERSION="1.14.4"}
-: ${PYTHON_VERSION="2.7"}
+: ${YARN_VERSION="1.22.10"}
+: ${GO_VERSION="1.16.5"}
+: ${PYTHON_VERSION="3.8"}
 
 echo "Installing dependencies"
 install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $GO_VERSION $PYTHON_VERSION

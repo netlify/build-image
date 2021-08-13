@@ -155,7 +155,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         pngcrush \
         python-setuptools \
         python3-setuptools \
-        python3.9-dev \
+        python3.8-dev \
         rlwrap \
         rsync \
         software-properties-common \
@@ -224,12 +224,10 @@ ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
 # Match this set latest Stable releases we can support on https://www.ruby-lang.org/en/downloads/
 ENV RUBY_VERSION=2.7.2
 ENV RUBY_2_6_VERSION=2.6.6
-ENV RUBY_3_VERSION=3.0.0
 # Also preinstall Ruby 2.6, as many customers are pinned to it and installing is slow
 RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
                   rvm install $RUBY_2_6_VERSION && rvm use $RUBY_2_6_VERSION && gem install bundler && \
                   rvm install $RUBY_VERSION && rvm use $RUBY_VERSION && gem install bundler && \
-                  rvm install $RUBY_3_VERSION && rvm use $RUBY_3_VERSION && gem install bundler && \
                   rvm use $RUBY_VERSION --default && rvm cleanup all"
 
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -272,12 +270,9 @@ USER root
 #
 ################################################################################
 
-ENV PIPENV_RUNTIME 3.9
+ENV PIPENV_RUNTIME 3.8
 
 USER root
-
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 100 && \
-    update-alternatives --set python3 /usr/bin/python3.9
 
 USER buildbot
 
@@ -288,10 +283,6 @@ RUN virtualenv -p python2.7 /opt/buildhome/python2.7 && \
 RUN virtualenv -p python3.8 /opt/buildhome/python3.8 && \
     /bin/bash -c 'source /opt/buildhome/python3.8/bin/activate' && \
     ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.10
-
-RUN virtualenv -p python3.9 /opt/buildhome/python3.9 && \
-    /bin/bash -c 'source /opt/buildhome/python3.9/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.9 /opt/buildhome/python3.9.6
 
 RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 

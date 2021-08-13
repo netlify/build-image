@@ -23,6 +23,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
     apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
+    add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
@@ -143,6 +144,14 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php7.4-curl \
         php7.4-zip \
         php7.4-intl \
+        php8.0 \
+        php8.0-xml \
+        php8.0-mbstring \
+        php8.0-gd \
+        php8.0-sqlite3 \
+        php8.0-curl \
+        php8.0-zip \
+        php8.0-intl \
         pngcrush \
         python-setuptools \
         python3-setuptools \
@@ -372,17 +381,17 @@ RUN curl -sL https://github.com/lz4/lz4/archive/v${LZ4_VERSION}.tar.gz | tar xzv
 
 USER root
 
-# set default to 7.4
-RUN update-alternatives --set php /usr/bin/php7.4 && \
-    update-alternatives --set phar /usr/bin/phar7.4 && \
-    update-alternatives --set phar.phar /usr/bin/phar.phar7.4
+# set default to 8.0
+RUN update-alternatives --set php /usr/bin/php8.0 && \
+    update-alternatives --set phar /usr/bin/phar8.0 && \
+    update-alternatives --set phar.phar /usr/bin/phar.phar8.0
 
 RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/76a7060ccb93902cd7576b67264ad91c8a2700e2/web/installer -O - -q | php -- --quiet && \
     mv composer.phar /usr/local/bin/composer
 
 USER buildbot
 
-RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php7.4 /opt/buildhome/.php/php
+RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php8.0 /opt/buildhome/.php/php
 ENV PATH "/opt/buildhome/.php:$PATH"
 
 ################################################################################

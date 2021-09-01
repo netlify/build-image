@@ -18,14 +18,14 @@ if [[ ! -d $NETLIFY_REPO_DIR ]]; then
 fi
 cd $NETLIFY_REPO_DIR
 
-: ${NODE_VERSION="16"}
-: ${RUBY_VERSION="2.7.2"}
+DEFAULT_NODE_VERSION="16"
+DEFAULT_RUBY_VERSION="2.7.2"
+DEFAULT_PYTHON_VERSION="3.8"
 : ${YARN_VERSION="1.22.10"}
 : ${GO_VERSION="1.16.5"}
-: ${PYTHON_VERSION="3.8"}
 
 echo "Installing dependencies"
-install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $GO_VERSION $PYTHON_VERSION
+install_dependencies $DEFAULT_NODE_VERSION $DEFAULT_RUBY_VERSION $YARN_VERSION $GO_VERSION $DEFAULT_PYTHON_VERSION
 
 echo "Installing missing commands"
 install_missing_commands

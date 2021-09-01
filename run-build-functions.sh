@@ -201,14 +201,87 @@ run_npm() {
   export PATH=$(npm bin):$PATH
 }
 
-check_python_version() {
-  if source $HOME/python${PYTHON_VERSION}/bin/activate
+# Helper method used to print runtime version, the source of that version config and relevant docs
+print_version() {
+  local runtime=$1
+  local version=$2
+  local source=$3
+  local docsUrl=$4
+  echo "$runtime version set to $version $source"
+  echo "Docs for $runtime version management: $docsUrl"
+}
+
+source_python_version() {
+  if ! source $HOME/python${PYTHON_VERSION}/bin/activate
   then
-    echo "Python version set to ${PYTHON_VERSION}"
-  else
-    echo "Error setting python version from $1"
-    echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
+    echo "Error setting python version"
+    echo "Please see https://github.com/netlify/build-image/blob/focal/included_software.md"
     exit 1
+  fi
+}
+
+# Sets the PYTHON_VERSION variable, sources the python env, and prints the resulting version
+set_python_version() {
+  local defaultPythonVersion=$1
+  local docsUrl="https://docs.netlify.com/configure-builds/manage-dependencies/#python"
+
+  if [ -f runtime.txt ]
+  then
+    PYTHON_VERSION=$(cat runtime.txt)
+    print_version "Python" "$PYTHON_VERSION" "in runtime.txt" "$docsUrl"
+    source_python_version
+  elif [ -f Pipfile ]
+  then
+    echo "Found Pipfile restoring Pipenv virtualenv"
+    restore_cwd_cache ".venv" "python virtualenv"
+  elif [ -n "$PYTHON_VERSION" ]
+  then
+    print_version "Python" "$PYTHON_VERSION" "by PYTHON_VERSION environment variable" "$docsUrl"
+    source_python_version
+  else
+    PYTHON_VERSION=$defaultPythonVersion
+    print_version "Python" "$PYTHON_VERSION" "pinned by default on site creation" "$docsUrl"
+    source_python_version
+  fi
+}
+
+# Sets the NODE_VERSION variable and prints the resulting version
+set_node_version() {
+  local defaultNodeVersion=$1
+  local docsUrl="https://docs.netlify.com/configure-builds/manage-dependencies/#node"
+
+  if [ -f .nvmrc ]
+  then
+    NODE_VERSION=$(cat .nvmrc)
+    print_version "Node" "$NODE_VERSION" "in .nvmrc" "$docsUrl"
+  elif [ -f .node-version ]
+  then
+    NODE_VERSION=$(cat .node-version)
+    print_version "Node" "$NODE_VERSION" "in .node-version" "$docsUrl"
+  elif [ -n "$NODE_VERSION" ]
+  then
+    print_version "Node" "$NODE_VERSION" "by NODE_VERSION environment variable" "$docsUrl"
+  else
+    NODE_VERSION=$defaultNodeVersion
+    print_version "Node" "$NODE_VERSION" "pinned by default on site creation" "$docsUrl"
+  fi
+}
+
+# Sets the RUBY_VERSION variable and prints the resulting version
+set_ruby_version() {
+  local defaultRubyVersion=$1
+  local docsUrl="https://docs.netlify.com/configure-builds/manage-dependencies/#ruby"
+
+  if [ -f .ruby-version ]
+  then
+    RUBY_VERSION=$(cat .ruby-version)
+    print_version "Ruby" "$RUBY_VERSION" "in .ruby-version" "$docsUrl"
+  elif [ -n "$RUBY_VERSION" ]
+  then
+    print_version "Ruby" "$RUBY_VERSION" "by RUBY_VERSION environment variable" "$docsUrl"
+  else
+    RUBY_VERSION=$defaultRubyVersion
+    print_version "Ruby" "$RUBY_VERSION" "pinned by default on site creation" "$docsUrl"
   fi
 }
 
@@ -220,22 +293,10 @@ install_dependencies() {
   local defaultPythonVersion=$5
 
   # Python Version
-  if [ -f runtime.txt ]
-  then
-    PYTHON_VERSION=$(cat runtime.txt)
-    check_python_version "runtime.txt"
-  elif [ -f Pipfile ]
-  then
-    echo "Found Pipfile restoring Pipenv virtualenv"
-    restore_cwd_cache ".venv" "python virtualenv"
-  else
-    PYTHON_VERSION=$defaultPythonVersion
-    check_python_version "the PYTHON_VERSION environment variable"
-  fi
+  set_python_version "$defaultPythonVersion"
 
   # Node version
   source $NVM_DIR/nvm.sh
-  : ${NODE_VERSION="$defaultNodeVersion"}
 
   # restore only non-existing cached versions
   if [[ $(ls $NETLIFY_CACHE_DIR/node_version/) ]]
@@ -247,15 +308,7 @@ install_dependencies() {
     echo "Finished restoring cached node version"
   fi
 
-  if [ -f .nvmrc ]
-  then
-    NODE_VERSION=$(cat .nvmrc)
-    echo "Attempting node version '$NODE_VERSION' from .nvmrc"
-  elif [ -f .node-version ]
-  then
-    NODE_VERSION=$(cat .node-version)
-    echo "Attempting node version '$NODE_VERSION' from .node-version"
-  fi
+  set_node_version "$defaultNodeVersion"
 
   if nvm install --no-progress $NODE_VERSION
   then
@@ -289,19 +342,13 @@ install_dependencies() {
   restore_cwd_cache ".netlify/plugins" "build plugins"
 
   # Ruby version
-  local tmprv="${RUBY_VERSION:=$defaultRubyVersion}"
+  set_ruby_version "$defaultRubyVersion"
+  local tmprv="$RUBY_VERSION"
   source $HOME/.rvm/scripts/rvm
   # rvm will overwrite RUBY_VERSION, so we must control it
   export RUBY_VERSION=$tmprv
 
   local druby=$RUBY_VERSION
-  if [ -f .ruby-version ]
-  then
-    druby=$(cat .ruby-version)
-    echo "Attempting ruby version ${druby}, read from .ruby-version file"
-  else
-    echo "Attempting ruby version ${druby}, read from environment"
-  fi
 
   rvm use ${druby} > /dev/null 2>&1
   export CUSTOM_RUBY=$?

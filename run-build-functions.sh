@@ -25,6 +25,12 @@ DEFAULT_SWIFT_VERSION="5.4"
 # PHP version
 DEFAULT_PHP_VERSION="8.0"
 
+# Go version
+DEFAULT_GO_VERSION="1.16.5"
+
+# Python version
+DEFAULT_PYTHON_VERSION="3.8"
+
 # Pipenv configuration
 export PIPENV_RUNTIME=3.8
 export PIPENV_VENV_IN_PROJECT=1
@@ -312,7 +318,7 @@ set_go_version() {
   then
     print_version "Go" "$GO_VERSION" "by GO_VERSION environment variable" "$docsUrl"
   else
-    RUBY_VERSION=$defaultGoVersion
+    GO_VERSION=$defaultGoVersion
     print_version "Go" "$GO_VERSION" "pinned by default on site creation" "$docsUrl"
   fi
 }
@@ -355,11 +361,9 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
-  local defaultGoVersion=$4
-  local defaultPythonVersion=$5
 
   # Python Version
-  set_python_version "$defaultPythonVersion"
+  set_python_version $DEFAULT_PYTHON_VERSION
 
   # Node version
   source $NVM_DIR/nvm.sh
@@ -748,7 +752,7 @@ install_dependencies() {
 
   # Go version
   restore_home_cache ".gimme_cache" "go cache"
-  set_go_version "$defaultGoVersion"
+  set_go_version $DEFAULT_GO_VERSION
 
   if [ "$GIMME_GO_VERSION" != "$GO_VERSION" ]
   then

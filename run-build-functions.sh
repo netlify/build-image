@@ -285,11 +285,43 @@ set_ruby_version() {
   fi
 }
 
+# Sets the YARN_VERSION variable and prints the resulting version
+set_yarn_version() {
+  local defaultYarnVersion=$1
+  local docsUrl="https://docs.netlify.com/configure-builds/manage-dependencies/#yarn"
+
+  if [ -n "$YARN_VERSION" ]
+  then
+    print_version "Yarn" "$YARN_VERSION" "by YARN_VERSION environment variable" "$docsUrl"
+  else
+    YARN_VERSION=$defaultYarnVersion
+    print_version "Yarn" "$YARN_VERSION" "pinned by default on site creation" "$docsUrl"
+  fi
+}
+
+# Sets the GO_VERSION variable and prints the resulting version
+set_go_version() {
+  local defaultGoVersion=$1
+  local docsUrl="https://docs.netlify.com/configure-builds/manage-dependencies/#go"
+
+  if [ -f .go-version ]
+  then
+    GO_VERSION=$(cat .go-version)
+    print_version "Go" "$GO_VERSION" "in .go-version" "$docsUrl"
+  elif [ -n "$GO_VERSION" ]
+  then
+    print_version "Go" "$GO_VERSION" "by GO_VERSION environment variable" "$docsUrl"
+  else
+    RUBY_VERSION=$defaultGoVersion
+    print_version "Go" "$GO_VERSION" "pinned by default on site creation" "$docsUrl"
+  fi
+}
+
 install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
-  local installGoVersion=$4
+  local defaultGoVersion=$4
   local defaultPythonVersion=$5
 
   # Python Version
@@ -547,7 +579,6 @@ install_dependencies() {
   fi
 
   # NPM Dependencies
-  : ${YARN_VERSION="$defaultYarnVersion"}
   : ${CYPRESS_CACHE_FOLDER="./node_modules/.cache/CypressBinary"}
   export CYPRESS_CACHE_FOLDER
 
@@ -555,6 +586,7 @@ install_dependencies() {
   then
     if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
     then
+      set_yarn_version $defaultYarnVersion
       run_yarn $YARN_VERSION
     else
       run_npm
@@ -691,31 +723,28 @@ install_dependencies() {
 
   # Go version
   restore_home_cache ".gimme_cache" "go cache"
-  if [ -f .go-version ]
-  then
-    local goVersion=$(cat .go-version)
-    if [ "$installGoVersion" != "$goVersion" ]
-    then
-      installGoVersion="$goVersion"
-    fi
-  fi
+  set_go_version "$defaultGoVersion"
 
-  if [ "$GIMME_GO_VERSION" != "$installGoVersion" ]
+  if [ "$GIMME_GO_VERSION" != "$GO_VERSION" ]
   then
-    echo "Installing Go version $installGoVersion"
-    GIMME_ENV_PREFIX=$HOME/.gimme_cache/env GIMME_VERSION_PREFIX=$HOME/.gimme_cache/versions gimme $installGoVersion
+    echo "Installing Go version $GO_VERSION"
+    GIMME_ENV_PREFIX=$HOME/.gimme_cache/env GIMME_VERSION_PREFIX=$HOME/.gimme_cache/versions gimme "$GO_VERSION"
     if [ $? -eq 0 ]
     then
-      source $HOME/.gimme_cache/env/go$installGoVersion.linux.amd64.env
+      # Disable shellchecks inability to find the source file
+      # shellcheck source=/dev/null
+      source "$HOME/.gimme_cache/env/go$GO_VERSION.linux.amd64.env"
     else
-      echo "Failed to install Go version '$installGoVersion'"
+      echo "Failed to install Go version '$GO_VERSION'"
       exit 1
     fi
   else
     gimme | bash
     if [ $? -eq 0 ]
     then
-      source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
+      # Disable shellchecks inability to find the source file
+      # shellcheck source=/dev/null
+      source "$HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env"
     else
       echo "Failed to install Go version '$GIMME_GO_VERSION'"
       exit 1

@@ -317,6 +317,20 @@ set_go_version() {
   fi
 }
 
+# Sets the PHP_VERSION variable and prints the resulting version
+set_php_version() {
+  local defaultPHPVersion=$1
+  local docsUrl="https://docs.netlify.com/configure-builds/manage-dependencies/#php"
+
+  if [ -n "$PHP_VERSION" ]
+  then
+    print_version "PHP" "$PHP_VERSION" "by PHP_VERSION environment variable" "$docsUrl"
+  else
+    PHP_VERSION=$defaultPHPVersion
+    print_version "PHP" "$PHP_VERSION" "pinned by default on site creation" "$docsUrl"
+  fi
+}
+
 # Sets the SWIFT_VERSION variable and prints the resulting version
 set_swift_version() {
   local defaultSwiftVersion=$1
@@ -465,7 +479,7 @@ install_dependencies() {
   export JAVA_VERSION=default_sdk
 
   # PHP version
-  : ${PHP_VERSION="$DEFAULT_PHP_VERSION"}
+  set_php_version $DEFAULT_PHP_VERSION
   if [ -f /usr/bin/php$PHP_VERSION ]
   then
     if ln -sf /usr/bin/php$PHP_VERSION $HOME/.php/php
@@ -477,6 +491,7 @@ install_dependencies() {
     fi
   else
     echo "PHP version $PHP_VERSION does not exist"
+    echo "Please see https://github.com/netlify/build-image/blob/focal/included_software.md"
     exit 1
   fi
 

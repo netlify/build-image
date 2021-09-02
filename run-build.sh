@@ -18,11 +18,14 @@ if [[ ! -d $NETLIFY_REPO_DIR ]]; then
 fi
 cd $NETLIFY_REPO_DIR
 
+# In production, these default versions are pinned on site creation and set by buildbot/bitballoon
 DEFAULT_NODE_VERSION="16"
 DEFAULT_RUBY_VERSION="2.7.2"
-DEFAULT_PYTHON_VERSION="3.8"
 DEFAULT_YARN_VERSION="1.22.10"
+
+# These are pinned by default, globally, within build-image
 DEFAULT_GO_VERSION="1.16.5"
+DEFAULT_PYTHON_VERSION="3.8"
 
 echo "Installing dependencies"
 install_dependencies $DEFAULT_NODE_VERSION $DEFAULT_RUBY_VERSION $DEFAULT_YARN_VERSION $DEFAULT_GO_VERSION $DEFAULT_PYTHON_VERSION

@@ -317,6 +317,26 @@ set_go_version() {
   fi
 }
 
+# Sets the SWIFT_VERSION variable and prints the resulting version
+set_swift_version() {
+  local defaultSwiftVersion=$1
+  local docsUrl="https://docs.netlify.com/configure-builds/manage-dependencies/#swift"
+
+  if [ -f .swift-version ]
+  then
+    SWIFT_VERSION=$(cat .swift-version)
+    print_version "Swift" "$SWIFT_VERSION" "in .swift-version" "$docsUrl"
+  elif [ -n "$SWIFT_VERSION" ]
+  then
+    print_version "Swift" "$SWIFT_VERSION" "by SWIFT_VERSION environment variable" "$docsUrl"
+  # If Package.swift is present and no Swift version is set, use a default
+  elif [ -f Package.swift ]
+  then
+    SWIFT_VERSION=$defaultSwiftVersion
+    print_version "Swift" "$SWIFT_VERSION" "pinned by default on site creation" "$docsUrl"
+  fi
+}
+
 install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
@@ -520,18 +540,8 @@ install_dependencies() {
     fi
   fi
 
-  # Swift Version
-  if [ -f .swift-version ]
-  then
-    SWIFT_VERSION=$(cat .swift-version)
-    echo "Attempting Swift version '$SWIFT_VERSION' from .swift-version"
-  fi
-
-  # If Package.swift is present and no Swift version is set, use a default
-  if [ -f Package.swift ]
-  then
-    : ${SWIFT_VERSION="$DEFAULT_SWIFT_VERSION"}
-  fi
+  # Swift
+  set_swift_version $DEFAULT_SWIFT_VERSION
 
   if [ -n "$SWIFT_VERSION" ]
   then

@@ -482,8 +482,12 @@ ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}
 FROM build-image as build-image-test
 
 USER buildbot
+SHELL ["/bin/bash", "-c"]
+
 ADD --chown=buildbot package.json /opt/buildhome/test-env/package.json
-RUN /bin/bash -c "cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i &&\
-                  ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
-                  ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh"
+RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i &&\
+    ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
+    ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
 ADD --chown=buildbot tests /opt/buildhome/test-env/tests
+WORKDIR /opt/buildhome/test-env
+CMD . ~/.nvm/nvm.sh && npm test

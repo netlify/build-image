@@ -253,15 +253,14 @@ USER root
 
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
-
-
-USER buildbot
-
-# Install nvm and re-source our updated ~/.bash_profile
 ENV NVM_VERSION=0.35.3
-RUN curl -o- -L https://raw.githubusercontent.com/nvm-sh/nvm/v$NVM_VERSION/install.sh > ~/install-nvm.sh && \
-    bash ~/install-nvm.sh && \
-    rm ~/install-nvm.sh
+
+# Install node.js
+USER buildbot
+RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
+    cd ~/.nvm && \
+    git checkout v$NVM_VERSION && \
+    cd /
 
 # Install node.js, yarn, bower and elm
 ENV ELM_VERSION=0.19.0-bugfix6
@@ -269,14 +268,11 @@ ENV YARN_VERSION=1.22.10
 
 ENV NETLIFY_NODE_VERSION="12.18.0"
 
-RUN /bin/bash -c "source ~/.nvm/nvm.sh && \
+RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
          npm install -g sm grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
-
-# Add yarn binary to path
-ENV PATH "$PATH:/opt/buildhome/.yarn/bin"
 
 USER root
 

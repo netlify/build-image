@@ -8,6 +8,8 @@ load '../../node_modules/bats-assert/load'
 
 NODE_VERSION=12.18.0
 
+#Note: These binaries are accessible because we source `~/.nvm/nvm.sh` before running the `bats` tests
+
 @test 'node version ${NODE_VERSION} is installed and available at startup' {
   run node --version
   assert_success

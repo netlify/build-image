@@ -262,6 +262,9 @@ RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 
+# Add yarn binary to path
+ENV PATH "$PATH:/opt/buildhome/.yarn/bin"
+
 USER root
 
 ################################################################################

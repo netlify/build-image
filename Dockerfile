@@ -97,6 +97,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libexif-dev \
         libffi-dev \
         libfontconfig1 \
+        libgbm-dev \
         libgconf-2-4 \
         libgd-dev \
         libgdbm-dev \

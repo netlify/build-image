@@ -16,7 +16,7 @@ pipeline {
         anyOf { branch 'staging' ; branch 'xenial' ; branch 'trusty' ; branch 'focal' ; buildingTag() }
       }
       steps {
-        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --build-arg NF_IMAGE_TAG=${env.BRANCH_NAME} -t netlify/build:${env.BRANCH_NAME} -t netlify/build:${env.GIT_COMMIT} ."
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --build-arg NF_IMAGE_TAG=${env.BRANCH_NAME} -t netlify/build:${env.BRANCH_NAME} -t netlify/build:${env.GIT_COMMIT} --target build-image ."
       }
     }
 
@@ -25,7 +25,7 @@ pipeline {
         anyOf { buildingTag() }
       }
       steps {
-        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --build-arg NF_IMAGE_TAG=${env.BRANCH_NAME} --squash -t netlify/build:${env.BRANCH_NAME}-squash ."
+        sh "docker build --build-arg NF_IMAGE_VERSION=${env.GIT_COMMIT} --build-arg NF_IMAGE_TAG=${env.BRANCH_NAME} --squash -t netlify/build:${env.BRANCH_NAME}-squash --target build-image ."
       }
     }
 

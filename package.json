@@ -4,7 +4,9 @@
   "description": "This repository contains the tools to make the build image Netlify uses to build a site from git (for continuous deployment)",
   "main": "index.js",
   "private": "true",
-  "scripts": {},
+  "scripts": {
+    "test": "bats --recursive --timing --tap tests"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/netlify/build-image.git"
@@ -15,5 +17,11 @@
     "url": "https://github.com/netlify/build-image/issues"
   },
   "homepage": "https://github.com/netlify/build-image#readme",
-  "devDependencies": {}
+  "devDependencies": {
+    "bats": "^1.3.0-alpha.0",
+    "bats-assert": "^2.0.0",
+    "bats-support": "^0.3.0",
+    "bats-file": "git+https://github.com/bats-core/bats-file.git#v0.3.0"
+  },
+  "dependencies": {}
 }

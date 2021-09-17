@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 as build-image
 
 LABEL maintainer Netlify
 
@@ -262,6 +262,7 @@ RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     git checkout v$NVM_VERSION && \
     cd /
 
+# Install node.js, yarn, bower and elm
 ENV ELM_VERSION=0.19.0-bugfix6
 ENV YARN_VERSION=1.22.10
 
@@ -499,3 +500,23 @@ ENV NF_IMAGE_VERSION ${NF_IMAGE_VERSION:-latest}
 
 ARG NF_IMAGE_TAG
 ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}
+
+
+################################################################################
+#
+# Test stage Dockerfile
+#
+################################################################################
+
+FROM build-image as build-image-test
+
+USER buildbot
+SHELL ["/bin/bash", "-c"]
+
+ADD --chown=buildbot package.json /opt/buildhome/test-env/package.json
+RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i &&\
+    ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
+    ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
+ADD --chown=buildbot tests /opt/buildhome/test-env/tests
+WORKDIR /opt/buildhome/test-env
+CMD . ~/.nvm/nvm.sh && npm test

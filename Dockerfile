@@ -485,7 +485,10 @@ USER buildbot
 SHELL ["/bin/bash", "-c"]
 
 ADD --chown=buildbot package.json /opt/buildhome/test-env/package.json
-RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i &&\
+
+# We need to install with `--legacy-peer-deps` because of:
+# https://github.com/bats-core/bats-assert/issues/27
+RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i --legacy-peer-deps &&\
     ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
     ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
 ADD --chown=buildbot tests /opt/buildhome/test-env/tests

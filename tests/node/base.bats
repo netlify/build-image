@@ -6,7 +6,7 @@ load '../../node_modules/bats-support/load'
 load '../../node_modules/bats-assert/load'
 
 
-NODE_VERSION=12.18.0
+NODE_VERSION=16
 
 #Note: These binaries are accessible because we source `~/.nvm/nvm.sh` before running the `bats` tests
 

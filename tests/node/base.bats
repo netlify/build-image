@@ -6,11 +6,12 @@ load '../../node_modules/bats-support/load'
 load '../../node_modules/bats-assert/load'
 
 
-NODE_VERSION=16
-
-#Note: These binaries are accessible because we source `~/.nvm/nvm.sh` before running the `bats` tests
+setup() {
+  source_nvm
+}
 
 @test 'node version ${NODE_VERSION} is installed and available at startup' {
+  NODE_VERSION=16
   run node --version
   assert_success
   assert_output --partial $NODE_VERSION

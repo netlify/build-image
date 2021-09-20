@@ -24,3 +24,10 @@ set_fixture_as_repo() {
 setup_tmp_dir() {
   mktemp -d
 }
+
+# Sources nvm.sh, in order for node and npm binaries to be accessible
+source_nvm() {
+  # Disable shellcheck's source file check
+  # shellcheck source=/dev/null
+  source ~/.nvm/nvm.sh
+}

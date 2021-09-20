@@ -14,6 +14,8 @@ setup() {
 
   # Load functions
   load '../../run-build-functions.sh'
+
+  source_nvm
 }
 
 teardown() {

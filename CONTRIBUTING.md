@@ -12,9 +12,11 @@ please read the [code of conduct](CODE_OF_CONDUCT.md).
 ## Development
 
 ### Linting
-- [ShellCheck](https://github.com/koalaman/shellcheck) usage is recommended, however it is not enforced.
+
+[ShellCheck](https://github.com/koalaman/shellcheck) usage is recommended, however it is not enforced.
 
 ### Tests
+
 We have a set of automated tests in [./tests](./tests). These are [bats](https://github.com/bats-core/bats-core) tests that we use to make assertions not only on the correct functioning of our bash/shell scripts, but also of the software provided by our Docker image. Any fix or feature should be accompanied by a set of tests to validate that those changes work as expected. For an overview on how [bats works see here](https://bats-core.readthedocs.io/en/stable/).
 
 ### Developing

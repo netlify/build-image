@@ -6,7 +6,7 @@ If you're having problems with your build, you can also use these tools to test 
 
 ## Available images
 
-Netlify maintains multiple build images for testing new development as well as supporting legacy builds. Each image uses a different version of Ubuntu Linux, with a slightly different list of included language and software versions. 
+Netlify maintains multiple build images for testing new development as well as supporting legacy builds. Each image uses a different version of Ubuntu Linux, with a slightly different list of included language and software versions.
 
 The following images are currently available:
 
@@ -83,6 +83,10 @@ This will create a `tmp` directory that will have the repo that the buildbot clo
 ```
 T=tmp/tmp.XXXXX ./test-tools/test-build.sh path/to/site/repo 'your build command'
 ```
+
+## Development
+
+Visit the [development section in our CONTRIBUTING.md](CONTRIBUTING.md#development)
 
 ## Contributing
 

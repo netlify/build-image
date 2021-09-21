@@ -517,6 +517,11 @@ ADD --chown=buildbot package.json /opt/buildhome/test-env/package.json
 RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i &&\
     ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
     ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
+
 ADD --chown=buildbot tests /opt/buildhome/test-env/tests
 WORKDIR /opt/buildhome/test-env
-CMD . ~/.nvm/nvm.sh && npm test
+
+# Set `bats` as entrypoint
+ENTRYPOINT ["node_modules/.bin/bats"]
+# Set the default flags for `bats`
+CMD ["--recursive", "--timing", "--tap", "tests"]

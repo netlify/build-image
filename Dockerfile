@@ -251,6 +251,7 @@ USER root
 ################################################################################
 
 
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
 ENV NVM_VERSION=0.35.3

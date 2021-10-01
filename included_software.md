@@ -9,11 +9,11 @@ For instructions on how to run this image locally to test your build, please see
 The specific patch versions included will depend on when the image was last built (except Ruby). It is highly suggested you depend only on minor versions, so that we can ensure the language has the latest updates (especially if security related).
 
 * Ruby - `RUBY_VERSION`, `.ruby-version`
-  * 2.6.2 (default)
-  * 2.7.2
+  * 2.6.2
+  * 2.7.2 (default)
   * Any version that `rvm` can install.
 * Node.js - `NODE_VERSION`, `.nvmrc`, `.node-version`
-  * 10 (default)
+  * 12.18.0 (default)
   * Any version that `nvm` can install.
 * Python - `PYTHON_VERSION`, `runtime.txt`, `Pipfile`
   * 2.7 (default)
@@ -24,7 +24,7 @@ The specific patch versions included will depend on when the image was last buil
   * 7.2
   * 7.4
 * Go - `GO_VERSION`
-  * 1.12 (default)
+  * 1.14.4 (default)
 * Java
   * 8 (default)
 * Emacs
@@ -47,9 +47,9 @@ The specific patch versions included will depend on when the image was last buil
   * Yarn - `YARN_VERSION`
     * 1.22.10 (default)
     * Any version available via their installer.
-  * NPM - `NPM_VERSION`
+  * npm - `NPM_VERSION`
     * Version corresponding with Node.js version. (default)
-    * Any version available via NPM.
+    * Any version available via npm.
   * bower
 * Python
   * pip

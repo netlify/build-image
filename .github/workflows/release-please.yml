@@ -17,3 +17,4 @@
            token: ${{ steps.get-token.outputs.token }}
            release-type: node
            package-name: "@netlify/build-image"
+           default-branch: xenial

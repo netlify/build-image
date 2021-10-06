@@ -149,7 +149,7 @@ run_yarn() {
   # This removes the flag from the end of the string.
   yarn_local="${yarn_local%--cache-folder *}"
 
-  if yarn install --cache-folder $HOME/.yarn_cache ${yarn_local:+"$yarn_local"}
+  if yarn install --cache-folder "$HOME/.yarn_cache" ${yarn_local:+$yarn_local}
   then
     echo "NPM modules installed using Yarn"
   else

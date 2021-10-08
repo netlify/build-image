@@ -17,6 +17,7 @@ jobs:
           version: 19.03.13
       - docker/build:
           image: netlify/build
+          lint-dockerfile: true
           extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1}"
 
 

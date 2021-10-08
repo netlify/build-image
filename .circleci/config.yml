@@ -1,0 +1,25 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+orbs:
+  docker: circleci/docker@1.7
+
+jobs:
+  build-image:
+    steps:
+      - checkout
+      - run:
+          name: Sanitize branch name
+          command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 19.03.13
+      - docker/build:
+          image: netlify/build:${BRANCH}
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1"
+
+
+workflows: # workflows are where we specify the job order and job parameters (if applicable)
+  test-build-and-push:
+    jobs:
+      - build-image:
+          name: build-image

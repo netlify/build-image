@@ -17,7 +17,7 @@ jobs:
           command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
       - run:
           name: debug docker
-          command: docker --version
+          command: docker version
       - docker/build:
           debug: true
           image: netlify/build

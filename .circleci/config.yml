@@ -5,6 +5,8 @@ orbs:
 
 jobs:
   build-image:
+    executor:
+      name: docker/docker
     steps:
       - checkout
       - run:

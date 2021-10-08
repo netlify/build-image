@@ -5,7 +5,8 @@ orbs:
 
 jobs:
   build-image:
-    executor: docker/docker
+    docker:
+      - image: cimg/base:2021.04
     steps:
       - setup_remote_docker:
           docker_layer_caching: true

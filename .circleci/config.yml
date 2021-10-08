@@ -5,17 +5,17 @@ orbs:
 
 jobs:
   build-image:
-    executor:
-      name: docker/docker
+    executor: docker/docker
     steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.7
       - checkout
       - run:
           name: Sanitize branch name
           command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 20.10.7
       - docker/build:
+          debug: true
           image: netlify/build
           extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1}"
   lint:

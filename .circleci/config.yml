@@ -16,8 +16,8 @@ jobs:
           docker_layer_caching: true
           version: 19.03.13
       - docker/build:
-          image: netlify/build:${BRANCH}
-          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1"
+          image: netlify/build
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1}"
 
 
 workflows: # workflows are where we specify the job order and job parameters (if applicable)

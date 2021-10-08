@@ -15,9 +15,9 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
           version: 19.03.13
+      - docker/dockerlint
       - docker/build:
           image: netlify/build
-          lint-dockerfile: true
           extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1}"
 
 

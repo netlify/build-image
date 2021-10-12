@@ -16,15 +16,14 @@ jobs:
           name: Sanitize branch name
           command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
       - run:
-          name: debug docker
+          name: Docker version
           command: docker version
-      - run:
-          name: build
-          command: docker build --build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} -t netlify/build:${CIRCLE_SHA1} .
-      # - docker/build:
-      #     debug: true
-      #     image: netlify/build
-      #     extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1}"
+      # - run:
+      #     name: build
+      #     command: docker build --build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} -t netlify/build:${CIRCLE_SHA1} .
+      - docker/build:
+          image: netlify/build
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1}"
   lint:
     executor: docker/machine
     steps:

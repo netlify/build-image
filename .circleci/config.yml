@@ -3,10 +3,16 @@ version: 2.1
 orbs:
   docker: circleci/docker@1.7
 
-jobs:
+commands:
   build-image:
-    docker:
-      - image: cimg/base:2021.04
+    parameters:
+      image-target:
+        type: enum
+        default: "build-image"
+        enum: ["build-image", "build-image-test"]
+      image-tag:
+        type: string
+        default: ${CIRCLE_SHA1}
     steps:
       - setup_remote_docker:
           docker_layer_caching: true
@@ -23,7 +29,21 @@ jobs:
       #     command: docker build --build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} -t netlify/build:${CIRCLE_SHA1} .
       - docker/build:
           image: netlify/build
-          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1}"
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --target << parameters.image-target >>"
+          tag: << parameters.image-tag >>
+
+
+jobs:
+  run-tests:
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - build-image:
+          image-target: "build-image-test"
+      - run:
+          name: Run Tests
+          command: docker run --rm netlify/build:${CIRCLE_SHA1}
+
   lint:
     executor: docker/machine
     steps:
@@ -32,8 +52,8 @@ jobs:
 
 
 workflows: # workflows are where we specify the job order and job parameters (if applicable)
-  test-build-and-push:
+  test-build:
     jobs:
-      - build-image:
-          name: build-image
+      - run-tests:
+          name: Run Tests
       - lint

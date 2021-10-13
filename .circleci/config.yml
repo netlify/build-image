@@ -49,10 +49,6 @@ commands:
         type: string
         default: ""
     steps:
-      - checkout
-      - run:
-          name: Docker version
-          command: docker version
       - docker/build:
           image: netlify/build
           extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --target << parameters.image-target >> << parameters.squash >>"

@@ -4,6 +4,41 @@ orbs:
   docker: circleci/docker@1.7
 
 commands:
+  save-images:
+    parameters:
+      tmp-dir:
+        type: string
+        default: "/tmp/images"
+      image-tags:
+        type: string
+    steps:
+      - run:
+          name: Persist Docker images to tar file
+          command: |
+            mkdir -p << parameters.tmp-dir >>
+            docker save << parameters.image-tags >> -o << parameters.tmp-dir >>/build-image
+      - persist_to_workspace:
+          name: Persist the workspace for later use
+          root: ./tmp-images
+          paths:
+            - build-image
+
+  load-images:
+    parameters:
+      tmp-dir:
+        type: string
+        default: "/tmp/images"
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.7
+      - attach_workspace:
+          name: Attach to previously created workspace
+          at: << parameters.tmp-dir >>
+      - run:
+          name: Load Docker images
+          command: docker load -i << parameters.tmp-dir >>/build-image
+
   build-image:
     parameters:
       image-target:
@@ -33,7 +68,7 @@ commands:
           tag: << parameters.image-tags >>
 
 jobs:
-  build-image:
+  build-images:
     docker:
       - image: cimg/base:2021.04
     steps:
@@ -43,29 +78,17 @@ jobs:
       - build-image:
           image-target: "build-image"
           image-tags: "${CIRCLE_SHA1},${BRANCH}"
-      - run:
-          command: |
-            mkdir ./tmp-images
-            docker save netlify/build:${CIRCLE_SHA1} -o ./tmp-images/build-image
-      - persist_to_workspace:
-          root: ./tmp-images
-          paths:
-            - build-image
+      - build-image:
+          image-target: "build-image-test"
+          image-tags: "${CIRCLE_SHA1}-test,${BRANCH}-test"
+      - save-images:
+          image-tags: "netlify/build:${CIRCLE_SHA1}-test netlify/build:${BRANCH}-test netlify/build:${CIRCLE_SHA1} netlify/build:${BRANCH}"
 
   run-tests:
     docker:
       - image: cimg/base:2021.04
     steps:
-      - run:
-          name: Sanitize branch name
-          command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
-      - attach_workspace:
-          at: ./tmp-images
-      - run:
-          command: docker load -i ./tmp-images/build-image
-      - build-image:
-          image-target: "build-image-test"
-          image-tags: "${CIRCLE_SHA1}-test,${BRANCH}-test"
+      - load-images
       - run:
           name: Run Tests
           command: docker run --rm netlify/build:${CIRCLE_SHA1}-test
@@ -95,9 +118,9 @@ jobs:
 workflows: # workflows are where we specify the job order and job parameters (if applicable)
   test-build:
     jobs:
-      - build-image
+      - build-images
       - run-tests:
-          requires: [build-image]
+          requires: [build-images]
       # - build-and-push:
       #     requires: [run-tests, lint]
       - lint

@@ -19,7 +19,7 @@ commands:
             docker save << parameters.image-tags >> -o << parameters.tmp-dir >>/build-image
       - persist_to_workspace:
           name: Persist the workspace for later use
-          root: ./tmp-images
+          root: << parameters.tmp-dir >>
           paths:
             - build-image
 
@@ -63,12 +63,16 @@ jobs:
     docker:
       - image: cimg/base:2021.04
     steps:
-      - run:
-          name: Sanitize branch name
-          command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+      - checkout
       - setup_remote_docker:
           docker_layer_caching: true
           version: 20.10.7
+      - run:
+          name: Docker version
+          command: docker version
+      - run:
+          name: Sanitize branch name
+          command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
       - build-image:
           image-target: "build-image"
           image-tags: "${CIRCLE_SHA1},${BRANCH}"
@@ -82,6 +86,9 @@ jobs:
     docker:
       - image: cimg/base:2021.04
     steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.7
       - load-images
       - run:
           name: Run Tests

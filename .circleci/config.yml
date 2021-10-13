@@ -38,24 +38,29 @@ commands:
 
   build-image:
     parameters:
-      image-target:
+      build-target:
         type: enum
         default: "build-image"
         enum: ["build-image", "build-image-test"]
+      image-name:
+        type: string
       image-tags:
         type: string
         default: "${CIRCLE_SHA1}"
       squash:
-        type: string
-        default: ""
+        type: boolean
+        default: false
     steps:
       - docker/build:
-          image: netlify/build
-          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --target << parameters.image-target >> << parameters.squash >>"
+          image: << parameters.image-name >>
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
           tag: << parameters.image-tags >>
 
 jobs:
   build-images:
+    parameters:
+      container-image:
+        type: string
     docker:
       - image: cimg/base:2021.04
     steps:
@@ -70,15 +75,20 @@ jobs:
           name: Sanitize branch name
           command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
       - build-image:
-          image-target: "build-image"
+          build-target: "build-image"
           image-tags: "${CIRCLE_SHA1},${BRANCH}"
+          image-name: << parameters.container-image >>
       - build-image:
-          image-target: "build-image-test"
+          build-target: "build-image-test"
           image-tags: "${CIRCLE_SHA1}-test,${BRANCH}-test"
+          image-name: << parameters.container-image >>
       - save-images:
-          image-tags: "netlify/build:${CIRCLE_SHA1}-test netlify/build:${BRANCH}-test netlify/build:${CIRCLE_SHA1} netlify/build:${BRANCH}"
+          image-tags: "<< parameters.container-image >>:${CIRCLE_SHA1}-test << parameters.container-image >>:${BRANCH}-test << parameters.container-image >>:${CIRCLE_SHA1} << parameters.container-image >>:${BRANCH}"
 
   run-tests:
+    parameters:
+      container-image:
+        type: string
     docker:
       - image: cimg/base:2021.04
     steps:
@@ -89,13 +99,16 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            docker run --name build-image-test-execution netlify/build:${CIRCLE_SHA1}-test
+            docker run --name build-image-test-execution << parameters.container-image >>:${CIRCLE_SHA1}-test
             # Copy the Junit test output from the test execution
             docker cp build-image-test-execution:/opt/buildhome/test-env/report.xml ./report.xml
       - store_test_results:
           path: ./report.xml
 
-  build-and-push:
+  tag-and-push:
+    parameters:
+      container-image:
+        type: string
     docker:
       - image: cimg/base:2021.04
     steps:
@@ -105,13 +118,11 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
           version: 20.10.7
-      - build-image:
-          image-target: "build-image"
-          image-tags: "${CIRCLE_SHA1},${BRANCH}"
+      - load-images
       # - run:
       #     name: Tag
       #     command: |
-      #       docker tag netlify/build:$
+      #       docker tag << parameters.container-image >>:$
 
   lint:
     executor: docker/machine
@@ -123,9 +134,12 @@ jobs:
 workflows: # workflows are where we specify the job order and job parameters (if applicable)
   test-build:
     jobs:
-      - build-images
+      - build-images:
+          container-image: "netlify/build"
       - run-tests:
-          requires: [build-images]
-      # - build-and-push:
-      #     requires: [run-tests, lint]
+          container-image: "netlify/build"
+          requires: [build-images, lint]
+      - tag-and-push:
+          container-image: "netlify/build"
+          requires: [run-tests]
       - lint

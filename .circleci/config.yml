@@ -44,9 +44,11 @@ jobs:
           image-target: "build-image"
           image-tags: "${CIRCLE_SHA1},${BRANCH}"
       - run:
-          command: docker save netlify/build:${CIRCLE_SHA1} -o /tmp/images/build-image
+          command: |
+            mkdir ./tmp-images
+            docker save netlify/build:${CIRCLE_SHA1} -o ./tmp-images/build-image
       - persist_to_workspace:
-          root: /tmp/images
+          root: ./tmp-images
           paths:
             - build-image
 
@@ -58,9 +60,9 @@ jobs:
           name: Sanitize branch name
           command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
       - attach_workspace:
-          at: /tmp/images
+          at: ./tmp-images
       - run:
-          command: docker load -i /tmp/images/build-image
+          command: docker load -i ./tmp-images/build-image
       - build-image:
           image-target: "build-image-test"
           image-tags: "${CIRCLE_SHA1}-test,${BRANCH}-test"

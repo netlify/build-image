@@ -105,7 +105,7 @@ jobs:
       - store_test_results:
           path: ./report.xml
 
-  tag-and-push:
+  push-to-registry:
     parameters:
       container-image:
         type: string
@@ -119,10 +119,9 @@ jobs:
           docker_layer_caching: true
           version: 20.10.7
       - load-images
-      # - run:
-      #     name: Tag
-      #     command: |
-      #       docker tag << parameters.container-image >>:$
+      - docker/push:
+          image: << parameters.container-image >>
+          tag: "${CIRCLE_SHA1},${BRANCH}"
 
   lint:
     executor: docker/machine
@@ -135,11 +134,11 @@ workflows: # workflows are where we specify the job order and job parameters (if
   test-build:
     jobs:
       - build-images:
-          container-image: "netlify/build"
+          container-image: "jgantunesntf/netlify-build"
       - run-tests:
-          container-image: "netlify/build"
+          container-image: "jgantunesntf/netlify-build"
           requires: [build-images, lint]
-      - tag-and-push:
-          container-image: "netlify/build"
+      - push-to-registry:
+          container-image: "jgantunesntf/netlify-build"
           requires: [run-tests]
       - lint

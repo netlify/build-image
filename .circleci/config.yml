@@ -88,7 +88,12 @@ jobs:
       - load-images
       - run:
           name: Run Tests
-          command: docker run --rm netlify/build:${CIRCLE_SHA1}-test
+          command: |
+            docker run --name build-image-test-execution netlify/build:${CIRCLE_SHA1}-test
+            # Copy the Junit test output from the test execution
+            docker cp build-image-test-execution:/opt/buildhome/test-env/report.xml ./report.xml
+      - store_test_results:
+          path: ./report.xml
 
   build-and-push:
     docker:

@@ -498,4 +498,4 @@ WORKDIR /opt/buildhome/test-env
 # Set `bats` as entrypoint
 ENTRYPOINT ["node_modules/.bin/bats"]
 # Set the default flags for `bats`
-CMD ["--recursive", "--timing", "--tap", "tests"]
+CMD ["--recursive", "--timing", "--formatter", "tap", "--report-formatter", "junit", "tests"]

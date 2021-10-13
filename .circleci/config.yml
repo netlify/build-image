@@ -33,6 +33,23 @@ commands:
           tag: << parameters.image-tags >>
 
 jobs:
+  build-image:
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - run:
+          name: Sanitize branch name
+          command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+      - build-image:
+          image-target: "build-image"
+          image-tags: "${CIRCLE_SHA1},${BRANCH}"
+      - run:
+          command: docker save netlify/build:${CIRCLE_SHA1} -o /tmp/images/build-image
+      - persist_to_workspace:
+          root: /tmp/images
+          paths:
+            - build-image
+
   run-tests:
     docker:
       - image: cimg/base:2021.04
@@ -40,6 +57,10 @@ jobs:
       - run:
           name: Sanitize branch name
           command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+      - attach_workspace:
+          at: /tmp/images
+      - run:
+          command: docker load -i /tmp/images/build-image
       - build-image:
           image-target: "build-image-test"
           image-tags: "${CIRCLE_SHA1}-test,${BRANCH}-test"
@@ -51,6 +72,9 @@ jobs:
     docker:
       - image: cimg/base:2021.04
     steps:
+      - run:
+          name: Sanitize branch name
+          command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
       - build-image:
           image-target: "build-image"
           image-tags: "${CIRCLE_SHA1},${BRANCH}"
@@ -69,7 +93,9 @@ jobs:
 workflows: # workflows are where we specify the job order and job parameters (if applicable)
   test-build:
     jobs:
-      - run-tests
-      - build-and-push:
-          requires: [run-tests, lint]
+      - build-image
+      - run-tests:
+          requires: [build-image]
+      # - build-and-push:
+      #     requires: [run-tests, lint]
       - lint

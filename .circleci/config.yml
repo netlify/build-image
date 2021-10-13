@@ -38,6 +38,9 @@ commands:
 
   build-image:
     parameters:
+      step-name:
+        type: string
+        default: "Docker build"
       build-target:
         type: enum
         default: "build-image"
@@ -52,6 +55,7 @@ commands:
         default: false
     steps:
       - docker/build:
+          step-name: << parameters.step-name >>
           image: << parameters.image-name >>
           extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
           tag: << parameters.image-tags >>
@@ -74,14 +78,20 @@ jobs:
       - run:
           name: Sanitize branch name
           command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+      # We build the final docker image first and tag it as the test image
+      # depends on it and we can take advantage of the cached layers
       - build-image:
+          step-name: "Build final image"
           build-target: "build-image"
           image-tags: "${CIRCLE_SHA1},${BRANCH}"
           image-name: << parameters.container-image >>
       - build-image:
+          step-name: "Build test image"
           build-target: "build-image-test"
           image-tags: "${CIRCLE_SHA1}-test,${BRANCH}-test"
           image-name: << parameters.container-image >>
+      # We persist the images in the workspace, to later use them in jobs like
+      # run tests or pushing to remote repos
       - save-images:
           image-tags: "<< parameters.container-image >>:${CIRCLE_SHA1}-test << parameters.container-image >>:${BRANCH}-test << parameters.container-image >>:${CIRCLE_SHA1} << parameters.container-image >>:${BRANCH}"
 
@@ -95,12 +105,13 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
           version: 20.10.7
+      # Load the previously saved docker images from the CCI workspace
       - load-images
       - run:
           name: Run Tests
           command: |
             docker run --name build-image-test-execution << parameters.container-image >>:${CIRCLE_SHA1}-test
-            # Copy the Junit test output from the test execution
+            # Copy the Junit test output from the execution to store its results
             docker cp build-image-test-execution:/opt/buildhome/test-env/report.xml ./report.xml
       - store_test_results:
           path: ./report.xml
@@ -118,7 +129,9 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
           version: 20.10.7
+      # Load the previously saved docker images from the CCI workspace
       - load-images
+      - docker/check
       - docker/push:
           image: << parameters.container-image >>
           tag: "${CIRCLE_SHA1},${BRANCH}"

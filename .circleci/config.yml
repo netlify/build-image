@@ -165,6 +165,9 @@ jobs:
     parameters:
       container-image:
         type: string
+      squash-images:
+        type: boolean
+        default: false
     docker:
       - image: cimg/base:2021.04
     steps:

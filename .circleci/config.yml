@@ -198,29 +198,30 @@ jobs:
 workflows: # workflows are where we specify the job order and job parameters (if applicable)
   build-test-and-push:
     jobs:
+      - lint
       - build-images:
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
+      # Only build squash images for git tags
+      - build-images:
+          filters:
+            tags:
+              only: /^v.*/
+          name: build-squash-images
+          container-image: "jgantunesntf/netlify-build"
+          squash-images: true
       - run-tests:
           container-image: "jgantunesntf/netlify-build"
           requires: [build-images, lint]
       - push-to-registry:
           container-image: "jgantunesntf/netlify-build"
           requires: [run-tests]
-      - lint
-  tag-releases:
-    jobs:
-      - build-images:
+      # Only push squash images for git tags
+      - push-to-registry:
           filters:
             tags:
               only: /^v.*/
-          matrix:
-            parameters:
-              container-image: ["jgantunesntf/netlify-build"]
-              squash-images: [true, false]
-      - push-to-registry:
-          matrix:
-            parameters:
-              container-image: ["jgantunesntf/netlify-build"]
-              squash-images: [true, false]
-          requires: [build-images]
+          name: push-squash-images-to-registry
+          container-image: "jgantunesntf/netlify-build"
+          squash-images: true
+          requires: [build-squash-images]

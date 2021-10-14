@@ -9,14 +9,14 @@ commands:
       tmp-dir:
         type: string
         default: "/tmp/images"
-      image-tags:
+      images:
         type: string
     steps:
       - run:
           name: Persist Docker images to tar file
           command: |
             mkdir -p << parameters.tmp-dir >>
-            docker save << parameters.image-tags >> -o << parameters.tmp-dir >>/build-image
+            docker save << parameters.images >> -o << parameters.tmp-dir >>/build-image
       - persist_to_workspace:
           name: Persist the workspace for later use
           root: << parameters.tmp-dir >>
@@ -65,8 +65,20 @@ jobs:
     parameters:
       container-image:
         type: string
+      build-test-image:
+        type: boolean
+        default: false
+      squash-images:
+        type: boolean
+        default: false
     docker:
       - image: cimg/base:2021.04
+    # Utility vars to create the final tags/full image names (which may or may not be squashed)
+    environment:
+      SHA1_IMAGE_TAG: ${CIRCLE_SHA1}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>
+      SHA1_IMAGE_URL: << parameters.container-image >>:${CIRCLE_SHA1}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>
+      GIT_TAG_IMAGE_TAG: ${CIRCLE_TAG}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>
+      GIT_TAG_IMAGE_URL: << parameters.container-image >>:${CIRCLE_TAG}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>
     steps:
       - checkout
       - setup_remote_docker:
@@ -75,25 +87,35 @@ jobs:
       - run:
           name: Docker version
           command: docker version
+      # Because $BRANCH is computed at runtime we need to create its utility vars here
       - run:
-          name: Sanitize branch name
-          command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+          name: Sanitize branch name and create related utility vars
+          command: |
+            echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+            echo export "BRANCH_IMAGE_TAG=${BRANCH}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>" >> "$BASH_ENV"
+            echo export "BRANCH_IMAGE_URL=<< parameters.container-image >>:${BRANCH}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>" >> "$BASH_ENV"
       # We build the final docker image first and tag it as the test image
       # depends on it and we can take advantage of the cached layers
       - build-image:
           step-name: "Build final image"
           build-target: "build-image"
-          image-tags: "${CIRCLE_SHA1},${BRANCH}"
+          image-tags: "${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}"
           image-name: << parameters.container-image >>
-      - build-image:
-          step-name: "Build test image"
-          build-target: "build-image-test"
-          image-tags: "${CIRCLE_SHA1}-test,${BRANCH}-test"
-          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
+      # Only build the test image if required
+      - when:
+          condition: << parameters.build-test-image >>
+          steps:
+            - build-image:
+                step-name: "Build test image"
+                build-target: "build-image-test"
+                image-tags: "${SHA1_IMAGE_TAG}-test,${BRANCH_IMAGE_TAG}-test"
+                image-name: << parameters.container-image >>
+                squash: << parameters.squash-images >>
       # We persist the images in the workspace, to later use them in jobs like
       # run tests or pushing to remote repos
       - save-images:
-          image-tags: "<< parameters.container-image >>:${CIRCLE_SHA1}-test << parameters.container-image >>:${BRANCH}-test << parameters.container-image >>:${CIRCLE_SHA1} << parameters.container-image >>:${BRANCH}"
+          images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} <<# parameters.build-test-image >> ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test <</ parameters.build-test-image>>"
 
   run-tests:
     parameters:
@@ -136,6 +158,7 @@ jobs:
           image: << parameters.container-image >>
           tag: "${CIRCLE_SHA1},${BRANCH}"
 
+  # Lint our Dockerfile
   lint:
     executor: docker/machine
     steps:
@@ -144,10 +167,11 @@ jobs:
 
 
 workflows: # workflows are where we specify the job order and job parameters (if applicable)
-  test-build:
+  build-test-and-push:
     jobs:
       - build-images:
           container-image: "jgantunesntf/netlify-build"
+          build-test-image: true
       - run-tests:
           container-image: "jgantunesntf/netlify-build"
           requires: [build-images, lint]
@@ -155,3 +179,7 @@ workflows: # workflows are where we specify the job order and job parameters (if
           container-image: "jgantunesntf/netlify-build"
           requires: [run-tests]
       - lint
+  # tag-releases:
+  #   jobs:
+  #     - build-images:
+  #         container-image: "jgantunesntf/netlify-build"

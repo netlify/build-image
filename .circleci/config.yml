@@ -17,12 +17,12 @@ commands:
       - run:
           name: Sanitize branch name and create related utility vars
           command: |
-            echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
-            echo export "BRANCH_IMAGE_TAG=${BRANCH}<<# parameters.squash >>-squash<</ parameters.squash >>" >> "$BASH_ENV"
-            echo export "BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}" >> "$BASH_ENV"
-            echo export "SHA1_IMAGE_TAG=${CIRCLE_SHA1}<<# parameters.squash >>-squash<</ parameters.squash >>" >> "$BASH_ENV"
-            echo export "SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}" >> "$BASH_ENV"
-            echo export "IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}" >> "$BASH_ENV"
+            echo 'export BRANCH=${CIRCLE_BRANCH//\//-}' >> "$BASH_ENV"
+            echo 'export BRANCH_IMAGE_TAG=${BRANCH}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
+            echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+            echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
+            echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
+            echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
             source $BASH_ENV
             env
       - when:

@@ -23,17 +23,16 @@ commands:
             echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
             echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
             echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
-            source $BASH_ENV
-            env
+      # Only create the GIT_TAG related tags if we're building a tag
       - when:
           condition: << pipeline.git.tag >>
           steps:
             - run:
                 name: Create git tag related image tag vars
                 command: |
-                  echo export "GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>" >> "$BASH_ENV"
-                  echo export "GIT_TAG_IMAGE_URL=<< parameters.image-name >>:${GIT_TAG_IMAGE_TAG}" >> "$BASH_ENV"
-                  echo export "IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}" >> "$BASH_ENV"
+                  echo 'export GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
+                  echo 'export GIT_TAG_IMAGE_URL=<< parameters.image-name >>:${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
   save-images:
     parameters:
       tmp-dir:
@@ -117,8 +116,6 @@ jobs:
           squash: << parameters.squash-images >>
       # We build the final docker image first and tag it as the test image
       # depends on it and we can take advantage of the cached layers
-      - run:
-          command: echo ${IMAGE_TAG_LIST}
       - build-image:
           step-name: "Build final image"
           build-target: "build-image"
@@ -159,7 +156,7 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            docker run --name build-image-test-execution ${SHA1_IMAGE_URL}
+            docker run --name build-image-test-execution ${SHA1_IMAGE_URL}-test
             # Copy the Junit test output from the execution to store its results
             docker cp build-image-test-execution:/opt/buildhome/test-env/report.xml ./report.xml
       - store_test_results:

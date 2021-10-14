@@ -115,6 +115,8 @@ jobs:
           squash: << parameters.squash-images >>
       # We build the final docker image first and tag it as the test image
       # depends on it and we can take advantage of the cached layers
+      - run:
+          command: echo ${IMAGE_TAG_LIST}
       - build-image:
           step-name: "Build final image"
           build-target: "build-image"

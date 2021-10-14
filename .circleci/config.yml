@@ -136,6 +136,11 @@ jobs:
           image-tags: "${IMAGE_TAG_LIST}"
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
+      # Docker login
+      - docker/check
+      - docker/push:
+          image: << parameters.container-image >>
+          tag: "${IMAGE_TAG_LIST}"
       # Only build the test image if required
       - when:
           condition: << parameters.build-test-image >>
@@ -150,11 +155,6 @@ jobs:
             # run-tests
             - save-images:
                 images: "${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
-      # Docker login
-      - docker/check
-      - docker/push:
-          image: << parameters.container-image >>
-          tag: "${IMAGE_TAG_LIST}"
 
   run-tests:
     parameters:

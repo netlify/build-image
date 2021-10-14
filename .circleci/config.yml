@@ -208,7 +208,19 @@ workflows: # workflows are where we specify the job order and job parameters (if
           container-image: "jgantunesntf/netlify-build"
           requires: [run-tests]
       - lint
-  # tag-releases:
-  #   jobs:
-  #     - build-images:
-  #         container-image: "jgantunesntf/netlify-build"
+  tag-releases:
+    jobs:
+      - build-images:
+          filters:
+            tags:
+              only: /^v.*/
+          matrix:
+            parameters:
+              container-image: ["jgantunesntf/netlify-build"]
+              squash-images: [true, false]
+      - push-to-registry:
+          matrix:
+            parameters:
+              container-image: ["jgantunesntf/netlify-build"]
+              squash-images: [true, false]
+          requires: [build-images]

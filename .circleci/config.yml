@@ -4,6 +4,34 @@ orbs:
   docker: circleci/docker@1.7
 
 commands:
+  compute-docker-tags:
+    parameters:
+      image-name:
+        type: string
+      squash:
+        type: boolean
+        default: false
+    steps:
+      # Sanitize the $BRANCH name and create the utility vars with the final
+      # tags/full image names (which may or may not be squashed)
+      - run:
+          name: Sanitize branch name and create related utility vars
+          command: |
+            echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+            echo export "BRANCH_IMAGE_TAG=${BRANCH}<<# parameters.squash >>-squash<</ parameters.squash >>" >> "$BASH_ENV"
+            echo export "BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}" >> "$BASH_ENV"
+            echo export "SHA1_IMAGE_TAG=${CIRCLE_SHA1}<<# parameters.squash >>-squash<</ parameters.squash >>" >> "$BASH_ENV"
+            echo export "SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}" >> "$BASH_ENV"
+            echo export "IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}" >> "$BASH_ENV"
+      - when:
+          condition: << pipeline.git.tag >>
+          steps:
+            - run:
+                name: Create git tag related image tag vars
+                command: |
+                  echo export "GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>" >> "$BASH_ENV"
+                  echo export "GIT_TAG_IMAGE_URL=<< parameters.image-name >>:${GIT_TAG_IMAGE_TAG}" >> "$BASH_ENV"
+                  echo export "IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}" >> "$BASH_ENV"
   save-images:
     parameters:
       tmp-dir:
@@ -57,7 +85,7 @@ commands:
       - docker/build:
           step-name: << parameters.step-name >>
           image: << parameters.image-name >>
-          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${BRANCH} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
           tag: << parameters.image-tags >>
 
 jobs:
@@ -73,36 +101,24 @@ jobs:
         default: false
     docker:
       - image: cimg/base:2021.04
-    # Utility vars to create
-    environment:
     steps:
       - checkout
-      - run:
-          command: env
       - setup_remote_docker:
           docker_layer_caching: true
           version: 20.10.7
       - run:
           name: Docker version
           command: docker version
-      # Sanitize the $BRANCH name and create the utility vars with the final
-      # tags/full image names (which may or may not be squashed)
-      - run:
-          name: Sanitize branch name and create related utility vars
-          command: |
-            echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
-            echo export "BRANCH_IMAGE_TAG=${BRANCH}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>" >> "$BASH_ENV"
-            echo export "BRANCH_IMAGE_URL=<< parameters.container-image >>:${BRANCH_IMAGE_TAG}" >> "$BASH_ENV"
-            echo export "SHA1_IMAGE_TAG=${CIRCLE_SHA1}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>" >> "$BASH_ENV"
-            echo export "SHA1_IMAGE_URL=<< parameters.container-image >>:${SHA1_IMAGE_TAG}" >> "$BASH_ENV"
-            echo export "GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>" >> "$BASH_ENV"
-            echo export "GIT_TAG_IMAGE_URL=<< parameters.container-image >>:${GIT_TAG_IMAGE_TAG}" >> "$BASH_ENV"
+      # Compute the env vars with the resulting docker tags and docker image names
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
       # We build the final docker image first and tag it as the test image
       # depends on it and we can take advantage of the cached layers
       - build-image:
           step-name: "Build final image"
           build-target: "build-image"
-          image-tags: "${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}"
+          image-tags: "${IMAGE_TAG_LIST}"
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
       # Only build the test image if required
@@ -117,6 +133,7 @@ jobs:
                 squash: << parameters.squash-images >>
       # We persist the images in the workspace, to later use them in jobs like
       # run tests or pushing to remote repos
+      # However we only persist the test ones if these have been created
       - save-images:
           images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} <<# parameters.build-test-image >> ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test <</ parameters.build-test-image>>"
 
@@ -132,10 +149,13 @@ jobs:
           version: 20.10.7
       # Load the previously saved docker images from the CCI workspace
       - load-images
+      # Compute the env vars with the resulting docker tags and docker image names
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
       - run:
           name: Run Tests
           command: |
-            docker run --name build-image-test-execution << parameters.container-image >>:${CIRCLE_SHA1}-test
+            docker run --name build-image-test-execution ${SHA1_IMAGE_URL}
             # Copy the Junit test output from the execution to store its results
             docker cp build-image-test-execution:/opt/buildhome/test-env/report.xml ./report.xml
       - store_test_results:
@@ -148,18 +168,20 @@ jobs:
     docker:
       - image: cimg/base:2021.04
     steps:
-      - run:
-          name: Sanitize branch name
-          command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+      # Compute the env vars with the resulting docker tags and docker image names
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
       - setup_remote_docker:
           docker_layer_caching: true
           version: 20.10.7
       # Load the previously saved docker images from the CCI workspace
       - load-images
+      # Docker login
       - docker/check
       - docker/push:
           image: << parameters.container-image >>
-          tag: "${CIRCLE_SHA1},${BRANCH}"
+          tag: "${IMAGE_TAG_LIST}"
 
   # Lint our Dockerfile
   lint:

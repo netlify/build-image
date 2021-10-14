@@ -106,7 +106,7 @@ commands:
           tag: << parameters.image-tags >>
 
 jobs:
-  build-images:
+  build-and-push-images:
     parameters:
       container-image:
         type: string
@@ -128,7 +128,7 @@ jobs:
       - compute-docker-tags:
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
-      # We build the final docker image first and tag it as the test image
+      # We build the final docker image first and tag it because the test image
       # depends on it and we can take advantage of the cached layers
       - build-image:
           step-name: "Build final image"
@@ -146,11 +146,15 @@ jobs:
                 image-tags: "${SHA1_IMAGE_TAG}-test,${BRANCH_IMAGE_TAG}-test"
                 image-name: << parameters.container-image >>
                 squash: << parameters.squash-images >>
-      # We persist the images in the workspace, to later use them in jobs like
-      # run tests or pushing to remote repos
-      # However we only persist the test ones if these have been created
-      - save-images:
-          images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} <<# parameters.build-test-image >> ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test <</ parameters.build-test-image>>"
+            # We persist the images in the workspace, to later use them in jobs like
+            # run-tests
+            - save-images:
+                images: "${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
+      # Docker login
+      - docker/check
+      - docker/push:
+          image: << parameters.container-image >>
+          tag: "${IMAGE_TAG_LIST}"
 
   run-tests:
     parameters:
@@ -174,28 +178,6 @@ jobs:
       - store_test_results:
           path: ./report.xml
 
-  push-to-registry:
-    parameters:
-      container-image:
-        type: string
-      squash-images:
-        type: boolean
-        default: false
-    docker:
-      - image: cimg/base:2021.04
-    steps:
-      # Compute the env vars with the resulting docker tags and docker image names
-      - compute-docker-tags:
-          image-name: << parameters.container-image >>
-          squash: << parameters.squash-images >>
-      - setup-remote-docker-with-experimental-feats
-      # Load the previously saved docker images from the CCI workspace
-      - load-images
-      # Docker login
-      - docker/check
-      - docker/push:
-          image: << parameters.container-image >>
-          tag: "${IMAGE_TAG_LIST}"
 
   # Lint our Dockerfile
   lint:
@@ -209,33 +191,19 @@ workflows: # workflows are where we specify the job order and job parameters (if
   build-test-and-push:
     jobs:
       - lint
-      - build-images:
+      - build-and-push-images:
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
       # Only build squash images for git tags
-      - build-images:
+      - build-and-push-images:
           filters:
             tags:
               only: /^v.*/
-            # branches:
-            #   ignore: /.*/
-          name: build-squash-images
+            branches:
+              ignore: /.*/
+          name: build-and-push-squash-images
           container-image: "jgantunesntf/netlify-build"
           squash-images: true
       - run-tests:
           container-image: "jgantunesntf/netlify-build"
-          requires: [build-images, lint]
-      - push-to-registry:
-          container-image: "jgantunesntf/netlify-build"
-          requires: [run-tests]
-      # Only push squash images for git tags
-      - push-to-registry:
-          filters:
-            tags:
-              only: /^v.*/
-            # branches:
-            #   ignore: /.*/
-          name: push-squash-images-to-registry
-          container-image: "jgantunesntf/netlify-build"
-          squash-images: true
-          requires: [build-squash-images]
+          requires: [build-and-push-images, lint]

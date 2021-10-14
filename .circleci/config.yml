@@ -4,6 +4,21 @@ orbs:
   docker: circleci/docker@1.7
 
 commands:
+  setup-remote-docker-with-experimental-feats:
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.7
+      - run:
+          # We need this in order to `squash` images
+          # https://support.circleci.com/hc/en-us/articles/360050448351-Enabling-Docker-Experimental-Features-on-Remote-Docker
+          name: Enable Docker experimental features
+          command: |
+            ssh remote-docker \<<EOF
+              sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
+              sudo systemctl restart docker
+            EOF
+
   compute-docker-tags:
     parameters:
       image-name:
@@ -33,6 +48,7 @@ commands:
                   echo 'export GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
                   echo 'export GIT_TAG_IMAGE_URL=<< parameters.image-name >>:${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
                   echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
+
   save-images:
     parameters:
       tmp-dir:
@@ -104,9 +120,7 @@ jobs:
       - image: cimg/base:2021.04
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 20.10.7
+      - setup-remote-docker-with-experimental-feats
       - run:
           name: Docker version
           command: docker version
@@ -145,9 +159,7 @@ jobs:
     docker:
       - image: cimg/base:2021.04
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 20.10.7
+      - setup-remote-docker-with-experimental-feats
       # Load the previously saved docker images from the CCI workspace
       - load-images
       # Compute the env vars with the resulting docker tags and docker image names
@@ -176,9 +188,7 @@ jobs:
       - compute-docker-tags:
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 20.10.7
+      - setup-remote-docker-with-experimental-feats
       # Load the previously saved docker images from the CCI workspace
       - load-images
       # Docker login
@@ -207,6 +217,8 @@ workflows: # workflows are where we specify the job order and job parameters (if
           filters:
             tags:
               only: /^v.*/
+            # branches:
+            #   ignore: /.*/
           name: build-squash-images
           container-image: "jgantunesntf/netlify-build"
           squash-images: true
@@ -221,6 +233,8 @@ workflows: # workflows are where we specify the job order and job parameters (if
           filters:
             tags:
               only: /^v.*/
+            # branches:
+            #   ignore: /.*/
           name: push-squash-images-to-registry
           container-image: "jgantunesntf/netlify-build"
           squash-images: true

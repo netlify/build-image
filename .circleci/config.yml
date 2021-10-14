@@ -73,12 +73,8 @@ jobs:
         default: false
     docker:
       - image: cimg/base:2021.04
-    # Utility vars to create the final tags/full image names (which may or may not be squashed)
+    # Utility vars to create
     environment:
-      SHA1_IMAGE_TAG: ${CIRCLE_SHA1}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>
-      SHA1_IMAGE_URL: << parameters.container-image >>:${CIRCLE_SHA1}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>
-      GIT_TAG_IMAGE_TAG: ${CIRCLE_TAG}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>
-      GIT_TAG_IMAGE_URL: << parameters.container-image >>:${CIRCLE_TAG}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>
     steps:
       - checkout
       - run:
@@ -89,13 +85,18 @@ jobs:
       - run:
           name: Docker version
           command: docker version
-      # Because $BRANCH is computed at runtime we need to create its utility vars here
+      # Sanitize the $BRANCH name and create the utility vars with the final
+      # tags/full image names (which may or may not be squashed)
       - run:
           name: Sanitize branch name and create related utility vars
           command: |
             echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
             echo export "BRANCH_IMAGE_TAG=${BRANCH}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>" >> "$BASH_ENV"
-            echo export "BRANCH_IMAGE_URL=<< parameters.container-image >>:${BRANCH}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>" >> "$BASH_ENV"
+            echo export "BRANCH_IMAGE_URL=<< parameters.container-image >>:${BRANCH_IMAGE_TAG}" >> "$BASH_ENV"
+            echo export "SHA1_IMAGE_TAG=${CIRCLE_SHA1}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>" >> "$BASH_ENV"
+            echo export "SHA1_IMAGE_URL=<< parameters.container-image >>:${SHA1_IMAGE_TAG}" >> "$BASH_ENV"
+            echo export "GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>" >> "$BASH_ENV"
+            echo export "GIT_TAG_IMAGE_URL=<< parameters.container-image >>:${GIT_TAG_IMAGE_TAG}" >> "$BASH_ENV"
       # We build the final docker image first and tag it as the test image
       # depends on it and we can take advantage of the cached layers
       - build-image:

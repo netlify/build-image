@@ -81,6 +81,8 @@ jobs:
       GIT_TAG_IMAGE_URL: << parameters.container-image >>:${CIRCLE_TAG}<<# parameters.squash-images >>-squash<</ parameters.squash-images >>
     steps:
       - checkout
+      - run:
+          command: env
       - setup_remote_docker:
           docker_layer_caching: true
           version: 20.10.7

@@ -116,6 +116,9 @@ jobs:
       squash-images:
         type: boolean
         default: false
+      push-images:
+        type: boolean
+        default: true
     docker:
       - image: cimg/base:2021.04
     steps:
@@ -128,7 +131,7 @@ jobs:
       - compute-docker-tags:
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
-      # We build the final docker image first and tag it because the test image
+      # We build the final docker image first and tag it as the test image
       # depends on it and we can take advantage of the cached layers
       - build-image:
           step-name: "Build final image"
@@ -136,11 +139,6 @@ jobs:
           image-tags: "${IMAGE_TAG_LIST}"
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
-      # Docker login
-      - docker/check
-      - docker/push:
-          image: << parameters.container-image >>
-          tag: "${IMAGE_TAG_LIST}"
       # Only build the test image if required
       - when:
           condition: << parameters.build-test-image >>
@@ -151,10 +149,20 @@ jobs:
                 image-tags: "${SHA1_IMAGE_TAG}-test,${BRANCH_IMAGE_TAG}-test"
                 image-name: << parameters.container-image >>
                 squash: << parameters.squash-images >>
-            # We persist the images in the workspace, to later use them in jobs like
-            # run-tests
-            - save-images:
-                images: "${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
+      # Conditionally push images
+      - when:
+          condition: << parameters.push-images >>
+          steps:
+            # Docker login
+            - docker/check
+            - docker/push:
+                image: << parameters.container-image >>
+                tag: "${IMAGE_TAG_LIST}"
+      # We persist the images in the workspace, to later use them in jobs like
+      # run tests or pushing to remote repos
+      # However we only persist the test ones if these have been created
+      - save-images:
+          images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} <<# parameters.build-test-image >> ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test <</ parameters.build-test-image>>"
 
   run-tests:
     parameters:
@@ -178,6 +186,28 @@ jobs:
       - store_test_results:
           path: ./report.xml
 
+  push-to-registry:
+    parameters:
+      container-image:
+        type: string
+      squash-images:
+        type: boolean
+        default: false
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      # Compute the env vars with the resulting docker tags and docker image names
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
+      - setup-remote-docker-with-experimental-feats
+      # Load the previously saved docker images from the CCI workspace
+      - load-images
+      # Docker login
+      - docker/check
+      - docker/push:
+          image: << parameters.container-image >>
+          tag: "${IMAGE_TAG_LIST}"
 
   # Lint our Dockerfile
   lint:
@@ -191,19 +221,42 @@ workflows: # workflows are where we specify the job order and job parameters (if
   build-test-and-push:
     jobs:
       - lint
+      # Only push images directly if building from a trusted source
+      # (i.e. not a forked repo)
       - build-and-push-images:
+          filters:
+            branches:
+              # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+              ignore: /pull\/[0-9]+/
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
-      # Only build squash images for git tags
+      # Only build squash images for git tags (the final release used in buildbot)
       - build-and-push-images:
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
-          name: build-and-push-squash-images
+          name: build-squash-images
           container-image: "jgantunesntf/netlify-build"
           squash-images: true
+      # If building from forked repos we don't push the images directly,
+      # instead we require a manual approval step
+      - build-and-push-images:
+          filters:
+            branches:
+              # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+              only: /pull\/[0-9]+/
+          name: build-and-push-images-for-forks
+          container-image: "jgantunesntf/netlify-build"
+          build-test-image: true
+          push-images: false
+      - hold-push-to-registry:
+          type: approval
+          requires: [build-and-push-images-for-forks]
+      - push-to-registry:
+          container-image: "jgantunesntf/netlify-build"
+          requires: [hold-push-to-registry]
       - run-tests:
           container-image: "jgantunesntf/netlify-build"
-          requires: [build-and-push-images, lint]
+          requires: [build-and-push-images, build-and-push-images-for-forks, lint]

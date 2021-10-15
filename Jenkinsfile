@@ -2,11 +2,6 @@ pipeline {
   agent any
 
   stages {
-    stage("skip") {
-      steps {
-        sh 'echo "skipping in favor of CircleCI build"'
-      }
-    }
     stage("Test Build") {
       when {
         not { anyOf { branch 'staging' ; branch 'xenial' ; branch 'trusty' ; branch 'focal' ; buildingTag() } }

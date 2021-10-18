@@ -33,6 +33,9 @@ commands:
           name: Sanitize branch name and create related utility vars
           command: |
             echo 'export BRANCH=${CIRCLE_BRANCH//\//-}' >> "$BASH_ENV"
+            # This is used within the build-image Dockerfile as the version tag env var. We use the branch by default
+            # if there's no git version tag to rely on
+            echo 'export VERSION_TAG=${BRANCH}' >> "$BASH_ENV"
             echo 'export BRANCH_IMAGE_TAG=${BRANCH}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
             echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
             echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
@@ -45,9 +48,10 @@ commands:
             - run:
                 name: Create git tag related image tag vars
                 command: |
+                  echo 'export VERSION_TAG=${CIRCLE_TAG}' >> "$BASH_ENV"
                   echo 'export GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
                   echo 'export GIT_TAG_IMAGE_URL=<< parameters.image-name >>:${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
-                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
 
                   source $BASH_ENV
                   env
@@ -105,7 +109,7 @@ commands:
       - docker/build:
           step-name: << parameters.step-name >>
           image: << parameters.image-name >>
-          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${BRANCH} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${VERSION_TAG} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
           tag: << parameters.image-tags >>
 
 jobs:

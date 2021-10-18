@@ -241,7 +241,7 @@ workflows: # workflows are where we specify the job order and job parameters (if
               only: /^v.*/
             branches:
               ignore: /.*/
-          name: build-squash-images
+          name: build-and-push-squash-images
           container-image: "jgantunesntf/netlify-build"
           squash-images: true
       # If building from forked repos we don't push the images directly,
@@ -251,16 +251,16 @@ workflows: # workflows are where we specify the job order and job parameters (if
             branches:
               # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
               only: /pull\/[0-9]+/
-          name: build-and-push-images-for-forks
+          name: build-images-for-forks
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
           push-images: false
       - hold-push-to-registry:
           type: approval
-          requires: [build-and-push-images-for-forks]
+          requires: [build-images-for-forks]
       - push-to-registry:
           container-image: "jgantunesntf/netlify-build"
           requires: [hold-push-to-registry]
       - run-tests:
           container-image: "jgantunesntf/netlify-build"
-          requires: [build-and-push-images, build-and-push-images-for-forks, lint]
+          requires: [build-and-push-images, build-images-for-forks, lint]

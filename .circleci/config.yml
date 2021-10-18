@@ -53,9 +53,6 @@ commands:
                   echo 'export GIT_TAG_IMAGE_URL=<< parameters.image-name >>:${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
                   echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
 
-                  source $BASH_ENV
-                  env
-
   save-images:
     parameters:
       tmp-dir:

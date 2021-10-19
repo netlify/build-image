@@ -226,23 +226,11 @@ jobs:
       - checkout
       - docker/dockerlint
 
-
-workflows: # workflows are where we specify the job order and job parameters (if applicable)
-  build-test-and-push:
+# Workflows are where we specify the job order and job parameters (if applicable)
+workflows:
+  # Workflow responsible for building git tags (commonly the final releases we use within buildbot)
+  build-tags-and-push:
     jobs:
-      - lint
-      # Only push images directly if building from a trusted source
-      # (i.e. not a forked repo)
-      - build-and-push-images:
-          filters:
-            # For tags we still want to build and push non squashed images
-            tags:
-              only: /^v.*/
-            branches:
-              # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
-              ignore: /pull\/[0-9]+/
-          container-image: "jgantunesntf/netlify-build"
-          build-test-image: true
       # Only build squash images for git tags (the final release used in buildbot)
       - build-and-push-images:
           filters:
@@ -250,9 +238,34 @@ workflows: # workflows are where we specify the job order and job parameters (if
               only: /^v.*/
             branches:
               ignore: /.*/
-          name: build-and-push-squash-images
+          name: build-and-push-tag-squash-image
           container-image: "jgantunesntf/netlify-build"
           squash-images: true
+          build-test-image: false
+      # For git tags we still want to build and push non squashed images
+      - build-and-push-images:
+          name: build-and-push-tag-image
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          container-image: "jgantunesntf/netlify-build"
+          build-test-image: false
+
+  # Workflow responsible for building, pushing and testing branches and PR forks
+  build-test-and-push:
+    jobs:
+      - lint
+      # Only push images directly if building from a trusted source
+      # (i.e. not a forked repo)
+      - build-and-push-images:
+          filters:
+            branches:
+              # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+              ignore: /pull\/[0-9]+/
+          container-image: "jgantunesntf/netlify-build"
+          build-test-image: true
       # If building from forked repos we don't push the images directly,
       # instead we require a manual approval step
       - build-and-push-images:

@@ -29,29 +29,36 @@ commands:
     steps:
       # Sanitize the $BRANCH name and create the utility vars with the final
       # tags/full image names (which may or may not be squashed)
-      - run:
-          name: Sanitize branch name and create related utility vars
-          command: |
-            echo 'export BRANCH=${CIRCLE_BRANCH//\//-}' >> "$BASH_ENV"
-            # This is used within the build-image Dockerfile as the version tag env var. We use the branch by default
-            # if there's no git version tag to rely on
-            echo 'export VERSION_TAG=${BRANCH}' >> "$BASH_ENV"
-            echo 'export BRANCH_IMAGE_TAG=${BRANCH}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
-            echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
-            echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
-            echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
-            echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+      # We only do this when we're not building git tags
+      - when:
+          condition:
+            not: << pipeline.git.tag >>
+          steps:
+            - run:
+                name: Sanitize branch name and create related utility vars for image tagging
+                command: |
+                  echo 'export BRANCH=${CIRCLE_BRANCH//\//-}' >> "$BASH_ENV"
+                  # This is used within the build-image Dockerfile as the version tag env var. We use the branch by default
+                  # if there's no git version tag to rely on
+                  echo 'export VERSION_TAG=${BRANCH}' >> "$BASH_ENV"
+                  echo 'export BRANCH_IMAGE_TAG=${BRANCH}' >> "$BASH_ENV"
+                  echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}' >> "$BASH_ENV"
+                  echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
       # Only create the GIT_TAG related tags if we're building a tag
+      # When building tags we don't tag the image with the SHA1 commit hash because the regular push based pipeline will
+      # take care of that
       - when:
           condition: << pipeline.git.tag >>
           steps:
             - run:
-                name: Create git tag related image tag vars
+                name: Create git tag related utility vars for image tagging
                 command: |
                   echo 'export VERSION_TAG=${CIRCLE_TAG}' >> "$BASH_ENV"
                   echo 'export GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
                   echo 'export GIT_TAG_IMAGE_URL=<< parameters.image-name >>:${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
-                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
 
   save-images:
     parameters:
@@ -228,6 +235,9 @@ workflows: # workflows are where we specify the job order and job parameters (if
       # (i.e. not a forked repo)
       - build-and-push-images:
           filters:
+            # For tags we still want to build and push non squashed images
+            tags:
+              only: /^v.*/
             branches:
               # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
               ignore: /pull\/[0-9]+/

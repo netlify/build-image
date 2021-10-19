@@ -153,6 +153,10 @@ jobs:
                 image-tags: "${SHA1_IMAGE_TAG}-test,${BRANCH_IMAGE_TAG}-test"
                 image-name: << parameters.container-image >>
                 squash: << parameters.squash-images >>
+            # We persist the images in the workspace, to later use them in jobs like
+            # run tests or pushing to remote repos
+            - save-images:
+                images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
       # Conditionally push images
       - when:
           condition: << parameters.push-images >>
@@ -162,11 +166,6 @@ jobs:
             - docker/push:
                 image: << parameters.container-image >>
                 tag: "${IMAGE_TAG_LIST}"
-      # We persist the images in the workspace, to later use them in jobs like
-      # run tests or pushing to remote repos
-      # However we only persist the test ones if these have been created
-      - save-images:
-          images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} <<# parameters.build-test-image >> ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test <</ parameters.build-test-image>>"
 
   run-tests:
     parameters:

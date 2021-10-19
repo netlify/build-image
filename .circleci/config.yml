@@ -124,6 +124,9 @@ jobs:
       build-test-image:
         type: boolean
         default: false
+      save-images-in-workflow:
+        type: boolean
+        default: false
       squash-images:
         type: boolean
         default: false
@@ -160,10 +163,6 @@ jobs:
                 image-tags: "${SHA1_IMAGE_TAG}-test,${BRANCH_IMAGE_TAG}-test"
                 image-name: << parameters.container-image >>
                 squash: << parameters.squash-images >>
-            # We persist the images in the workspace, to later use them in jobs like
-            # run tests or pushing to remote repos
-            - save-images:
-                images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
       # Conditionally push images
       - when:
           condition: << parameters.push-images >>
@@ -173,6 +172,15 @@ jobs:
             - docker/push:
                 image: << parameters.container-image >>
                 tag: "${IMAGE_TAG_LIST}"
+      # We persist the images in the workspace, to later use them in jobs like
+      # run tests or pushing to remote repos.
+      # We prioritise pushing the tags first and we do this conditionally because it takes a while
+      # to persist everything
+      - when:
+          condition: << parameters.save-images-in-workflow >>
+          steps:
+            - save-images:
+                images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
 
   run-tests:
     parameters:
@@ -242,6 +250,7 @@ workflows:
           container-image: "jgantunesntf/netlify-build"
           squash-images: true
           build-test-image: false
+          save-images-in-workflow: false
       # For git tags we still want to build and push non squashed images
       - build-and-push-images:
           name: build-and-push-git-tag-image
@@ -252,6 +261,7 @@ workflows:
               ignore: /.*/
           container-image: "jgantunesntf/netlify-build"
           build-test-image: false
+          save-images-in-workflow: false
 
   # Workflow responsible for building, pushing and testing branches and PR forks
   build-test-and-push:
@@ -266,6 +276,7 @@ workflows:
               ignore: /pull\/[0-9]+/
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
+          save-images-in-workflow: true
       # If building from forked repos we don't push the images directly,
       # instead we require a manual approval step
       - build-and-push-images:
@@ -276,6 +287,7 @@ workflows:
           name: build-images-for-forks
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
+          save-images-in-workflow: true
           push-images: false
       - hold-push-to-registry:
           type: approval

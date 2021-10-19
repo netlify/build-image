@@ -229,7 +229,7 @@ jobs:
 # Workflows are where we specify the job order and job parameters (if applicable)
 workflows:
   # Workflow responsible for building git tags (commonly the final releases we use within buildbot)
-  build-tags-and-push:
+  build-git-tag-and-push:
     jobs:
       # Only build squash images for git tags (the final release used in buildbot)
       - build-and-push-images:
@@ -238,13 +238,13 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-          name: build-and-push-tag-squash-image
+          name: build-and-push-git-tag-squash-image
           container-image: "jgantunesntf/netlify-build"
           squash-images: true
           build-test-image: false
       # For git tags we still want to build and push non squashed images
       - build-and-push-images:
-          name: build-and-push-tag-image
+          name: build-and-push-git-tag-image
           filters:
             tags:
               only: /^v.*/

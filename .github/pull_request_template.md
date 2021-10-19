@@ -1,5 +1,16 @@
 🎉 Thanks for submitting a pull request! 🎉
 
+#### Summary
+
+Fixes #<replace_with_issue_number>
+
+<!--
+Explain the **motivation** for making this change.
+What existing problem does the pull request solve and how?
+-->
+
+---
+
 For us to review and ship your PR efficiently, please perform the following steps:
 
 - [ ] Open a [bug/issue](https://github.com/netlify/build-image/issues/new/choose) before writing your code 🧑‍💻. This ensures
@@ -11,7 +22,5 @@ For us to review and ship your PR efficiently, please perform the following step
 - [ ] Update the [included software doc](../included_software.md) (if you updated included software) 📄
 - [ ] Update or add documentation (if features were changed or added) 📝
 - [ ] Make sure the status checks below are successful ✅
-
-Fixes #<replace_with_issue_number>
 
 **A picture of a cute animal (not mandatory, but encouraged)**

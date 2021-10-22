@@ -35,7 +35,7 @@ commands:
             not: << pipeline.git.tag >>
           steps:
             - run:
-                name: Sanitize branch name and create related utility vars for image tagging
+                name: Set branch image tagging env
                 command: |
                   echo 'export BRANCH=${CIRCLE_BRANCH//\//-}' >> "$BASH_ENV"
                   # This is used within the build-image Dockerfile as the version tag env var. We use the branch by default
@@ -53,7 +53,7 @@ commands:
           condition: << pipeline.git.tag >>
           steps:
             - run:
-                name: Create git tag related utility vars for image tagging
+                name: Set git tag image tagging env
                 command: |
                   echo 'export VERSION_TAG=${CIRCLE_TAG}' >> "$BASH_ENV"
                   echo 'export GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"

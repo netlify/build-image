@@ -204,7 +204,7 @@ RUN \
   tar xvf vips-8.6.2.tar.gz && \
   cd libvips-8.6.2 && \
   ./autogen.sh && \
-  ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf $1 && \
+  ./configure --enable-debug=no --enable-docs=no --without-python --without-orc --without-fftw --without-gsf && \
   make && \
   make install && \
   ldconfig

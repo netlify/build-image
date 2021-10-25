@@ -247,18 +247,20 @@ workflows:
             branches:
               ignore: /.*/
           name: build-and-push-git-tag-squash-image
+          context: test-build-image
           container-image: "jgantunesntf/netlify-build"
           squash-images: true
           build-test-image: false
           save-images-in-workflow: false
       # For git tags we still want to build and push non squashed images
       - build-and-push-images:
-          name: build-and-push-git-tag-image
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
+          name: build-and-push-git-tag-image
+          context: test-build-image
           container-image: "jgantunesntf/netlify-build"
           build-test-image: false
           save-images-in-workflow: false
@@ -274,6 +276,7 @@ workflows:
             branches:
               # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
               ignore: /pull\/[0-9]+/
+          context: test-build-image
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
           save-images-in-workflow: true

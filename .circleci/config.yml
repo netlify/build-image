@@ -1,0 +1,300 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+orbs:
+  docker: circleci/docker@1.7
+
+commands:
+  setup-remote-docker-with-experimental-feats:
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.7
+      - run:
+          # We need this in order to `squash` images
+          # https://support.circleci.com/hc/en-us/articles/360050448351-Enabling-Docker-Experimental-Features-on-Remote-Docker
+          name: Enable Docker experimental features
+          command: |
+            ssh remote-docker \<<EOF
+              sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
+              sudo systemctl restart docker
+            EOF
+
+  compute-docker-tags:
+    parameters:
+      image-name:
+        type: string
+      squash:
+        type: boolean
+        default: false
+    steps:
+      # Sanitize the $BRANCH name and create the utility vars with the final
+      # tags/full image names (which may or may not be squashed)
+      # We only do this when we're not building git tags
+      - when:
+          condition:
+            not: << pipeline.git.tag >>
+          steps:
+            - run:
+                name: Set branch image tagging env
+                command: |
+                  echo 'export BRANCH=${CIRCLE_BRANCH//\//-}' >> "$BASH_ENV"
+                  # This is used within the build-image Dockerfile as the version tag env var. We use the branch by default
+                  # if there's no git version tag to rely on
+                  echo 'export VERSION_TAG=${BRANCH}' >> "$BASH_ENV"
+                  echo 'export BRANCH_IMAGE_TAG=${BRANCH}' >> "$BASH_ENV"
+                  echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}' >> "$BASH_ENV"
+                  echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+      # Only create the GIT_TAG related tags if we're building a tag
+      # When building tags we don't tag the image with the SHA1 commit hash because the regular push based pipeline will
+      # take care of that
+      - when:
+          condition: << pipeline.git.tag >>
+          steps:
+            - run:
+                name: Set git tag image tagging env
+                command: |
+                  echo 'export VERSION_TAG=${CIRCLE_TAG}' >> "$BASH_ENV"
+                  echo 'export GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
+                  echo 'export GIT_TAG_IMAGE_URL=<< parameters.image-name >>:${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
+
+  save-images:
+    parameters:
+      tmp-dir:
+        type: string
+        default: "/tmp/images"
+      images:
+        type: string
+    steps:
+      - run:
+          name: Persist Docker images to tar file
+          command: |
+            mkdir -p << parameters.tmp-dir >>
+            docker save << parameters.images >> -o << parameters.tmp-dir >>/build-image
+      - persist_to_workspace:
+          name: Persist the workspace for later use
+          root: << parameters.tmp-dir >>
+          paths:
+            - build-image
+
+  load-images:
+    parameters:
+      tmp-dir:
+        type: string
+        default: "/tmp/images"
+    steps:
+      - attach_workspace:
+          name: Attach to previously created workspace
+          at: << parameters.tmp-dir >>
+      - run:
+          name: Load Docker images
+          command: docker load -i << parameters.tmp-dir >>/build-image
+
+  build-image:
+    parameters:
+      step-name:
+        type: string
+        default: "Docker build"
+      build-target:
+        type: enum
+        default: "build-image"
+        enum: ["build-image", "build-image-test"]
+      image-name:
+        type: string
+      image-tags:
+        type: string
+        default: "${CIRCLE_SHA1}"
+      squash:
+        type: boolean
+        default: false
+    steps:
+      - docker/build:
+          step-name: << parameters.step-name >>
+          image: << parameters.image-name >>
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${VERSION_TAG} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
+          tag: << parameters.image-tags >>
+
+jobs:
+  build-and-push-images:
+    parameters:
+      container-image:
+        type: string
+      build-test-image:
+        type: boolean
+        default: false
+      save-images-in-workflow:
+        type: boolean
+        default: false
+      squash-images:
+        type: boolean
+        default: false
+      push-images:
+        type: boolean
+        default: true
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - checkout
+      - setup-remote-docker-with-experimental-feats
+      - run:
+          name: Docker version
+          command: docker version
+      # Compute the env vars with the resulting docker tags and docker image names
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
+      # We build the final docker image first and tag it as the test image
+      # depends on it and we can take advantage of the cached layers
+      - build-image:
+          step-name: "Build final image"
+          build-target: "build-image"
+          image-tags: "${IMAGE_TAG_LIST}"
+          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
+      # Only build the test image if required
+      - when:
+          condition: << parameters.build-test-image >>
+          steps:
+            - build-image:
+                step-name: "Build test image"
+                build-target: "build-image-test"
+                image-tags: "${SHA1_IMAGE_TAG}-test,${BRANCH_IMAGE_TAG}-test"
+                image-name: << parameters.container-image >>
+                squash: << parameters.squash-images >>
+      # Conditionally push images
+      - when:
+          condition: << parameters.push-images >>
+          steps:
+            # Docker login
+            - docker/check
+            - docker/push:
+                image: << parameters.container-image >>
+                tag: "${IMAGE_TAG_LIST}"
+      # We persist the images in the workspace, to later use them in jobs like
+      # run tests or pushing to remote repos.
+      # We prioritise pushing the tags first and we do this conditionally because it takes a while
+      # to persist everything
+      - when:
+          condition: << parameters.save-images-in-workflow >>
+          steps:
+            - save-images:
+                images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
+
+  run-tests:
+    parameters:
+      container-image:
+        type: string
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - setup-remote-docker-with-experimental-feats
+      # Load the previously saved docker images from the CCI workspace
+      - load-images
+      # Compute the env vars with the resulting docker tags and docker image names
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+      - run:
+          name: Run Tests
+          command: |
+            docker run --name build-image-test-execution ${SHA1_IMAGE_URL}-test
+            # Copy the Junit test output from the execution to store its results
+            docker cp build-image-test-execution:/opt/buildhome/test-env/report.xml ./report.xml
+      - store_test_results:
+          path: ./report.xml
+
+  push-to-registry:
+    parameters:
+      container-image:
+        type: string
+      squash-images:
+        type: boolean
+        default: false
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      # Compute the env vars with the resulting docker tags and docker image names
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
+      - setup-remote-docker-with-experimental-feats
+      # Load the previously saved docker images from the CCI workspace
+      - load-images
+      # Docker login
+      - docker/check
+      - docker/push:
+          image: << parameters.container-image >>
+          tag: "${IMAGE_TAG_LIST}"
+
+  # Lint our Dockerfile
+  lint:
+    executor: docker/machine
+    steps:
+      - checkout
+      - docker/dockerlint
+
+# Workflows are where we specify the job order and job parameters (if applicable)
+workflows:
+  # Workflow responsible for building git tags (commonly the final releases we use within buildbot)
+  build-git-tag-and-push:
+    jobs:
+      # Only build squash images for git tags (the final release used in buildbot)
+      - build-and-push-images:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          name: build-and-push-git-tag-squash-image
+          container-image: "jgantunesntf/netlify-build"
+          squash-images: true
+          build-test-image: false
+          save-images-in-workflow: false
+      # For git tags we still want to build and push non squashed images
+      - build-and-push-images:
+          name: build-and-push-git-tag-image
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          container-image: "jgantunesntf/netlify-build"
+          build-test-image: false
+          save-images-in-workflow: false
+
+  # Workflow responsible for building, pushing and testing branches and PR forks
+  build-test-and-push:
+    jobs:
+      - lint
+      # Only push images directly if building from a trusted source
+      # (i.e. not a forked repo)
+      - build-and-push-images:
+          filters:
+            branches:
+              # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+              ignore: /pull\/[0-9]+/
+          container-image: "jgantunesntf/netlify-build"
+          build-test-image: true
+          save-images-in-workflow: true
+      # If building from forked repos we don't push the images directly,
+      # instead we require a manual approval step
+      - build-and-push-images:
+          filters:
+            branches:
+              # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+              only: /pull\/[0-9]+/
+          name: build-images-for-forks
+          container-image: "jgantunesntf/netlify-build"
+          build-test-image: true
+          save-images-in-workflow: true
+          push-images: false
+      - hold-push-to-registry:
+          type: approval
+          requires: [build-images-for-forks]
+      - push-to-registry:
+          container-image: "jgantunesntf/netlify-build"
+          requires: [hold-push-to-registry]
+      - run-tests:
+          container-image: "jgantunesntf/netlify-build"
+          requires: [build-and-push-images, build-images-for-forks, lint]

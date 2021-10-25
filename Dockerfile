@@ -218,7 +218,7 @@ WORKDIR /
 #
 ################################################################################
 
-RUN adduser --system --disabled-password --uid 2500 --quiet buildbot --home /opt/buildhome
+RUN adduser --system --disabled-password --uid 2500 --group --quiet buildbot --home /opt/buildhome
 
 ################################################################################
 #
@@ -513,7 +513,7 @@ FROM build-image as build-image-test
 USER buildbot
 SHELL ["/bin/bash", "-c"]
 
-ADD --chown=buildbot:root package.json /opt/buildhome/test-env/package.json
+ADD --chown=buildbot:buildbot package.json /opt/buildhome/test-env/package.json
 
 # We need to install with `--legacy-peer-deps` because of:
 # https://github.com/bats-core/bats-assert/issues/27
@@ -521,7 +521,7 @@ RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i --legacy-peer-deps &&
     ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
     ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
 
-ADD --chown=buildbot:root tests /opt/buildhome/test-env/tests
+ADD --chown=buildbot:buildbot tests /opt/buildhome/test-env/tests
 WORKDIR /opt/buildhome/test-env
 
 # Set `bats` as entrypoint

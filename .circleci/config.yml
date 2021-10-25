@@ -293,6 +293,7 @@ workflows:
           type: approval
           requires: [build-images-for-forks]
       - push-to-registry:
+          context: test-build-image
           container-image: "jgantunesntf/netlify-build"
           requires: [hold-push-to-registry]
       - run-tests:

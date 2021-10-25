@@ -110,6 +110,9 @@ commands:
         type: boolean
         default: false
     steps:
+      - run:
+          command: |
+            env
       - docker/build:
           step-name: << parameters.step-name >>
           image: << parameters.image-name >>

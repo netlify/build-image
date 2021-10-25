@@ -247,7 +247,7 @@ workflows:
             branches:
               ignore: /.*/
           name: build-and-push-git-tag-squash-image
-          context: test-build-image
+          context: build-image-registry
           container-image: "jgantunesntf/netlify-build"
           squash-images: true
           build-test-image: false
@@ -260,7 +260,7 @@ workflows:
             branches:
               ignore: /.*/
           name: build-and-push-git-tag-image
-          context: test-build-image
+          context: build-image-registry
           container-image: "jgantunesntf/netlify-build"
           build-test-image: false
           save-images-in-workflow: false
@@ -276,7 +276,7 @@ workflows:
             branches:
               # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
               ignore: /pull\/[0-9]+/
-          context: test-build-image
+          context: build-image-registry
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
           save-images-in-workflow: true
@@ -296,7 +296,7 @@ workflows:
           type: approval
           requires: [build-images-for-forks]
       - push-to-registry:
-          context: test-build-image
+          context: build-image-registry
           container-image: "jgantunesntf/netlify-build"
           requires: [hold-push-to-registry]
       - run-tests:

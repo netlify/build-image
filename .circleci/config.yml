@@ -29,25 +29,36 @@ commands:
     steps:
       # Sanitize the $BRANCH name and create the utility vars with the final
       # tags/full image names (which may or may not be squashed)
-      - run:
-          name: Sanitize branch name and create related utility vars
-          command: |
-            echo 'export BRANCH=${CIRCLE_BRANCH//\//-}' >> "$BASH_ENV"
-            echo 'export BRANCH_IMAGE_TAG=${BRANCH}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
-            echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
-            echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
-            echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
-            echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+      # We only do this when we're not building git tags
+      - when:
+          condition:
+            not: << pipeline.git.tag >>
+          steps:
+            - run:
+                name: Set branch image tagging env
+                command: |
+                  echo 'export BRANCH=${CIRCLE_BRANCH//\//-}' >> "$BASH_ENV"
+                  # This is used within the build-image Dockerfile as the version tag env var. We use the branch by default
+                  # if there's no git version tag to rely on
+                  echo 'export VERSION_TAG=${BRANCH}' >> "$BASH_ENV"
+                  echo 'export BRANCH_IMAGE_TAG=${BRANCH}' >> "$BASH_ENV"
+                  echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}' >> "$BASH_ENV"
+                  echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
       # Only create the GIT_TAG related tags if we're building a tag
+      # When building tags we don't tag the image with the SHA1 commit hash because the regular push based pipeline will
+      # take care of that
       - when:
           condition: << pipeline.git.tag >>
           steps:
             - run:
-                name: Create git tag related image tag vars
+                name: Set git tag image tagging env
                 command: |
+                  echo 'export VERSION_TAG=${CIRCLE_TAG}' >> "$BASH_ENV"
                   echo 'export GIT_TAG_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
                   echo 'export GIT_TAG_IMAGE_URL=<< parameters.image-name >>:${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
-                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG},${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${GIT_TAG_IMAGE_TAG}' >> "$BASH_ENV"
 
   save-images:
     parameters:
@@ -102,7 +113,7 @@ commands:
       - docker/build:
           step-name: << parameters.step-name >>
           image: << parameters.image-name >>
-          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${BRANCH} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${VERSION_TAG} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
           tag: << parameters.image-tags >>
 
 jobs:
@@ -111,6 +122,9 @@ jobs:
       container-image:
         type: string
       build-test-image:
+        type: boolean
+        default: false
+      save-images-in-workflow:
         type: boolean
         default: false
       squash-images:
@@ -159,10 +173,14 @@ jobs:
                 image: << parameters.container-image >>
                 tag: "${IMAGE_TAG_LIST}"
       # We persist the images in the workspace, to later use them in jobs like
-      # run tests or pushing to remote repos
-      # However we only persist the test ones if these have been created
-      - save-images:
-          images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} <<# parameters.build-test-image >> ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test <</ parameters.build-test-image>>"
+      # run tests or pushing to remote repos.
+      # We prioritise pushing the tags first and we do this conditionally because it takes a while
+      # to persist everything
+      - when:
+          condition: << parameters.save-images-in-workflow >>
+          steps:
+            - save-images:
+                images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
 
   run-tests:
     parameters:
@@ -216,8 +234,36 @@ jobs:
       - checkout
       - docker/dockerlint
 
+# Workflows are where we specify the job order and job parameters (if applicable)
+workflows:
+  # Workflow responsible for building git tags (commonly the final releases we use within buildbot)
+  build-git-tag-and-push:
+    jobs:
+      # Only build squash images for git tags (the final release used in buildbot)
+      - build-and-push-images:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          name: build-and-push-git-tag-squash-image
+          container-image: "jgantunesntf/netlify-build"
+          squash-images: true
+          build-test-image: false
+          save-images-in-workflow: false
+      # For git tags we still want to build and push non squashed images
+      - build-and-push-images:
+          name: build-and-push-git-tag-image
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          container-image: "jgantunesntf/netlify-build"
+          build-test-image: false
+          save-images-in-workflow: false
 
-workflows: # workflows are where we specify the job order and job parameters (if applicable)
+  # Workflow responsible for building, pushing and testing branches and PR forks
   build-test-and-push:
     jobs:
       - lint
@@ -230,16 +276,7 @@ workflows: # workflows are where we specify the job order and job parameters (if
               ignore: /pull\/[0-9]+/
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
-      # Only build squash images for git tags (the final release used in buildbot)
-      - build-and-push-images:
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
-          name: build-squash-images
-          container-image: "jgantunesntf/netlify-build"
-          squash-images: true
+          save-images-in-workflow: true
       # If building from forked repos we don't push the images directly,
       # instead we require a manual approval step
       - build-and-push-images:
@@ -247,16 +284,17 @@ workflows: # workflows are where we specify the job order and job parameters (if
             branches:
               # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
               only: /pull\/[0-9]+/
-          name: build-and-push-images-for-forks
+          name: build-images-for-forks
           container-image: "jgantunesntf/netlify-build"
           build-test-image: true
+          save-images-in-workflow: true
           push-images: false
       - hold-push-to-registry:
           type: approval
-          requires: [build-and-push-images-for-forks]
+          requires: [build-images-for-forks]
       - push-to-registry:
           container-image: "jgantunesntf/netlify-build"
           requires: [hold-push-to-registry]
       - run-tests:
           container-image: "jgantunesntf/netlify-build"
-          requires: [build-and-push-images, build-and-push-images-for-forks, lint]
+          requires: [build-and-push-images, build-images-for-forks, lint]

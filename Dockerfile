@@ -14,7 +14,8 @@ ENV LC_ALL en_US.UTF-8
 ENV PANDOC_VERSION 2.13
 
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
-RUN export DEBIAN_FRONTEND=noninteractive && \
+RUN export TEST_CLEAR_DOCKER_CACHE=1 && \
+    export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https curl gnupg && \
     echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \

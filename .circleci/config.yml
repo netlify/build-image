@@ -283,6 +283,7 @@ workflows:
       # If building from forked repos we don't push the images directly,
       # instead we require a manual approval step
       - build-and-push-images:
+          context: test-build-image
           filters:
             branches:
               # Forked pull requests have CIRCLE_BRANCH set to pull/XXX

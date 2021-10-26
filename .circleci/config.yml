@@ -248,7 +248,7 @@ workflows:
               ignore: /.*/
           name: build-and-push-git-tag-squash-image
           context: build-image-registry
-          container-image: "jgantunesntf/netlify-build"
+          container-image: "netlify/build"
           squash-images: true
           build-test-image: false
           save-images-in-workflow: false
@@ -261,7 +261,7 @@ workflows:
               ignore: /.*/
           name: build-and-push-git-tag-image
           context: build-image-registry
-          container-image: "jgantunesntf/netlify-build"
+          container-image: "netlify/build"
           build-test-image: false
           save-images-in-workflow: false
 
@@ -277,7 +277,7 @@ workflows:
               # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
               ignore: /pull\/[0-9]+/
           context: build-image-registry
-          container-image: "jgantunesntf/netlify-build"
+          container-image: "netlify/build"
           build-test-image: true
           save-images-in-workflow: true
       # If building from forked repos we don't push the images directly,
@@ -288,7 +288,7 @@ workflows:
               # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
               only: /pull\/[0-9]+/
           name: build-images-for-forks
-          container-image: "jgantunesntf/netlify-build"
+          container-image: "netlify/build"
           build-test-image: true
           save-images-in-workflow: true
           push-images: false
@@ -297,8 +297,8 @@ workflows:
           requires: [build-images-for-forks]
       - push-to-registry:
           context: build-image-registry
-          container-image: "jgantunesntf/netlify-build"
+          container-image: "netlify/build"
           requires: [hold-push-to-registry]
       - run-tests:
-          container-image: "jgantunesntf/netlify-build"
+          container-image: "netlify/build"
           requires: [build-and-push-images, build-images-for-forks, lint]

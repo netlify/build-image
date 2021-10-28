@@ -503,9 +503,9 @@ ENV NF_IMAGE_VERSION ${NF_IMAGE_VERSION:-latest}
 ARG NF_IMAGE_TAG
 ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}
 
-# The codename associated with this build (i.e. focal)
+# The codename associated with this build (i.e. xenial)
 ARG NF_IMAGE_NAME
-ENV NF_IMAGE_NAME ${NF_IMAGE_NAME:-focal}
+ENV NF_IMAGE_NAME ${NF_IMAGE_NAME:-xenial}
 
 
 ################################################################################

@@ -18,6 +18,6 @@ load '../node_modules/bats-assert/load'
   assert [ -n $NF_IMAGE_TAG ]
 }
 
-@test 'NF_IMAGE_NAME is set to focal' {
-  assert_equal $NF_IMAGE_NAME "focal"
+@test 'NF_IMAGE_NAME is set to xenial' {
+  assert_equal $NF_IMAGE_NAME "xenial"
 }

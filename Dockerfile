@@ -495,11 +495,17 @@ RUN rm -r /tmp/*
 RUN rm -r /php
 
 USER buildbot
+# The semver version associated with this build (i.e. v3.0.0)
 ARG NF_IMAGE_VERSION
 ENV NF_IMAGE_VERSION ${NF_IMAGE_VERSION:-latest}
 
+# The commit SHA tag associated with this build
 ARG NF_IMAGE_TAG
 ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}
+
+# The codename associated with this build (i.e. xenial)
+ARG NF_IMAGE_NAME
+ENV NF_IMAGE_NAME ${NF_IMAGE_NAME:-xenial}
 
 
 ################################################################################

@@ -25,6 +25,7 @@ The specific patch versions included will depend on when the image was last buil
   * 7.4
 * Go - `GO_VERSION`
   * 1.14.4 (default)
+  * Any version available on the [Go downloads page](https://golang.org/dl/)
 * Java
   * 8 (default)
 * Emacs

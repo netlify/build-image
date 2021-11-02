@@ -32,7 +32,7 @@ For the CI validation to succeed, make sure that **your PRs and commits follow t
 
 The bulk of our CI work takes place in [Circle CI](https://app.circleci.com/pipelines/github/netlify/build-image).
 
-If **you're part of the Netlify org** and have write access to the repo our pipeline will take care of:
+If **you're part of the Netlify org** and have write access to the repo, our pipeline will take care of:
 - Linting the Dockerfile
 - Build your Dockerfile, tag it and push it to our [docker hub repo](https://hub.docker.com/r/netlify/build)
 - Run the automated [bats tests](#tests)

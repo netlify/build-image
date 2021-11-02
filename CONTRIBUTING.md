@@ -49,7 +49,7 @@ If required, someone with write accesss to the repo can trigger the push for you
 
 ### Running Test `buildbot` Releases
 
-If you want to test a particular `build-image` change before going through the regular release process you can do so by creating a PR following the process above :point-up: and pointing to any `build-image` you want. Any branch
+If you want to test a particular `build-image` change before going through the regular release process, you can do so by creating a PR following the process above :point-up: and pointing to any `build-image` you want. Any branch
 creates a valid `build-image` tag in the docker registry. Once the PR in `buildbot` is created, refer to `buildbot`'s [test instructions](https://github.com/netlify/buildbot#testing-builds-on-a-live-test-site) in order to test your particular change.
 
 ## License

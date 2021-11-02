@@ -34,7 +34,7 @@ The bulk of our CI work takes place in [Circle CI](https://app.circleci.com/pipe
 
 If **you're part of the Netlify org** and have write access to the repo, our pipeline will take care of:
 - Linting the Dockerfile
-- Build your Dockerfile, tag it and push it to our [docker hub repo](https://hub.docker.com/r/netlify/build)
+- Build your Dockerfile, tag it, and push it to our [docker hub repo](https://hub.docker.com/r/netlify/build)
 - Run the automated [bats tests](#tests)
 
 

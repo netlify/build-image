@@ -39,7 +39,7 @@ If **you're part of the Netlify org** and have write access to the repo, our pip
 
 
 If you **don't have write access to the repo** and are submitting a PR via a forked repo, the CI pipeline will still execute for you. The main difference is that it won't push your built image to our docker repo.
-If required, someone with access writes to the repo can trigger the push for you, so if you require it (mainly useful for testing purposes) reach out to someone in the team :+1:
+If required, someone with write accesss to the repo can trigger the push for you. If you require it (mainly useful for testing purposes) reach out to someone on the team :+1:
 
 ## Releasing
 

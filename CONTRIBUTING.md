@@ -3,12 +3,6 @@
 Contributions are always welcome, no matter how large or small. Before contributing,
 please read the [code of conduct](CODE_OF_CONDUCT.md).
 
-## Releasing
-
-1. Merge the relevant package release PR created by `release-please`
-2. Wait for the Jenkins build to finish
-3. Create a PR in the [buildbot](https://github.com/netlify/buildbot) to bump [the version](https://github.com/netlify/buildbot/blob/ddbb47739f5b85c954aad9dc3823ab0676432957/Jenkinsfile#L35) of the `build-image`.
-
 ## Development
 
 ### Linting
@@ -30,6 +24,33 @@ Some examples:
 - `make test-local FILTER=<regex>` provide a filter regex string to your test execution in order to select a specific set of tests.
 - `make run` build the base image and run a bash shell in a container based in it in interactive mode.
 - `make run-local` volume the build scripts and run a bash shell in a container based in the build image.
+
+Our [changelog](./CHANGELOG.md) is powered by an automated [release-please](https://github.com/googleapis/release-please) action, which relies on commits following the [conventional commit format](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#summary).
+For the CI validation to succeed, make sure that **your PRs and commits follow the conventional commits format**.
+
+### CI
+
+The bulk of our CI work takes place in [Circle CI](https://app.circleci.com/pipelines/github/netlify/build-image).
+
+If **you're part of the Netlify org** and have write access to the repo, our pipeline will take care of:
+- Linting the Dockerfile
+- Build your Dockerfile, tag it, and push it to our [docker hub repo](https://hub.docker.com/r/netlify/build)
+- Run the automated [bats tests](#tests)
+
+
+If you **don't have write access to the repo** and are submitting a PR via a forked repo, the CI pipeline will still execute for you. The main difference is that it won't push your built image to our docker repo.
+If required, someone with write accesss to the repo can trigger the push for you. If you require it (mainly useful for testing purposes) reach out to someone on the team :+1:
+
+## Releasing
+
+1. Merge the relevant package release PR created by `release-please`
+2. Wait for the CI pipelines to finish
+3. Create a PR in the [buildbot](https://github.com/netlify/buildbot) to bump [the version](https://github.com/netlify/buildbot/blob/0ada244ab84a1759a70d6b2cfc27c9987b5c77ca/.circleci/config.yml#L141-L150) of the `build-image`.
+
+### Running Test `buildbot` Releases
+
+If you want to test a particular `build-image` change before going through the regular release process, you can do so by creating a PR following the process above :point-up: and pointing to any `build-image` you want. Any branch
+creates a valid `build-image` tag in the docker registry. Once the PR in `buildbot` is created, you can test your `build-image` change by referring to `buildbot`'s [test instructions](https://github.com/netlify/buildbot#testing-builds-on-a-live-test-site).
 
 ## License
 

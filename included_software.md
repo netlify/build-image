@@ -73,6 +73,7 @@ The specific patch versions included will depend on when the image was last buil
   * Any version installable via `binrc`.
 * [jq](https://stedolan.github.io/jq/) - 1.6
 * [ImageMagick](https://www.imagemagick.org) - 6.9.10 (default)
+* [libvips](https://www.libvips.org) - 8.9.1
 * [GNU Make](https://www.gnu.org/software/make/) - 3.81
 * OptiPNG - 0.6.4
 * [Doxygen](http://www.doxygen.org) - 1.8.17

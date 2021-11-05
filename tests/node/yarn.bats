@@ -27,7 +27,24 @@ teardown() {
   cd - || return
 }
 
-@test 'run_yarn sets up new yarn version if different from the one installed, installs deps and creates cache dir' {
+@test 'yarn 1.22.10 is installed and available by default' {
+  run yarn --version
+  assert_output $YARN_DEFAULT_VERSION
+}
+
+@test 'run_yarn with a new yarn version correctly sets the new yarn binary in PATH' {
+  local newYarnVersion=1.21.0
+  # We can't use bats `run` because environmental changes aren't persisted
+  # We also need to ignore the exit code as the test env is set to return on any non-zero exit code, which we use for
+  # our workspaces checks
+  run_yarn $newYarnVersion || true > /dev/null 2>&1
+
+  # New yarn binary is set in PATH
+  run yarn --version
+  assert_output $newYarnVersion
+}
+
+@test 'run_yarn installs a new yarn version if different from the one installed, installs deps and creates cache dir' {
   local newYarnVersion=1.21.0
   run run_yarn $newYarnVersion
   assert_success

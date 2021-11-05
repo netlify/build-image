@@ -246,7 +246,7 @@ RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.s
 
 ENV NVM_VERSION=0.38.0
 
-# Install node.js
+# Install node.js, yarn, grunt, bower and elm
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd ~/.nvm && \
@@ -263,6 +263,7 @@ RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          npm install -g grunt-cli bower elm@$ELM_VERSION && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
+ENV PATH "/opt/buildhome/.yarn/bin:$PATH"
 
 USER root
 

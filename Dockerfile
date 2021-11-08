@@ -132,6 +132,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libxss1 \
         libxtst6 \
         libvips-dev \
+        libvips-tools \
         libyaml-dev \
         mercurial \
         nasm \

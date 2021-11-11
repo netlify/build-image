@@ -45,7 +45,7 @@ If required, someone with write accesss to the repo can trigger the push for you
 
 1. Merge the relevant package release PR created by `release-please`
 2. Wait for the CI pipelines to finish
-3. Create a PR in the [buildbot](https://github.com/netlify/buildbot) to bump [the version](https://github.com/netlify/buildbot/blob/0ada244ab84a1759a70d6b2cfc27c9987b5c77ca/.circleci/config.yml#L141-L150) of the `build-image`.
+3. Renovate should take care of creating a PR in `buildbot` with the latest `build-image` releases. All you need to do is review and test the PR. If you're in a hurry though you can create a PR in [buildbot](https://github.com/netlify/buildbot) yourself to bump [the version](https://github.com/netlify/buildbot/blob/0ada244ab84a1759a70d6b2cfc27c9987b5c77ca/.circleci/config.yml#L141-L150).
 
 ### Running Test `buildbot` Releases
 

@@ -207,7 +207,7 @@ check_python_version() {
     echo "Python version set to ${PYTHON_VERSION}"
   else
     echo "Error setting python version from $1"
-    echo "Please see https://github.com/netlify/build-image/blob/focal/included_software.md for current versions"
+    echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
     exit 1
   fi
 }
@@ -436,7 +436,7 @@ install_dependencies() {
       fi
     else
       echo "Error installing Pipenv dependencies"
-      echo "Please see https://github.com/netlify/build-image/blob/focal/included_software.md for current versions"
+      echo "Please see https://github.com/netlify/build-image/#included-software for current versions"
       exit 1
     fi
   fi

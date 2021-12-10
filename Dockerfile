@@ -480,6 +480,8 @@ ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}
 ARG NF_IMAGE_NAME
 ENV NF_IMAGE_NAME ${NF_IMAGE_NAME:-focal}
 
+# CI signal, we set it at image level so that any Buildbot command will inherit this flag
+ENV NETLIFY=true
 
 ################################################################################
 #

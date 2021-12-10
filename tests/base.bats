@@ -21,3 +21,7 @@ load '../node_modules/bats-assert/load'
 @test 'NF_IMAGE_NAME is set to focal' {
   assert_equal $NF_IMAGE_NAME "focal"
 }
+
+@test 'NETLIFY is set to true' {
+  assert_equal $NETLIFY true
+}

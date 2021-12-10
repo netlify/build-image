@@ -21,3 +21,7 @@ load '../node_modules/bats-assert/load'
 @test 'NF_IMAGE_NAME is set to xenial' {
   assert_equal $NF_IMAGE_NAME "xenial"
 }
+
+@test 'NETLIFY is set to true' {
+  assert_equal $NETLIFY true
+}

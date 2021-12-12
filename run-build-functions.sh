@@ -380,6 +380,15 @@ install_dependencies() {
     echo "PHP version $PHP_VERSION does not exist"
     exit 1
   fi
+  
+  # Homebrew from Brewfile
+  if [ -f Brewfile.netlify ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
+  then
+    : ${HOMEBREW_BUNDLE_FILE:="Brewfile.netlify"}
+    export HOMEBREW_BUNDLE_FILE
+    echo "Installing Homebrew dependencies from ${HOMEBREW_BUNDLE_FILE}"
+    brew bundle
+  fi
 
   # Rubygems
   if [ -f Gemfile ]
@@ -488,15 +497,6 @@ install_dependencies() {
       echo "Error building Swift package"
       exit 1
     fi
-  fi
-
-  # Homebrew from Brewfile
-  if [ -f Brewfile.netlify ] || [ ! -z "$HOMEBREW_BUNDLE_FILE" ]
-  then
-    : ${HOMEBREW_BUNDLE_FILE:="Brewfile.netlify"}
-    export HOMEBREW_BUNDLE_FILE
-    echo "Installing Homebrew dependencies from ${HOMEBREW_BUNDLE_FILE}"
-    brew bundle
   fi
 
   # NPM Dependencies

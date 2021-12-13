@@ -30,9 +30,6 @@ export PIPENV_RUNTIME=3.8
 export PIPENV_VENV_IN_PROJECT=1
 export PIPENV_DEFAULT_PYTHON_VERSION=3.8
 
-# CI signal
-export NETLIFY=true
-
 YELLOW="\033[0;33m"
 NC="\033[0m" # No Color
 

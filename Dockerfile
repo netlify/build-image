@@ -412,9 +412,10 @@ RUN gimme | bash
 #
 ################################################################################
 WORKDIR /tmp
+ENV DOTNET_VERSION 6.0
 RUN wget https://dot.net/v1/dotnet-install.sh
 RUN chmod u+x /tmp/dotnet-install.sh
-RUN /tmp/dotnet-install.sh -c Current
+RUN /tmp/dotnet-install.sh -c ${DOTNET_VERSION}
 ENV PATH "$PATH:/opt/buildhome/.dotnet/tools"
 ENV PATH "$PATH:/opt/buildhome/.dotnet"
 ENV DOTNET_ROOT "/opt/buildhome/.dotnet"

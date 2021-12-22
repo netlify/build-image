@@ -683,13 +683,14 @@ install_dependencies() {
 
   if [ "$GIMME_GO_VERSION" != "$installGoVersion" ]
   then
-    echo "Installing Go version $installGoVersion"
-    GIMME_ENV_PREFIX=$HOME/.gimme_cache/env GIMME_VERSION_PREFIX=$HOME/.gimme_cache/versions gimme $installGoVersion
+    resolvedGoVersion=$(gimme --resolve $installGoVersion)
+    echo "Installing Go version $resolvedGoVersion (requested $installGoVersion)"
+    GIMME_ENV_PREFIX=$HOME/.gimme_cache/env GIMME_VERSION_PREFIX=$HOME/.gimme_cache/versions gimme $resolvedGoVersion
     if [ $? -eq 0 ]
     then
-      source $HOME/.gimme_cache/env/go$installGoVersion.linux.amd64.env
+      source $HOME/.gimme_cache/env/go$resolvedGoVersion.linux.amd64.env
     else
-      echo "Failed to install Go version '$installGoVersion'"
+      echo "Failed to install Go version '$resolvedGoVersion'"
       exit 1
     fi
   else

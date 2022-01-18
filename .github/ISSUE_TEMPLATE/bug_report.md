@@ -10,7 +10,7 @@ assignees: ''
 
 Before submitting an issue, please reach out to our support team via the helpdesk if you're a Pro or higher customer (email support@netlify.com from your netlify login email as shown at https://app.netlify.com/user/settings) or in the forums otherwise (https://answers.netlify.com)? Our Support engineers should be able to help you get things rolling smoother.
 
-Once you've reached to support, and determined there is a bug in our `build-image`, please follow the steps below to submit the bug report.
+Once you've reached out to support, and determined there is a bug in our `build-image`, please follow the steps below to submit the bug report.
 
 **Describe the bug**
 

@@ -281,6 +281,11 @@ install_dependencies() {
     fi
   fi
 
+  if [ "$NODE_ENV" == "production" ]
+  then
+     warn "NODE_ENV is set to 'production'. Any devDependencies in package.json will not be installed"
+  fi
+
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]
   then
@@ -887,4 +892,8 @@ unset_go_import_path() {
   then
     unlink $GOPATH/src/$GO_IMPORT_PATH
   fi
+}
+
+warn() {
+  echo "WARNING: $1"
 }

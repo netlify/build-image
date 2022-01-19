@@ -281,11 +281,6 @@ install_dependencies() {
     fi
   fi
 
-  if [ "$NODE_ENV" == "production" ]
-  then
-     warn "NODE_ENV is set to 'production'. Any devDependencies in package.json will not be installed"
-  fi
-
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]
   then
@@ -511,6 +506,11 @@ install_dependencies() {
 
   if [ -f package.json ]
   then
+    if [ "$NODE_ENV" == "production" ]
+    then
+      warn "The environment variable 'NODE_ENV' is set to 'production'. Any 'devDependencies' in package.json will not be installed"
+    fi
+
     if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
     then
       run_yarn $YARN_VERSION

@@ -43,10 +43,11 @@ If required, someone with write accesss to the repo can trigger the push for you
 
 ## Releasing
 
-1. Merge the relevant package release PR created by `release-please`
-2. Wait for the CI pipelines to finish
-3. Renovate should take care of creating a PR in `buildbot` with the latest `build-image` releases. All you need to do is review and test the PR. If you're in a hurry though you can create a PR in [buildbot](https://github.com/netlify/buildbot) yourself to bump [the version](https://github.com/netlify/buildbot/blob/0ada244ab84a1759a70d6b2cfc27c9987b5c77ca/.circleci/config.yml#L141-L150).
-
+1. Create two PRs, one branching off `focal` and one branching off `xenial`, with your changes applied to each.
+2. Once the PRs are approved, merge them into their respective base branches. The merge commit should also follow the [conventional commit format](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#summary).
+3. Commits which are prefaced withb `fix:` or `feat:` will trigger package release PRs created by [release-please](https://github.com/googleapis/release-please). Merge these PRs. If you need to manually trigger a release-please PR you can bump the version by creating an [empty PR](https://github.com/netlify/build-image/pull/728).
+4. Wait for the CI pipelines to finish. Renovate should automatically create a PR in `buildbot` with the latest `build-image` releases (this may not happen straight away, but you can speed it up by checking [the box in this PR](https://github.com/netlify/buildbot/issues/912) or manually create a PR to bump [the version](https://github.com/netlify/buildbot/blob/0ada244ab84a1759a70d6b2cfc27c9987b5c77ca/.circleci/config.yml#L141-L150)).
+5. Review, test and deploy the PR in `buildbot`.
 ### Running Test `buildbot` Releases
 
 If you want to test a particular `build-image` change before going through the regular release process, you can do so by creating a PR following the process above :point-up: and pointing to any `build-image` you want. Any branch

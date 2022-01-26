@@ -142,8 +142,6 @@ RUN apt-get -y update && \
         python-dev \
         python3 \
         python3-dev \
-        python3.7 \
-        python3.7-dev \
         rlwrap \
         rsync \
         software-properties-common \
@@ -285,6 +283,16 @@ USER root
 
 ENV PIPENV_RUNTIME 2.7
 
+# install Python3.7 through pyenv as it is no longer available packaged for xenial
+RUN curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer \
+    | bash
+RUN git clone git://github.com/pyenv/pyenv.git /tmp/pyenv && \
+    cd /tmp/pyenv/plugins/python-build && \
+    ./install.sh && \
+    rm -rf /tmp/pyenv
+
+RUN python-build 3.7.2 /opt/buildhome
+
 USER buildbot
 
 RUN virtualenv -p python2.7 --no-site-packages /opt/buildhome/python2.7 && \
@@ -295,7 +303,7 @@ RUN virtualenv -p python3.5 --no-site-packages /opt/buildhome/python3.5 && \
     /bin/bash -c 'source /opt/buildhome/python3.5/bin/activate' && \
     ln -nfs /opt/buildhome/python3.5 /opt/buildhome/python3.5.6
 
-RUN virtualenv -p python3.7 --no-site-packages /opt/buildhome/python3.7 && \
+RUN virtualenv -p /opt/buildhome/bin/python3.7 --no-site-packages /opt/buildhome/python3.7 && \
     /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
     ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.2
 

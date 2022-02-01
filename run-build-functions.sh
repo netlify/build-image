@@ -506,6 +506,11 @@ install_dependencies() {
 
   if [ -f package.json ]
   then
+    if [ "$NODE_ENV" == "production" ]
+    then
+      warn "The environment variable 'NODE_ENV' is set to 'production'. Any 'devDependencies' in package.json will not be installed"
+    fi
+
     if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
     then
       run_yarn $YARN_VERSION
@@ -887,4 +892,8 @@ unset_go_import_path() {
   then
     unlink $GOPATH/src/$GO_IMPORT_PATH
   fi
+}
+
+warn() {
+  echo "WARNING: $1"
 }

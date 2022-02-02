@@ -1,4 +1,6 @@
 FROM ubuntu:20.04 as build-image
+ARG TARGETARCH
+ENV TARGETARCH "${TARGETARCH}"
 
 LABEL maintainer Netlify
 
@@ -13,8 +15,9 @@ ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV PANDOC_VERSION 2.13
 
+RUN if [ -z "$TARGETARCH" ]; then TARGETARCH=amd64; fi;\
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
-RUN export DEBIAN_FRONTEND=noninteractive && \
+    export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https curl gnupg && \
     echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
@@ -191,15 +194,17 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 #
 ################################################################################
 
-RUN wget -nv https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_amd64.deb && \
-    dpkg -i wkhtmltox_0.12.6-1.focal_amd64.deb && \
-    rm wkhtmltox_0.12.6-1.focal_amd64.deb && \
+RUN if [ -z "$TARGETARCH" ]; then TARGETARCH=amd64; fi;\
+    wget -nv https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+    dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+    rm wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
     wkhtmltopdf -V
 
 # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
-RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-amd64.deb && \
-    dpkg -i pandoc-$PANDOC_VERSION-1-amd64.deb && \
-    rm pandoc-$PANDOC_VERSION-1-amd64.deb && \
+RUN if [ -z "$TARGETARCH" ]; then TARGETARCH=amd64; fi;\
+    wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+    dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+    rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     pandoc -v
 
 ################################################################################
@@ -302,7 +307,7 @@ ENV BINRC_VERSION 0.2.9
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
-    ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
+    ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_${TARGETARCH}/binrc_${BINRC_VERSION}_linux_${TARGETARCH} /usr/local/bin/binrc
 
 # Create a place for binrc to link/persist installs to the PATH
 USER buildbot

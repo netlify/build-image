@@ -135,6 +135,7 @@ jobs:
         default: true
     docker:
       - image: cimg/base:2021.04
+    resource_class: xlarge
     steps:
       - checkout
       - setup-remote-docker-with-experimental-feats
@@ -188,6 +189,7 @@ jobs:
         type: string
     docker:
       - image: cimg/base:2021.04
+    resource_class: xlarge
     steps:
       - setup-remote-docker-with-experimental-feats
       # Load the previously saved docker images from the CCI workspace
@@ -213,6 +215,7 @@ jobs:
         default: false
     docker:
       - image: cimg/base:2021.04
+    resource_class: xlarge
     steps:
       # Compute the env vars with the resulting docker tags and docker image names
       - compute-docker-tags:

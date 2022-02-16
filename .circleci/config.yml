@@ -130,7 +130,6 @@ jobs:
         default: true
     machine:
       image: ubuntu-2004:202111-02
-      docker_layer_caching: true
     resource_class: xlarge
     steps:
       - checkout

@@ -131,7 +131,7 @@ jobs:
     machine:
       image: ubuntu-2004:202111-02
       docker_layer_caching: true
-    resource_class: large
+    resource_class: xlarge
     steps:
       - checkout
       - setup-remote-docker-with-experimental-feats
@@ -185,7 +185,7 @@ jobs:
         type: string
     machine:
       image: ubuntu-2004:202111-02
-    resource_class: large
+    resource_class: xlarge
     steps:
       - setup-remote-docker-with-experimental-feats
       # Load the previously saved docker images from the CCI workspace
@@ -211,7 +211,7 @@ jobs:
         default: false
     machine:
       image: ubuntu-2004:202111-02
-    resource_class: large
+    resource_class: xlarge
     steps:
       # Compute the env vars with the resulting docker tags and docker image names
       - compute-docker-tags:

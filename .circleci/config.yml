@@ -11,7 +11,7 @@ commands:
           # https://support.circleci.com/hc/en-us/articles/360050448351-Enabling-Docker-Experimental-Features-on-Remote-Docker
           name: Enable Docker experimental features
           command: |
-            sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
+            sudo bash -c 'echo "{\"experimental\": true, \"features\": { \"buildkit\": true }}" > /etc/docker/daemon.json'
             sudo systemctl restart docker
 
   compute-docker-tags:

@@ -402,7 +402,7 @@ ENV PATH "$PATH:/opt/buildhome/.gimme/bin"
 ENV GOPATH "/opt/buildhome/.gimme_cache/gopath"
 ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
-ENV GIMME_GO_VERSION "1.17"
+ENV GIMME_GO_VERSION "1.17.x"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
 RUN gimme | bash
 

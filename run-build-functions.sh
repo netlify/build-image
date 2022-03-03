@@ -72,6 +72,31 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 : ${NPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
+# Run `nvm install ...`
+nvm_install() {
+  if nvm install "$@"; then
+    return 0
+  fi
+
+  # nvm install might fail due to either:
+  #  - A user error, e.g. the NODE_VERSION being an invalid version
+  #  - A third-party outage of nodejs.org/dist
+  # We distinguish between those by making a HEAD HTTP request to nodejs.org/dist
+  if curl --head --fail "$DEFAULT_NODE_MIRROR"; then
+    return 1
+  fi
+
+  echo "Could not connect to $DEFAULT_NODE_MIRROR"
+  echo "Connecting to fallback $FALLBACK_NODE_MIRROR"
+  NVM_NODEJS_ORG_MIRROR="$FALLBACK_NODE_MIRROR" nvm install "$@"
+}
+
+# Environment variable used by nvm to customize where the Node.js binaries are
+# downloaded from. Our default value matches the one from nvm.
+DEFAULT_NODE_MIRROR="${NVM_NODEJS_ORG_MIRROR:-"https://nodejs.org/dist"}"
+# When nodejs.org/dist/ is down, we try to use a mirror site as a fallback.
+FALLBACK_NODE_MIRROR="https://npmmirror.com/mirrors/node"
+
 install_deps() {
   [ -f $1 ] || return 0
   [ -f $3 ] || return 0
@@ -257,7 +282,7 @@ install_dependencies() {
     echo "Attempting node version '$NODE_VERSION' from .node-version"
   fi
 
-  if nvm install --no-progress $NODE_VERSION
+  if nvm_install --no-progress $NODE_VERSION
   then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us

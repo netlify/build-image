@@ -86,6 +86,37 @@ install_deps() {
   fi
 }
 
+restore_node_modules() {
+  local workspace_output
+  local workspace_exit_code
+  local installer=$1
+  # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
+  # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
+  # we can actually use this command for npm workspaces as well
+  workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info 2>/dev/null)"
+  workspace_exit_code=$?
+  if [ $workspace_exit_code -eq 0 ]
+  then
+    echo "$installer workspaces detected"
+    local package_locations
+    # Extract all the packages and respective locations. .data will be a JSON object like
+    # {
+    #   "my-package-1": {
+    #     "location": "packages/blog-1",
+    #     "workspaceDependencies": [],
+    #     "mismatchedWorkspaceDependencies": []
+    #   },
+    #   (...)
+    # }
+    # We need to cache all the node_module dirs, or we'll always be installing them on each run
+    mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
+    restore_js_workspaces_cache "${package_locations[@]}"
+  else
+    echo "No $installer workspaces detected"
+    restore_cwd_cache node_modules "node modules"
+  fi
+}
+
 run_yarn() {
   yarn_version=$1
   if [ -d $NETLIFY_CACHE_DIR/yarn ]
@@ -110,33 +141,7 @@ run_yarn() {
     export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
   fi
 
-
-  local workspace_output
-  local workspace_exit_code
-  # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
-  # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
-  workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info 2>/dev/null)"
-  workspace_exit_code=$?
-  if [ $workspace_exit_code -eq 0 ]
-  then
-    echo "Yarn workspaces detected"
-    local package_locations
-    # Extract all the packages and respective locations. .data will be a JSON object like
-    # {
-    #   "my-package-1": {
-    #     "location": "packages/blog-1",
-    #     "workspaceDependencies": [],
-    #     "mismatchedWorkspaceDependencies": []
-    #   },
-    #   (...)
-    # }
-    # We need to cache all the node_module dirs, or we'll always be installing them on each run
-    mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
-    restore_js_workspaces_cache "${package_locations[@]}"
-  else
-    echo "No yarn workspaces detected"
-    restore_cwd_cache node_modules "node modules"
-  fi
+  restore_node_modules "yarn"
 
   echo "Installing NPM modules using Yarn version $(yarn --version)"
   run_npm_set_temp
@@ -166,8 +171,6 @@ run_npm_set_temp() {
 }
 
 run_npm() {
-  restore_cwd_cache node_modules "node modules"
-
   if [ -n "$NPM_VERSION" ]
   then
     if [ "$(npm --version)" != "$NPM_VERSION" ]
@@ -183,6 +186,14 @@ run_npm() {
       fi
     fi
   fi
+
+  if [ -n "$EXPERIMENTAL_NPM_WORKSPACES_CACHING" ]
+  then
+    restore_node_modules "npm"
+  else
+    restore_cwd_cache node_modules "node modules"
+  fi
+
 
   if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then

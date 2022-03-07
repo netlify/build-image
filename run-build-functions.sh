@@ -171,6 +171,13 @@ run_npm_set_temp() {
 }
 
 run_npm() {
+  if [ -n "$EXPERIMENTAL_NPM_WORKSPACES_CACHING" ]
+  then
+    restore_node_modules "npm"
+  else
+    restore_cwd_cache node_modules "node modules"
+  fi
+
   if [ -n "$NPM_VERSION" ]
   then
     if [ "$(npm --version)" != "$NPM_VERSION" ]
@@ -186,14 +193,6 @@ run_npm() {
       fi
     fi
   fi
-
-  if [ -n "$EXPERIMENTAL_NPM_WORKSPACES_CACHING" ]
-  then
-    restore_node_modules "npm"
-  else
-    restore_cwd_cache node_modules "node modules"
-  fi
-
 
   if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then

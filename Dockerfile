@@ -25,7 +25,6 @@ RUN apt-get -y update && \
     apt-add-repository -y -s 'deb https://packagecloud.io/github/git-lfs/ubuntu/ xenial main' && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
-    add-apt-repository -y ppa:rwky/graphicsmagick && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     add-apt-repository -y ppa:kelleyk/emacs && \
     apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu xenial contrib' && \

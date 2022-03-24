@@ -222,6 +222,12 @@ check_python_version() {
   fi
 }
 
+read_node_version_file() {
+  local nodeVersionFile="$1"
+  NODE_VERSION="$(cat "$nodeVersionFile")"
+  echo "Attempting node version '$NODE_VERSION' from $nodeVersionFile"
+}
+
 install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
@@ -257,14 +263,12 @@ install_dependencies() {
     echo "Finished restoring cached node version"
   fi
 
-  if [ -f .nvmrc ]
+  if [ -f ".nvmrc" ]
   then
-    NODE_VERSION=$(cat .nvmrc)
-    echo "Attempting node version '$NODE_VERSION' from .nvmrc"
-  elif [ -f .node-version ]
+    read_node_version_file ".nvmrc"
+  elif [ -f ".node-version" ]
   then
-    NODE_VERSION=$(cat .node-version)
-    echo "Attempting node version '$NODE_VERSION' from .node-version"
+    read_node_version_file ".node-version"
   fi
 
   if nvm install --no-progress $NODE_VERSION

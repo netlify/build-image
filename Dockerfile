@@ -285,7 +285,7 @@ ENV PIPENV_RUNTIME 2.7
 # install Python3.7 through pyenv as it is no longer available packaged for xenial
 RUN curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer \
     | bash
-RUN git clone git://github.com/pyenv/pyenv.git /tmp/pyenv && \
+RUN git clone https://github.com/pyenv/pyenv.git /tmp/pyenv && \
     cd /tmp/pyenv/plugins/python-build && \
     ./install.sh && \
     rm -rf /tmp/pyenv

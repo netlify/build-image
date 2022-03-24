@@ -6,18 +6,13 @@ orbs:
 commands:
   setup-remote-docker-with-experimental-feats:
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 20.10.7
       - run:
           # We need this in order to `squash` images
           # https://support.circleci.com/hc/en-us/articles/360050448351-Enabling-Docker-Experimental-Features-on-Remote-Docker
           name: Enable Docker experimental features
           command: |
-            ssh remote-docker \<<EOF
-              sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
-              sudo systemctl restart docker
-            EOF
+            sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
+            sudo systemctl restart docker
 
   compute-docker-tags:
     parameters:
@@ -133,8 +128,10 @@ jobs:
       push-images:
         type: boolean
         default: true
-    docker:
-      - image: cimg/base:2021.04
+    machine:
+      image: ubuntu-2004:202111-02
+      docker_layer_caching: true
+    resource_class: xlarge
     steps:
       - checkout
       - setup-remote-docker-with-experimental-feats
@@ -186,8 +183,9 @@ jobs:
     parameters:
       container-image:
         type: string
-    docker:
-      - image: cimg/base:2021.04
+    machine:
+      image: ubuntu-2004:202111-02
+    resource_class: xlarge
     steps:
       - setup-remote-docker-with-experimental-feats
       # Load the previously saved docker images from the CCI workspace
@@ -211,8 +209,9 @@ jobs:
       squash-images:
         type: boolean
         default: false
-    docker:
-      - image: cimg/base:2021.04
+    machine:
+      image: ubuntu-2004:202111-02
+    resource_class: xlarge
     steps:
       # Compute the env vars with the resulting docker tags and docker image names
       - compute-docker-tags:

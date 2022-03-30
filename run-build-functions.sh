@@ -72,6 +72,18 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 : ${NPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
+# Feature flags are a comma-separated list.
+# The following logic relies on the fact that feature flags cannot currently
+# have escaped commas in their value. Otherwise, parsing the list as an array,
+# e.g. using `IFS="," read -ra <<<"$1"` would be needed.
+has_feature_flag() {
+  if [[ "${1}," == *"${2},"* ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 install_deps() {
   [ -f $1 ] || return 0
   [ -f $3 ] || return 0
@@ -234,6 +246,7 @@ install_dependencies() {
   local defaultYarnVersion=$3
   local installGoVersion=$4
   local defaultPythonVersion=$5
+  local featureFlags="$6"
 
   # Python Version
   if [ -f runtime.txt ]

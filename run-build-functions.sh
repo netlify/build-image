@@ -184,14 +184,7 @@ run_npm_set_temp() {
 }
 
 run_npm() {
-  local featureFlags="$1"
-
-  if [ -n "$EXPERIMENTAL_NPM_WORKSPACES_CACHING" ] || has_feature_flag "$featureFlags" "build_image_npm_workspaces_caching"
-  then
-    restore_node_modules "npm"
-  else
-    restore_cwd_cache node_modules "node modules"
-  fi
+  restore_node_modules "npm"
 
   if [ -n "$NPM_VERSION" ]
   then

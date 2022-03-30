@@ -77,7 +77,8 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 # have escaped commas in their value. Otherwise, parsing the list as an array,
 # e.g. using `IFS="," read -ra <<<"$1"` would be needed.
 has_feature_flag() {
-  if [[ "${1}," == *"${2},"* ]]; then
+  if [[ "${1}," == *"${2},"* ]]
+  then
     return 0
   else
     return 1
@@ -183,7 +184,9 @@ run_npm_set_temp() {
 }
 
 run_npm() {
-  if [ -n "$EXPERIMENTAL_NPM_WORKSPACES_CACHING" ]
+  local featureFlags="$1"
+
+  if [ -n "$EXPERIMENTAL_NPM_WORKSPACES_CACHING" ] || has_feature_flag "$featureFlags" "build_image_npm_workspaces_caching"
   then
     restore_node_modules "npm"
   else
@@ -542,7 +545,7 @@ install_dependencies() {
     then
       run_yarn $YARN_VERSION
     else
-      run_npm
+      run_npm "$featureFlags"
     fi
   fi
 

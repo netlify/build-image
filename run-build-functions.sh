@@ -72,6 +72,19 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 : ${NPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
+# Feature flags are a comma-separated list.
+# The following logic relies on the fact that feature flags cannot currently
+# have escaped commas in their value. Otherwise, parsing the list as an array,
+# e.g. using `IFS="," read -ra <<<"$1"` would be needed.
+has_feature_flag() {
+  if [[ "${1}," == *"${2},"* ]]
+  then
+    return 0
+  else
+    return 1
+  fi
+}
+
 install_deps() {
   [ -f $1 ] || return 0
   [ -f $3 ] || return 0
@@ -83,6 +96,37 @@ install_deps() {
     return 1
   else
     return 0
+  fi
+}
+
+restore_node_modules() {
+  local workspace_output
+  local workspace_exit_code
+  local installer=$1
+  # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
+  # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
+  # we can actually use this command for npm workspaces as well
+  workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info 2>/dev/null)"
+  workspace_exit_code=$?
+  if [ $workspace_exit_code -eq 0 ]
+  then
+    echo "$installer workspaces detected"
+    local package_locations
+    # Extract all the packages and respective locations. .data will be a JSON object like
+    # {
+    #   "my-package-1": {
+    #     "location": "packages/blog-1",
+    #     "workspaceDependencies": [],
+    #     "mismatchedWorkspaceDependencies": []
+    #   },
+    #   (...)
+    # }
+    # We need to cache all the node_module dirs, or we'll always be installing them on each run
+    mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
+    restore_js_workspaces_cache "${package_locations[@]}"
+  else
+    echo "No $installer workspaces detected"
+    restore_cwd_cache node_modules "node modules"
   fi
 }
 
@@ -110,33 +154,7 @@ run_yarn() {
     export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
   fi
 
-
-  local workspace_output
-  local workspace_exit_code
-  # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
-  # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
-  workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info 2>/dev/null)"
-  workspace_exit_code=$?
-  if [ $workspace_exit_code -eq 0 ]
-  then
-    echo "Yarn workspaces detected"
-    local package_locations
-    # Extract all the packages and respective locations. .data will be a JSON object like
-    # {
-    #   "my-package-1": {
-    #     "location": "packages/blog-1",
-    #     "workspaceDependencies": [],
-    #     "mismatchedWorkspaceDependencies": []
-    #   },
-    #   (...)
-    # }
-    # We need to cache all the node_module dirs, or we'll always be installing them on each run
-    mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
-    restore_js_workspaces_cache "${package_locations[@]}"
-  else
-    echo "No yarn workspaces detected"
-    restore_cwd_cache node_modules "node modules"
-  fi
+  restore_node_modules "yarn"
 
   echo "Installing NPM modules using Yarn version $(yarn --version)"
   run_npm_set_temp
@@ -166,7 +184,7 @@ run_npm_set_temp() {
 }
 
 run_npm() {
-  restore_cwd_cache node_modules "node modules"
+  restore_node_modules "npm"
 
   if [ -n "$NPM_VERSION" ]
   then
@@ -212,12 +230,19 @@ check_python_version() {
   fi
 }
 
+read_node_version_file() {
+  local nodeVersionFile="$1"
+  NODE_VERSION="$(cat "$nodeVersionFile")"
+  echo "Attempting node version '$NODE_VERSION' from $nodeVersionFile"
+}
+
 install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
   local installGoVersion=$4
   local defaultPythonVersion=$5
+  local featureFlags="$6"
 
   # Python Version
   if [ -f runtime.txt ]
@@ -247,14 +272,12 @@ install_dependencies() {
     echo "Finished restoring cached node version"
   fi
 
-  if [ -f .nvmrc ]
+  if [ -f ".nvmrc" ]
   then
-    NODE_VERSION=$(cat .nvmrc)
-    echo "Attempting node version '$NODE_VERSION' from .nvmrc"
-  elif [ -f .node-version ]
+    read_node_version_file ".nvmrc"
+  elif [ -f ".node-version" ]
   then
-    NODE_VERSION=$(cat .node-version)
-    echo "Attempting node version '$NODE_VERSION' from .node-version"
+    read_node_version_file ".node-version"
   fi
 
   if nvm install --no-progress $NODE_VERSION
@@ -515,7 +538,7 @@ install_dependencies() {
     then
       run_yarn $YARN_VERSION
     else
-      run_npm
+      run_npm "$featureFlags"
     fi
   fi
 

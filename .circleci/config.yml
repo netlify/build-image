@@ -301,3 +301,23 @@ workflows:
       - run-tests:
           container-image: "netlify/build"
           requires: [build-and-push-images, build-images-for-forks, lint]
+  # A scheduled daily build and test run to detect issues early instead of during a release or fix
+  daily-test:
+    triggers: # Use the triggers key to indicate a scheduled build
+      - schedule:
+          cron: "0 8 * * *"
+          filters:
+            branches:
+              only:
+                - xenial
+                - focal
+    jobs:
+      - build-and-push-images:
+          container-image: "netlify/build"
+          build-test-image: true
+          save-images-in-workflow: true
+          push-images: false
+      - run-tests:
+          container-image: "netlify/build"
+          requires: [build-and-push-images]
+

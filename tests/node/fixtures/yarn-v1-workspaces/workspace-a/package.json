@@ -1,0 +1,7 @@
+{
+"name": "workspace-a",
+"version": "1.0.0",
+"dependencies": {
+  "@netlify/plugins-list": "^3.6.0"
+}
+}

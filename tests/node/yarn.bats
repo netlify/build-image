@@ -11,6 +11,25 @@ YARN_CACHE_DIR=/opt/buildhome/.yarn_cache
 # So that we can speed up the `run_yarn` function and not require new yarn installs for tests
 YARN_DEFAULT_VERSION=1.22.10
 
+# So that we can backup the default installation of yarn
+YARN_DEFAULT_INSTALLATION_DIR=/opt/buildhome/.yarn
+YARN_DEFAULT_INSTALLATION_BACKUP=/opt/buildhome/yarn-default-installation
+
+setup_file() {
+  # We have to backup the default installation of yarn, because some of
+  # the tests in this file execute the `run_yarn` function, which
+  # removes the default installation.
+  mkdir $YARN_DEFAULT_INSTALLATION_BACKUP
+  cp -r $YARN_DEFAULT_INSTALLATION_DIR/*  $YARN_DEFAULT_INSTALLATION_BACKUP
+}
+
+teardown_file() {
+  # Restore the default yarn installation
+  assert_dir_not_exist $YARN_DEFAULT_INSTALLATION_DIR
+  assert_dir_exist $YARN_DEFAULT_INSTALLATION_BACKUP
+  mv $YARN_DEFAULT_INSTALLATION_BACKUP $YARN_DEFAULT_INSTALLATION_DIR
+}
+
 setup() {
   TMP_DIR=$(setup_tmp_dir)
   set_fixture_as_repo 'simple-node' "$TMP_DIR"

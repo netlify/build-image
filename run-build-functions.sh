@@ -88,21 +88,38 @@ install_deps() {
 
 restore_node_modules() {
   local workspace_output
-  local workspace_exit_code
-  local workspace_errors_logfile
-  local workspace_error_message
   local package_manager_version
   local package_locations
   local installer=$1
-  # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
-  # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
-  # we can actually use this command for npm workspaces as well
-  workspace_errors_logfile="yarn-workspace-errors-log.json"
-  workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info 2>"$workspace_errors_logfile")"
-  workspace_exit_code=$?
 
-  if [ $workspace_exit_code -eq 0 ]
+  # Workspaces do not work for public repos in yarn 1.x,
+  # but this limitation has been removed in later major versions.
+  # (see https://yarnpkg.com/features/workspaces#how-to-declare-a-worktree).
+  # Due to this difference we cannot use the global installation
+  # of yarn (which is always 1.x) to get the list of workspaces.
+  # Thus, we need to get the list of workspaces for yarn 1 and
+  # later versions separately.
+
+  package_manager_version="$(yarn --version)"
+
+  if [ "$installer" = "yarn" ] && [ "${package_manager_version:0:1}" -gt 1 ]
   then
+    # From yarn 2 there's no way to output information about repo's workspaces
+    # in pure json. Here's how the output of `yarn workspaces list --json` looks like
+    # (stringified json objects separated with new lines):
+    #
+    # ```
+    # {"location":".","name":"the-monorepo"}
+    # {"location":"packages/blog-1","name":"dev blog"}
+    # {"location":"packages/blog-2","name":"personal blog"}
+    # ```
+    workspace_output=[$(paste -s -d ',' <(yarn workspaces list --json 2>/dev/null))]
+
+    mapfile -t package_locations <<<"$(jq -r '.[].location | select(. != ".")' <<<"$workspace_output")"
+  else
+    local workspace_exit_code
+    # We can actually use this command for npm workspaces as well
+    workspace_output="$(yarn workspaces --json info 2>/dev/null)"
     # .data will be a JSON object like
     # {
     #   "my-package-1": {
@@ -113,35 +130,10 @@ restore_node_modules() {
     #   (...)
     # }
     # We need to cache all the node_module dirs, or we'll always be installing them on each run
-    mapfile -t package_locations <<<"$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
-  else
-    # In yarn 1.x workspaces only work on private repos.
-    # See https://classic.yarnpkg.com/lang/en/docs/workspaces/#toc-how-to-use-it
-    # we have to check the error message to see if the repo is public and uses
-    # yarn 2 (or greater) with workspaces
-    if [ $workspace_exit_code -eq 1 ]
+    workspace_exit_code=$?
+    if [ "$workspace_exit_code" -eq 0 ]
     then
-      workspace_error_message=$(jq -r ".data" "$workspace_errors_logfile" 2>/dev/null)
-      package_manager_version=$(yarn --version)
-      if [ "${package_manager_version:0:1}" -gt 1 ] && [ "$workspace_error_message" = "Workspaces can only be enabled in private projects." ]
-      then
-        # From yarn 2 there's no way to output information about repo's workspaces
-        # in pure json. Here's how the output of `yarn workspaces list --json` looks like
-        # (stringified json objects separated with new lines):
-        #
-        # ```
-        # {"location":".","name":"the-monorepo"}
-        # {"location":"packages/blog-1","name":"dev blog"}
-        # {"location":"packages/blog-2","name":"personal blog"}
-        # ```
-        workspace_output=[$(paste -s -d ',' <(yarn workspaces list --json 2>/dev/null))]
-        workspace_exit_code=$?
-
-        if [ $workspace_exit_code -eq 0 ]
-        then
-          mapfile -t package_locations <<<"$(jq -r '.[].location | select(. != ".")' <<<"$workspace_output")"
-        fi
-      fi
+      mapfile -t package_locations <<<"$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
     fi
   fi
 

@@ -670,39 +670,7 @@ install_dependencies() {
     composer install
   fi
 
-  # Go version
-  restore_home_cache ".gimme_cache" "go cache"
-  if [ -f .go-version ]
-  then
-    local goVersion=$(cat .go-version)
-    if [ "$installGoVersion" != "$goVersion" ]
-    then
-      installGoVersion="$goVersion"
-    fi
-  fi
-
-  if [ "$GIMME_GO_VERSION" != "$installGoVersion" ]
-  then
-    echo "Installing Go version $installGoVersion"
-    GIMME_ENV_PREFIX=$HOME/.gimme_cache/env GIMME_VERSION_PREFIX=$HOME/.gimme_cache/versions gimme $installGoVersion
-    if [ $? -eq 0 ]
-    then
-      source $HOME/.gimme_cache/env/go$installGoVersion.linux.amd64.env
-    else
-      echo "Failed to install Go version '$installGoVersion'"
-      exit 1
-    fi
-  else
-    gimme | bash
-    if [ $? -eq 0 ]
-    then
-      source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
-    else
-      echo "Failed to install Go version '$GIMME_GO_VERSION'"
-      exit 1
-    fi
-  fi
-
+  install_go $installGoVersion
   # Rust
   if [ -f Cargo.toml ] || [ -f Cargo.lock ]
   then
@@ -920,3 +888,42 @@ unset_go_import_path() {
 warn() {
   echo "WARNING: $1"
 }
+
+install_go() {
+  local installGoVersion=$1
+  # Go version
+  restore_home_cache ".gimme_cache" "go cache"
+  if [ -f .go-version ]
+  then
+    local goVersion=$(cat .go-version)
+    if [ "$installGoVersion" != "$goVersion" ]
+    then
+      installGoVersion="$goVersion"
+    fi
+  fi
+
+  if [ "$GIMME_GO_VERSION" != "$installGoVersion" ]
+  then
+    resolvedGoVersion=$(gimme --resolve $installGoVersion)
+    echo "Installing Go version $resolvedGoVersion (requested $installGoVersion)"
+    GIMME_ENV_PREFIX=$HOME/.gimme/env GIMME_VERSION_PREFIX=$HOME/.gimme/versions gimme $resolvedGoVersion
+    if [ $? -eq 0 ]
+    then
+      source $HOME/.gimme/env/go$resolvedGoVersion.linux.amd64.env
+    else
+      echo "Failed to install Go version '$resolvedGoVersion'"
+      exit 1
+    fi
+  else
+    gimme | bash
+    if [ $? -eq 0 ]
+    then
+      source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
+    else
+      echo "Failed to install Go version '$GIMME_GO_VERSION'"
+      exit 1
+    fi
+  fi
+
+}
+

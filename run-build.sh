@@ -21,7 +21,7 @@ cd $NETLIFY_REPO_DIR
 : ${NODE_VERSION="16"}
 : ${RUBY_VERSION="2.7.2"}
 : ${YARN_VERSION="1.22.10"}
-: ${GO_VERSION="1.16.5"}
+: ${GO_VERSION="1.17"}
 : ${PYTHON_VERSION="3.8"}
 
 echo "Installing dependencies"

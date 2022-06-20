@@ -462,7 +462,7 @@ ENV PATH "$PATH:/opt/buildhome/.cargo/bin"
 USER root
 
 # Add buildscript for local testing
-RUN mkdir -p /opt/build-bin
+RUN mkdir -p /opt/build /opt/build-bin
 ADD run-build-functions.sh /opt/build-bin/run-build-functions.sh
 ADD run-build.sh /opt/build-bin/build
 ADD buildbot-git-config /root/.gitconfig

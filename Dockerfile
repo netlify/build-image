@@ -1,5 +1,5 @@
 FROM ubuntu:20.04 as build-image
-ARG TARGETARCH
+ARG TARGETARCH=amd64
 ENV TARGETARCH "${TARGETARCH}"
 
 LABEL maintainer Netlify
@@ -15,9 +15,8 @@ ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV PANDOC_VERSION 2.13
 
-RUN if [ -z "$TARGETARCH" ]; then TARGETARCH=amd64; fi;\
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
-    export DEBIAN_FRONTEND=noninteractive && \
+RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends software-properties-common language-pack-en-base apt-transport-https curl gnupg && \
     echo 'Acquire::Languages {"none";};' > /etc/apt/apt.conf.d/60language && \
@@ -194,15 +193,13 @@ RUN if [ -z "$TARGETARCH" ]; then TARGETARCH=amd64; fi;\
 #
 ################################################################################
 
-RUN if [ -z "$TARGETARCH" ]; then TARGETARCH=amd64; fi;\
-    wget -nv https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+RUN wget -nv https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
     dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
     rm wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
     wkhtmltopdf -V
 
 # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
-RUN if [ -z "$TARGETARCH" ]; then TARGETARCH=amd64; fi;\
-    wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     pandoc -v

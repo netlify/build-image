@@ -336,6 +336,7 @@ install_dependencies() {
     echo "Started restoring cached ruby version"
     rm -rf $RVM_DIR/rubies/${fulldruby}
     cp -p -r $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} $RVM_DIR/rubies/
+    cp -p -r $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} $RVM_DIR/gems/
     echo "Finished restoring cached ruby version"
   fi
 

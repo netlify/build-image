@@ -175,6 +175,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         xfonts-75dpi \
         xvfb \
         zip \
+        zstd \
 # dotnet core dependencies
 	libunwind8-dev \
 	libicu-dev \

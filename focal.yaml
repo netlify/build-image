@@ -1,0 +1,56 @@
+schemaVersion: "2.0.0"
+
+metadataTest:
+  env:
+    - key: TARGETARCH
+      value: amd64
+    - key: NF_IMAGE_NAME
+      value: focal
+    - key: LANGUAGE
+      value: "en_US:en"
+    - key: LANG
+      value: "en_US.UTF-8"
+    - key: LC_ALL
+      value: "en_US.UTF-8"
+  labels:
+    - key: maintainer
+      value: Netlify
+
+fileExistenceTests:
+  - name: "build-bin"
+    path: " /opt/build-bin"
+    shouldExist: true
+
+commandTests:
+  - name: "node"
+    command: "node"
+    args: ["--version"]
+    expectedOutput: ["12.0.0"]
+  - name: "Go"
+    command: "go"
+    args: ["version"]
+    expectedOutput: ["go version go1.18.2 darwin/arm64"]
+  - name: "Node Version Manager"
+    command: "nvm"
+    args: ["--version"]
+    expectedOutput: ["0.39.0"]
+  - name: "Ruby"
+    command: "ruby"
+    args: ["-v"]
+    expectedOutput: ["ruby 2.6.8p205"]
+  - name: "Python"
+    command: "python"
+    args: ["-v"]
+    expectedOutput: ["ruby 2.6.8p205"]
+  - name: "Elm Compiler"
+    command: "elm"
+    args: ["-v"]
+    expectedOutput: ["ruby 2.6.8p205"]
+  - name: "wkhtmltopdf"
+    command: "wkhtmltopdf"
+    args: ["-V"]
+    expectedOutput: ["12.0.0"]
+  - name: "Pandoc"
+    command: "pandoc"
+    args: ["-v"]
+    expectedOutput: ["12.0.0"]

@@ -156,6 +156,7 @@ RUN apt-get -y update && \
         xfonts-75dpi \
         xvfb \
         zip \
+        zstd \
 # dotnet core dependencies
 	libunwind8-dev \
 	libicu-dev \

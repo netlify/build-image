@@ -6,6 +6,12 @@ metadataTest:
       value: amd64
     - key: NF_IMAGE_NAME
       value: focal
+    - key: NF_IMAGE_TAG
+      value: "^.+" # checks if it is set
+      isRegex: true
+    - key: NF_IMAGE_VERSION
+      value: "^.+" # checks if it is set
+      isRegex: true
     - key: LANGUAGE
       value: "en_US:en"
     - key: LANG
@@ -17,40 +23,20 @@ metadataTest:
       value: Netlify
 
 fileExistenceTests:
-  - name: "build-bin"
-    path: " /opt/build-bin"
+  - name: "Home directory"
+    path: "/opt/buildhome/"
     shouldExist: true
+    permissions: "drwxr-xr-x"
+    uid: 2500 # buildbot
+    gid: 2500 # buildbot
 
 commandTests:
-  - name: "node"
-    command: "node"
+  - name: "zstd compression library"
+    command: "zstd"
     args: ["--version"]
-    expectedOutput: ["12.0.0"]
-  - name: "Go"
-    command: "go"
-    args: ["version"]
-    expectedOutput: ["go version go1.18.2 darwin/arm64"]
-  - name: "Node Version Manager"
-    command: "nvm"
-    args: ["--version"]
-    expectedOutput: ["0.39.0"]
-  - name: "Ruby"
-    command: "ruby"
-    args: ["-v"]
-    expectedOutput: ["ruby 2.6.8p205"]
-  - name: "Python"
-    command: "python"
-    args: ["-v"]
-    expectedOutput: ["ruby 2.6.8p205"]
-  - name: "Elm Compiler"
-    command: "elm"
-    args: ["-v"]
-    expectedOutput: ["ruby 2.6.8p205"]
+    expectedOutput: ["zstd command line interface 64-bits v1.4.8"]
+
   - name: "wkhtmltopdf"
     command: "wkhtmltopdf"
     args: ["-V"]
-    expectedOutput: ["12.0.0"]
-  - name: "Pandoc"
-    command: "pandoc"
-    args: ["-v"]
-    expectedOutput: ["12.0.0"]
+    expectedOutput: ["wkhtmltopdf 0.12.6"]

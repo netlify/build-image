@@ -187,6 +187,7 @@ jobs:
       image: ubuntu-2004:202111-02
     resource_class: xlarge
     steps:
+      - checkout
       - setup-remote-docker-with-experimental-feats
       # Load the previously saved docker images from the CCI workspace
       - load-images
@@ -199,7 +200,9 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            container-structure-test test --image ${SHA1_IMAGE_URL}-test --config focal.yaml --test-report junit
+            container-structure-test test --image ${SHA1_IMAGE_URL} --config focal.yaml --test-report container-structure.xml --output junit
+      - store_test_results:
+          path: ./container-structure.xml
 
   run-tests:
     parameters:

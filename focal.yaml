@@ -1,6 +1,10 @@
 schemaVersion: "2.0.0"
 
 metadataTest:
+  entrypoint: []
+  cmd: ["bash"]
+  workdir: "/"
+  user: "buildbot"
   env:
     - key: TARGETARCH
       value: amd64
@@ -40,3 +44,13 @@ commandTests:
     command: "wkhtmltopdf"
     args: ["-V"]
     expectedOutput: ["wkhtmltopdf 0.12.6"]
+
+  - name: "vips is installed and CLI tools are available"
+    command: "vips"
+    args: ["-v"]
+    expectedOutput: ["vips-8.9.1-Sun"]
+
+  - name: "DOTNet version 6.0 is installed and available at startup"
+    command: "dotnet"
+    args: ["--version"]
+    expectedOutput: ["6.0"]

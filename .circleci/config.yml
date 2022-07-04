@@ -179,6 +179,31 @@ jobs:
             - save-images:
                 images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
 
+  container-structure-tests:
+    parameters:
+      container-image:
+        type: string
+    machine:
+      image: ubuntu-2004:202111-02
+    resource_class: xlarge
+    steps:
+      - checkout
+      - setup-remote-docker-with-experimental-feats
+      # Load the previously saved docker images from the CCI workspace
+      - load-images
+      # Compute the env vars with the resulting docker tags and docker image names
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+      - run:
+          name: Install Google Container Structure Test
+          command: curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && mkdir -p $HOME/bin && export PATH=$PATH:$HOME/bin && mv container-structure-test-linux-amd64 $HOME/bin/container-structure-test
+      - run:
+          name: Run Tests
+          command: |
+            container-structure-test test --image ${SHA1_IMAGE_URL} --config focal.yaml --test-report container-structure.xml --output junit
+      - store_test_results:
+          path: ./container-structure.xml
+
   run-tests:
     parameters:
       container-image:
@@ -301,6 +326,9 @@ workflows:
       - run-tests:
           container-image: "netlify/build"
           requires: [build-and-push-images, build-images-for-forks, lint]
+      - container-structure-tests:
+          container-image: "netlify/build"
+          requires: [build-and-push-images, build-images-for-forks, lint]
   # A scheduled daily build and test run to detect issues early instead of during a release or fix
   daily-test:
     triggers: # Use the triggers key to indicate a scheduled build
@@ -320,4 +348,3 @@ workflows:
       - run-tests:
           container-image: "netlify/build"
           requires: [build-and-push-images]
-

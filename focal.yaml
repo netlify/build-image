@@ -1,0 +1,56 @@
+schemaVersion: "2.0.0"
+
+metadataTest:
+  entrypoint: []
+  cmd: ["bash"]
+  workdir: "/"
+  user: "buildbot"
+  env:
+    - key: TARGETARCH
+      value: amd64
+    - key: NF_IMAGE_NAME
+      value: focal
+    - key: NF_IMAGE_TAG
+      value: "^.+" # checks if it is set
+      isRegex: true
+    - key: NF_IMAGE_VERSION
+      value: "^.+" # checks if it is set
+      isRegex: true
+    - key: LANGUAGE
+      value: "en_US:en"
+    - key: LANG
+      value: "en_US.UTF-8"
+    - key: LC_ALL
+      value: "en_US.UTF-8"
+  labels:
+    - key: maintainer
+      value: Netlify
+
+fileExistenceTests:
+  - name: "Home directory"
+    path: "/opt/buildhome/"
+    shouldExist: true
+    permissions: "drwxr-xr-x"
+    uid: 2500 # buildbot
+    gid: 2500 # buildbot
+
+commandTests:
+  - name: "zstd compression library"
+    command: "zstd"
+    args: ["--version"]
+    expectedOutput: ["zstd command line interface 64-bits v1.4.8"]
+
+  - name: "wkhtmltopdf"
+    command: "wkhtmltopdf"
+    args: ["-V"]
+    expectedOutput: ["wkhtmltopdf 0.12.6"]
+
+  - name: "vips is installed and CLI tools are available"
+    command: "vips"
+    args: ["-v"]
+    expectedOutput: ["vips-8.9.1-Sun"]
+
+  - name: "DOTNet version 6.0 is installed and available at startup"
+    command: "dotnet"
+    args: ["--version"]
+    expectedOutput: ["6.0"]

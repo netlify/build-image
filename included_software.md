@@ -67,7 +67,7 @@ The specific patch versions included will depend on when the image was last buil
 * Hugo - `HUGO_VERSION`
   * 0.82 extended (default)
   * Any version installable via `binrc`.
-* Gutenburg - `GUTENBERG_VERSION`
+* Gutenberg - `GUTENBERG_VERSION`
   * Any version installable via `binrc`.
 * Zola - `ZOLA_VERSION`
   * Any version installable via `binrc`.

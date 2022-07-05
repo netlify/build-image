@@ -331,7 +331,7 @@ install_dependencies() {
   local rvs=($(rvm list strings))
 
   local fulldruby="ruby-${druby}"
-  if [ -d $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} ]
+  if [ -d $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} ] && [ -d $NETLIFY_CACHE_DIR/ruby_version_gems/${fulldruby} ]
   then
     echo "Started restoring cached ruby version"
     rm -rf $RVM_DIR/rubies/${fulldruby}
@@ -737,7 +737,7 @@ cache_artifacts() {
   # cache the version of ruby installed
   if [[ "$CUSTOM_RUBY" -ne "0" ]]
   then
-    if ! [ -d $NETLIFY_CACHE_DIR/ruby_version/ruby-$RUBY_VERSION ]
+    if ! [ -d $NETLIFY_CACHE_DIR/ruby_version/ruby-$RUBY_VERSION ] || ! [ -d $NETLIFY_CACHE_DIR/ruby_version_gems/ruby-$RUBY_VERSION ]
     then
       rm -rf $NETLIFY_CACHE_DIR/ruby_version
       mkdir $NETLIFY_CACHE_DIR/ruby_version

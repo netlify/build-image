@@ -67,9 +67,7 @@ The specific patch versions included will depend on when the image was last buil
 * Hugo - `HUGO_VERSION`
   * 0.82 extended (default)
   * Any version installable via `binrc`.
-* Gutenberg - `GUTENBERG_VERSION`
-  * Any version installable via `binrc`.
-* Zola - `ZOLA_VERSION`
+* Zola - `ZOLA_VERSION` (formerly Gutenberg - `GUTENBERG_VERSION`)
   * Any version installable via `binrc`.
 * [jq](https://stedolan.github.io/jq/) - 1.6
 * [ImageMagick](https://www.imagemagick.org) - 6.9.10 (default)

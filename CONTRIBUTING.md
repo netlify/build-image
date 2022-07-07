@@ -18,7 +18,7 @@ For testing the Docker Image we use Googles [Container Structure Tests](https://
 To install the container tests we recommend doing so by using a package manger like brew:
 
 ```
-brew install container-structure-tests
+brew install container-structure-test
 ```
 
 #### Running Container Structure Tests
@@ -26,7 +26,7 @@ brew install container-structure-tests
 To run the container structure tests you need to run the following command.
 
 ```bash
-container-structure-test test  --image netlify/build:focal --config focal.yaml
+container-structure-test test --image netlify/build:focal --config focal.yaml
 ```
 
 For further install instructions please visit the [official installation guide](https://github.com/GoogleContainerTools/container-structure-test#installation).
@@ -51,6 +51,11 @@ Some examples:
 
 Our [changelog](./CHANGELOG.md) is powered by an automated [release-please](https://github.com/googleapis/release-please) action, which relies on commits following the [conventional commit format](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#summary).
 For the CI validation to succeed, make sure that **your PRs and commits follow the conventional commits format**.
+
+#### Building locally on Apple Silicon
+
+- Create new builder: `docker builderx create --use`
+- Run build for amd64: `docker buildx build --platform linux/amd64 -t netlify/build:focal --load --target build-image .`
 
 ### CI
 

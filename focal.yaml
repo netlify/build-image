@@ -22,6 +22,24 @@ metadataTest:
       value: "en_US.UTF-8"
     - key: LC_ALL
       value: "en_US.UTF-8"
+    - key: PATH
+      value: "/home/linuxbrew/.linuxbrew/bin:\
+        /opt/buildhome/.swiftenv/bin:\
+        /opt/buildhome/.swiftenv/shims:\
+        /opt/buildhome/.php:\
+        /opt/buildhome/.binrc/bin:\
+        /opt/buildhome/.yarn/bin:\
+        /usr/local/rvm/bin:\
+        /usr/local/sbin:\
+        /usr/local/bin:\
+        /usr/sbin:\
+        /usr/bin:\
+        /sbin:/bin:\
+        /opt/buildhome/.cask/bin:\
+        /opt/buildhome/.gimme/bin:\
+        /opt/buildhome/.dotnet/tools:\
+        /opt/buildhome/.dotnet:\
+        /opt/buildhome/.cargo/bin"
   labels:
     - key: maintainer
       value: Netlify
@@ -31,6 +49,18 @@ fileExistenceTests:
     path: "/opt/buildhome/"
     shouldExist: true
     permissions: "drwxr-xr-x"
+    uid: 2500 # buildbot
+    gid: 2500 # buildbot
+
+  - name: Functions install script
+    path: "/opt/build-bin/run-build-functions.sh"
+    shouldExist: true
+    permissions: "-rwxrwxr-x"
+
+  - name: "NVM install script"
+    path: "/opt/buildhome/.nvm/nvm.sh"
+    shouldExist: true
+    permissions: "-rw-r--r--"
     uid: 2500 # buildbot
     gid: 2500 # buildbot
 
@@ -50,7 +80,65 @@ commandTests:
     args: ["-v"]
     expectedOutput: ["vips-8.9.1-Sun"]
 
+  - name: "NODE"
+    command: "bash"
+    args:
+      - "-c"
+      - |
+        source /opt/buildhome/.nvm/nvm.sh
+        echo "NVM: $(nvm --version)"
+        echo "Node: $(node --version)"
+        echo "Yarn: $(yarn --version)"
+        echo "NPM: $(npm --version)"
+    expectedOutput:
+      - "Node: v16.16.0"
+      - "NVM: 0.38.0"
+      - "Yarn: 1.22.10"
+      - "NPM: 8.11.0"
+
+  - name: hugo
+    command: "hugo"
+    args: ["version"]
+    expectedOutput: ["hugo v0.85.0-724D5DB5"]
+
+  - name: lz4 compression
+    command: "lz4"
+    args: ["--version"]
+    expectedError: # they print the version out on stderr
+      - "LZ4 command line interface 64-bits v1.8.0, by Yann Collet"
+
+  - name: "PHP"
+    command: "php"
+    args: ["--version"]
+    expectedOutput: ["PHP 8.0.21 (cli)*"]
+
+  - name: Golang
+    command: "bash"
+    args:
+      - "-c"
+      - |
+        source /opt/build-bin/run-build-functions.sh
+        install_go 1.18 > /dev/null
+        go version
+    expectedOutput:
+      - "go version go1.18 linux/amd64"
+
   - name: "DOTNet version 6.0 is installed and available at startup"
     command: "dotnet"
     args: ["--version"]
     expectedOutput: ["6.0"]
+
+  - name: "Swift"
+    command: "swiftenv"
+    args: ["--version"]
+    expectedOutput: ["swiftenv 1.5.0"]
+
+  - name: "Homebrew"
+    command: "brew"
+    args: ["--version"]
+    expectedOutput: ["Homebrew 3.5.4"]
+
+  - name: "Rustup"
+    command: "rustup"
+    args: ["--version"]
+    expectedOutput: ["rustup 1.25.1 (bb60b1e89 2022-07-12)*"]

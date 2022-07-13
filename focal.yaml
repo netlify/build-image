@@ -110,7 +110,8 @@ commandTests:
   - name: "PHP"
     command: "php"
     args: ["--version"]
-    expectedOutput: ["PHP 8.0.21 (cli)*"]
+    expectedOutput:
+      - PHP 8\.\d+\.\d+ \(cli\)
 
   - name: Golang
     command: "bash"
@@ -136,9 +137,11 @@ commandTests:
   - name: "Homebrew"
     command: "brew"
     args: ["--version"]
-    expectedOutput: ["Homebrew 3.5.4"]
+    expectedOutput:
+      - Homebrew 3\.5\.\d+
 
   - name: "Rustup"
     command: "rustup"
     args: ["--version"]
-    expectedOutput: ["rustup 1.25.1 (bb60b1e89 2022-07-12)*"]
+    expectedOutput:
+      - rustup 1\.\d+\.\d+

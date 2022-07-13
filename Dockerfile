@@ -213,22 +213,6 @@ RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-
 
 RUN adduser --system --disabled-password --uid 2500 --group --quiet buildbot --home /opt/buildhome
 
-
-################################################################################
-#
-# ASDF Version Manager
-# https://asdf-vm.com/
-#
-################################################################################
-
-USER buildbot
-
-RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.2 && \
-    /bin/bash -c ". $HOME/.asdf/asdf.sh"
-
-ENV PATH "$PATH:/opt/buildhome/.asdf/bin"
-
-
 ################################################################################
 #
 # Ruby
@@ -254,12 +238,29 @@ RUN /bin/bash -c "source ~/.rvm/scripts/rvm && \
 ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 USER root
 
+
+################################################################################
+#
+# ASDF Version Manager
+# https://asdf-vm.com/
+#
+################################################################################
+
+USER buildbot
+
+RUN git clone https://github.com/asdf-vm/asdf.git /opt/buildhome/.asdf --branch v0.10.2 && \
+    /bin/bash -c ". /opt/buildhome/.asdf/asdf.sh"
+
+ENV PATH "$PATH:/opt/buildhome/.asdf/bin"
+
+
 ################################################################################
 #
 # Node.js
 #
 ################################################################################
 
+USER root
 
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 

@@ -1,6 +1,6 @@
 FROM ubuntu:20.04 as build-image
-ARG TARGETARCH=amd64
-ENV TARGETARCH "${TARGETARCH}"
+
+ARG TARGETARCH
 
 LABEL maintainer Netlify
 
@@ -205,6 +205,17 @@ RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-
     rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     pandoc -v
 
+
+################################################################################
+#
+# Elm compiler
+#
+################################################################################
+RUN curl -L -o elm.gz https://github.com/elm/compiler/releases/download/0.19.1/binary-for-linux-64-bit.gz \
+    && gunzip elm.gz \
+    && chmod +x elm \
+    && mv elm /usr/local/bin/
+
 ################################################################################
 #
 # User
@@ -263,7 +274,7 @@ ENV NETLIFY_NODE_VERSION="16"
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
-         npm install -g grunt-cli bower elm@$ELM_VERSION && \
+         npm install -g grunt-cli bower && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 ENV PATH "/opt/buildhome/.yarn/bin:$PATH"
@@ -447,7 +458,7 @@ RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/instal
 ENV HOMEBREW_PREFIX "/home/linuxbrew/.linuxbrew"
 ENV PATH "${HOMEBREW_PREFIX}/bin:${PATH}"
 ENV HOMEBREW_CELLAR "${HOMEBREW_PREFIX}/Cellar"
-ENV HOMEBREW_REPOSITORY "${HOMEBREW_PREFIX}/Homebrew"
+ENV HOMEBREW_REPOSITORY "${HdOMEBREW_PREFIX}/Homebrew"
 ENV HOMEBREW_CACHE "/opt/buildhome/.homebrew-cache"
 RUN brew tap homebrew/bundle
 

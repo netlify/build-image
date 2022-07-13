@@ -213,6 +213,22 @@ RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-
 
 RUN adduser --system --disabled-password --uid 2500 --group --quiet buildbot --home /opt/buildhome
 
+
+################################################################################
+#
+# ASDF Version Manager
+# https://asdf-vm.com/
+#
+################################################################################
+
+USER buildbot
+
+RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.2 && \
+    /bin/bash -c ". $HOME/.asdf/asdf.sh"
+
+ENV PATH "$PATH:/opt/buildhome/.asdf/bin"
+
+
 ################################################################################
 #
 # Ruby

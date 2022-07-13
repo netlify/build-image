@@ -35,6 +35,11 @@ fileExistenceTests:
     gid: 2500 # buildbot
 
 commandTests:
+  - name: "Asdf Version Manager"
+    command: "asdf"
+    args: ["--version"]
+    expectedOutput: ["v0.10.2-7e7a1fa"]
+
   - name: "zstd compression library"
     command: "zstd"
     args: ["--version"]

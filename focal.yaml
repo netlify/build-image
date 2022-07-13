@@ -38,7 +38,7 @@ commandTests:
   - name: "Elm compiler"
     command: "elm"
     args: ["--version"]
-    expectedOutput: ["1.19.1"]
+    expectedOutput: ["0.19.1"]
 
   - name: "zstd compression library"
     command: "zstd"

@@ -1,6 +1,21 @@
 FROM ubuntu:20.04 as build-image
 
 ARG TARGETARCH
+ENV TARGETARCH "${TARGETARCH}"
+# The semver version associated with this build (i.e. v3.0.0)
+ARG NF_IMAGE_VERSION
+ENV NF_IMAGE_VERSION "${NF_IMAGE_VERSION:-latest}"
+# The commit SHA tag associated with this build
+ARG NF_IMAGE_TAG
+ENV NF_IMAGE_TAG "${NF_IMAGE_TAG:-latest}"
+# The codename associated with this build (i.e. focal)
+ARG NF_IMAGE_NAME
+ENV NF_IMAGE_NAME "${NF_IMAGE_NAME:-focal}"
+
+ENV LANGUAGE en_US:en
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV PANDOC_VERSION 2.13
 
 LABEL maintainer Netlify
 
@@ -9,11 +24,6 @@ LABEL maintainer Netlify
 # Dependencies
 #
 ################################################################################
-
-ENV LANGUAGE en_US:en
-ENV LANG en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
-ENV PANDOC_VERSION 2.13
 
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
@@ -451,18 +461,21 @@ ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
 # Homebrew
 #
 ################################################################################
+
 USER root
+
 RUN mkdir -p /home/linuxbrew/.linuxbrew && chown -R buildbot /home/linuxbrew/
+
 USER buildbot
 RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
 ENV HOMEBREW_PREFIX "/home/linuxbrew/.linuxbrew"
 ENV PATH "${HOMEBREW_PREFIX}/bin:${PATH}"
 ENV HOMEBREW_CELLAR "${HOMEBREW_PREFIX}/Cellar"
 ENV HOMEBREW_REPOSITORY "${HdOMEBREW_PREFIX}/Homebrew"
 ENV HOMEBREW_CACHE "/opt/buildhome/.homebrew-cache"
-RUN brew tap homebrew/bundle
 
-WORKDIR /
+RUN brew tap homebrew/bundle
 
 ################################################################################
 #
@@ -472,7 +485,11 @@ WORKDIR /
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
 ENV PATH "$PATH:/opt/buildhome/.cargo/bin"
 
-# Cleanup
+################################################################################
+#
+# Cleanup 🧹
+#
+################################################################################
 USER root
 
 # Add buildscript for local testing
@@ -483,18 +500,7 @@ ADD buildbot-git-config /root/.gitconfig
 RUN rm -r /tmp/*
 
 USER buildbot
-# The semver version associated with this build (i.e. v3.0.0)
-ARG NF_IMAGE_VERSION
-ENV NF_IMAGE_VERSION ${NF_IMAGE_VERSION:-latest}
-
-# The commit SHA tag associated with this build
-ARG NF_IMAGE_TAG
-ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}
-
-# The codename associated with this build (i.e. focal)
-ARG NF_IMAGE_NAME
-ENV NF_IMAGE_NAME ${NF_IMAGE_NAME:-focal}
-
+WORKDIR /
 
 ################################################################################
 #

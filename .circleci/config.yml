@@ -112,7 +112,8 @@ commands:
             docker buildx create --use
 
             docker buildx build \
-              --tag=docker.io/<< parameters.image-name >>:<< parameters.image-tags >> \
+              --tag=docker.io/<< parameters.image-name >>:SHA1_IMAGE_TAG \
+              --tag=docker.io/<< parameters.image-name >>:${BRANCH_IMAGE_TAG} \
               --progress=plain \
               --build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} \
               --build-arg NF_IMAGE_TAG=${VERSION_TAG} \
@@ -140,8 +141,6 @@ jobs:
     machine:
       image: ubuntu-2004:202111-02
       docker_layer_caching: true
-    environment:
-      DOCKER_BUILDKIT: 1
     resource_class: xlarge
     steps:
       - checkout

@@ -258,7 +258,7 @@ jobs:
     executor: docker/machine
     steps:
       - checkout
-      - docker/dockerlint
+      - docker/hadolint
 
 # Workflows are where we specify the job order and job parameters (if applicable)
 workflows:

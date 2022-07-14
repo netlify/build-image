@@ -105,11 +105,20 @@ commands:
         type: boolean
         default: false
     steps:
-      - docker/build:
-          step-name: << parameters.step-name >>
-          image: << parameters.image-name >>
-          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${VERSION_TAG} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >> --platform linux/amd64,linux/arm64"
-          tag: << parameters.image-tags >>
+      - run: echo 'export DOCKER_BUILDKIT=1' >> $BASH_ENV
+      - run:
+          name: << parameters.step-name >>
+          command: |
+            docker buildx create tls-env --use
+
+            docker buildx build \
+              --tag=docker.io/<< parameters.image-name >>:<< parameters.image-tags >> \
+              --progress=plain \
+              --build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} \
+              --build-arg NF_IMAGE_TAG=${VERSION_TAG} \
+              --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >> \
+              --platform linux/amd64,linux/arm64 \
+              .
 
 jobs:
   build-and-push-images:

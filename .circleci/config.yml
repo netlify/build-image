@@ -287,7 +287,8 @@ workflows:
   # Workflow responsible for building, pushing and testing branches and PR forks
   build-test-and-push:
     jobs:
-      - docker/hadolint
+      - docker/hadolint:
+          ignore-rules: "DL3003,DL3008,DL4001,DL4006"
       # Only push images directly if building from a trusted source
       # (i.e. not a forked repo)
       - build-and-push-images:

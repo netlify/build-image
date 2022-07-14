@@ -104,8 +104,6 @@ commands:
       squash:
         type: boolean
         default: false
-    environment:
-      DOCKER_BUILDKIT: 1
     steps:
       - docker/build:
           step-name: << parameters.step-name >>
@@ -133,6 +131,8 @@ jobs:
     machine:
       image: ubuntu-2004:202111-02
       docker_layer_caching: true
+    environment:
+      DOCKER_BUILDKIT: 1
     resource_class: xlarge
     steps:
       - checkout

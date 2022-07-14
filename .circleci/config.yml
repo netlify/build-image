@@ -105,21 +105,11 @@ commands:
         type: boolean
         default: false
     steps:
-      - run: echo 'export DOCKER_BUILDKIT=1' >> $BASH_ENV
-      - run:
-          name: << parameters.step-name >>
-          command: |
-            docker buildx create --use
-
-            docker buildx build \
-              --tag=docker.io/<< parameters.image-name >>:SHA1_IMAGE_TAG \
-              --tag=docker.io/<< parameters.image-name >>:${BRANCH_IMAGE_TAG} \
-              --progress=plain \
-              --build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} \
-              --build-arg NF_IMAGE_TAG=${VERSION_TAG} \
-              --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >> \
-              --platform linux/amd64,linux/arm64 \
-              .
+      - docker/build:
+          step-name: << parameters.step-name >>
+          image: << parameters.image-name >>
+          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${VERSION_TAG} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
+          tag: << parameters.image-tags >>
 
 jobs:
   build-and-push-images:
@@ -141,6 +131,8 @@ jobs:
     machine:
       image: ubuntu-2004:202111-02
       docker_layer_caching: true
+    environment:
+      DOCKER_BUILDKIT: 1
     resource_class: xlarge
     steps:
       - checkout

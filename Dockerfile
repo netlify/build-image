@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as build-image
+FROM --platform=$BUILDPLATFORM ubuntu:20.04 as build-image
 
 ARG TARGETARCH
 ENV TARGETARCH "${TARGETARCH}"
@@ -459,6 +459,7 @@ ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
 ################################################################################
 #
 # Homebrew
+# only available for amd64 images NOT inside arm64
 #
 ################################################################################
 
@@ -467,7 +468,7 @@ USER root
 RUN mkdir -p /home/linuxbrew/.linuxbrew && chown -R buildbot /home/linuxbrew/
 
 USER buildbot
-RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+RUN if [[ "$TARGETARCH" == "amd64" ]] ; then /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; fi
 
 ENV HOMEBREW_PREFIX "/home/linuxbrew/.linuxbrew"
 ENV PATH "${HOMEBREW_PREFIX}/bin:${PATH}"
@@ -475,7 +476,7 @@ ENV HOMEBREW_CELLAR "${HOMEBREW_PREFIX}/Cellar"
 ENV HOMEBREW_REPOSITORY "${HdOMEBREW_PREFIX}/Homebrew"
 ENV HOMEBREW_CACHE "/opt/buildhome/.homebrew-cache"
 
-RUN brew tap homebrew/bundle
+RUN if [[ "$TARGETARCH" == "amd64" ]] ; then brew tap homebrew/bundle; fi
 
 ################################################################################
 #

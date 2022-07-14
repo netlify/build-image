@@ -104,11 +104,12 @@ commands:
       squash:
         type: boolean
         default: false
+    environment:
+      DOCKER_BUILDKIT: 1
     steps:
       - docker/build:
           step-name: << parameters.step-name >>
           image: << parameters.image-name >>
-          use-buildkit: true
           extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${VERSION_TAG} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
           tag: << parameters.image-tags >>
 

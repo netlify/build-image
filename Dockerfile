@@ -437,7 +437,7 @@ WORKDIR /tmp
 
 ENV DOTNET_VERSION 6.0
 
-RUN wget https://dot.net/v1/dotnet-install.sh && \
+RUN wget --quiet https://dot.net/v1/dotnet-install.sh && \
     chmod u+x /tmp/dotnet-install.sh && \
     /tmp/dotnet-install.sh -c ${DOTNET_VERSION}
 

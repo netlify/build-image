@@ -150,3 +150,9 @@ commandTests:
     args: ["--version"]
     expectedOutput:
       - rustup 1\.\d+\.\d+
+
+  - name: "Musl library and its tools are available"
+    command: "musl-gcc"
+    args: ["--version"]
+    expectedOutput:
+      - Ubuntu 9\.4\.\d+ # version of gcc, as musl-gcc is just a wrapper

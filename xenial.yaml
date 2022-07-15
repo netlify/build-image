@@ -6,8 +6,6 @@ metadataTest:
   workdir: "/"
   user: "buildbot"
   env:
-    - key: TARGETARCH
-      value: amd64
     - key: NF_IMAGE_NAME
       value: xenial
     - key: NF_IMAGE_TAG
@@ -65,25 +63,23 @@ fileExistenceTests:
     gid: 2500 # buildbot
 
 commandTests:
-  - name: "Elm compiler"
-    command: "elm"
-    args: ["--version"]
-    expectedOutput: ["0.19.1"]
-
   - name: "zstd compression library"
     command: "zstd"
     args: ["--version"]
-    expectedOutput: ["zstd command line interface 64-bits v1.4.8"]
+    expectedOutput:
+      - zstd command line interface 64-bits v1\.3\.\d+
 
   - name: "wkhtmltopdf"
     command: "wkhtmltopdf"
     args: ["-V"]
-    expectedOutput: ["wkhtmltopdf 0.12.6"]
+    expectedOutput:
+      - wkhtmltopdf 0\.12\.\d+
 
   - name: "vips is installed and CLI tools are available"
     command: "vips"
     args: ["-v"]
-    expectedOutput: ["vips-8.9.1-Sun"]
+    expectedOutput:
+      - vips-8\.\d+\.\d+
 
   - name: "NODE"
     command: "bash"
@@ -96,15 +92,16 @@ commandTests:
         echo "Yarn: $(yarn --version)"
         echo "NPM: $(npm --version)"
     expectedOutput:
-      - "Node: v16.16.0"
-      - "NVM: 0.38.0"
+      - "Node: v12.18.0"
+      - "NVM: 0.35.3"
       - "Yarn: 1.22.10"
-      - "NPM: 8.11.0"
+      - "NPM: 6.14.4"
 
   - name: hugo
     command: "hugo"
     args: ["version"]
-    expectedOutput: ["hugo v0.85.0-724D5DB5"]
+    expectedOutput:
+      - hugo v0\.\d+\.\d+
 
   - name: lz4 compression
     command: "lz4"
@@ -116,18 +113,7 @@ commandTests:
     command: "php"
     args: ["--version"]
     expectedOutput:
-      - PHP 8\.\d+\.\d+ \(cli\)
-
-  - name: Golang
-    command: "bash"
-    args:
-      - "-c"
-      - |
-        source /opt/build-bin/run-build-functions.sh
-        install_go 1.18 > /dev/null
-        go version
-    expectedOutput:
-      - "go version go1.18 linux/amd64"
+      - PHP 5\.6\.\d+
 
   - name: "DOTNet version 6.0 is installed and available at startup"
     command: "dotnet"

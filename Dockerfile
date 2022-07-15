@@ -1,6 +1,21 @@
-FROM ubuntu:20.04 as build-image
-ARG TARGETARCH=amd64
+FROM --platform=$BUILDPLATFORM ubuntu:20.04 as build-image
+
+ARG TARGETARCH
 ENV TARGETARCH "${TARGETARCH}"
+# The semver version associated with this build (i.e. v3.0.0)
+ARG NF_IMAGE_VERSION
+ENV NF_IMAGE_VERSION "${NF_IMAGE_VERSION:-latest}"
+# The commit SHA tag associated with this build
+ARG NF_IMAGE_TAG
+ENV NF_IMAGE_TAG "${NF_IMAGE_TAG:-latest}"
+# The codename associated with this build (i.e. focal)
+ARG NF_IMAGE_NAME
+ENV NF_IMAGE_NAME "${NF_IMAGE_NAME:-focal}"
+
+ENV LANGUAGE en_US:en
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV PANDOC_VERSION 2.13
 
 LABEL maintainer Netlify
 
@@ -9,11 +24,6 @@ LABEL maintainer Netlify
 # Dependencies
 #
 ################################################################################
-
-ENV LANGUAGE en_US:en
-ENV LANG en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
-ENV PANDOC_VERSION 2.13
 
 # language export needed for ondrej/php PPA https://github.com/oerdnj/deb.sury.org/issues/56
 RUN export DEBIAN_FRONTEND=noninteractive && \
@@ -194,16 +204,26 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 #
 ################################################################################
 
-RUN wget -nv https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
     dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
     rm wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
-    wkhtmltopdf -V
-
-# install Pandoc (more recent version to what is provided in Ubuntu 14.04)
-RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+    wkhtmltopdf -V && \
+    # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
+    wget --quiet https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     pandoc -v
+
+
+################################################################################
+#
+# Elm compiler
+#
+################################################################################
+RUN curl -L -o elm.gz https://github.com/elm/compiler/releases/download/0.19.1/binary-for-linux-64-bit.gz \
+    && gunzip elm.gz \
+    && chmod +x elm \
+    && mv elm /usr/local/bin/
 
 ################################################################################
 #
@@ -263,7 +283,7 @@ ENV NETLIFY_NODE_VERSION="16"
 
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
-         npm install -g grunt-cli bower elm@$ELM_VERSION && \
+         npm install -g grunt-cli bower && \
              bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && nvm cache clear"
 ENV PATH "/opt/buildhome/.yarn/bin:$PATH"
@@ -284,13 +304,12 @@ USER buildbot
 
 RUN virtualenv -p python2.7 /opt/buildhome/python2.7 && \
     /bin/bash -c 'source /opt/buildhome/python2.7/bin/activate' && \
-    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.18
-
-RUN virtualenv -p python3.8 /opt/buildhome/python3.8 && \
+    ln -nfs /opt/buildhome/python2.7 /opt/buildhome/python2.7.18 && \
+    virtualenv -p python3.8 /opt/buildhome/python3.8 && \
     /bin/bash -c 'source /opt/buildhome/python3.8/bin/activate' && \
-    ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.10
-
-RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
+    # Python 3.8
+    ln -nfs /opt/buildhome/python3.8 /opt/buildhome/python3.8.10 && \
+    /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 
 USER root
 
@@ -334,20 +353,17 @@ RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs
 RUN mkdir /opt/leiningen && cd /opt/leiningen && \
     curl -sL https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein > lein && \
     chmod +x lein && \
-    ln -s /opt/leiningen/lein /usr/local/bin/lein
-
-RUN mkdir /opt/boot-clj && cd /opt/boot-clj && \
+    ln -s /opt/leiningen/lein /usr/local/bin/lein && \
+    mkdir /opt/boot-clj && cd /opt/boot-clj && \
     curl -sL https://github.com/boot-clj/boot-bin/releases/download/2.5.2/boot.sh > boot && \
     chmod +x boot && \
-    ln -s /opt/boot-clj/boot /usr/local/bin/boot
-
-RUN curl -sL https://download.clojure.org/install/linux-install-1.10.1.492.sh | bash
+    ln -s /opt/boot-clj/boot /usr/local/bin/boot && \
+    curl -sL https://download.clojure.org/install/linux-install-1.10.1.492.sh | bash
 
 USER buildbot
 
-RUN lein
-
-RUN boot -u
+RUN lein && \
+    boot -u
 
 ################################################################################
 #
@@ -355,7 +371,8 @@ RUN boot -u
 #
 ################################################################################
 USER buildbot
-RUN rm -rf /opt/buildhome/.cask && git clone https://github.com/cask/cask.git /opt/buildhome/.cask
+RUN rm -rf /opt/buildhome/.cask && \
+    git clone https://github.com/cask/cask.git /opt/buildhome/.cask
 ENV PATH "$PATH:/opt/buildhome/.cask/bin"
 
 ###
@@ -381,14 +398,15 @@ USER root
 # set default to 8.0
 RUN update-alternatives --set php /usr/bin/php8.0 && \
     update-alternatives --set phar /usr/bin/phar8.0 && \
-    update-alternatives --set phar.phar /usr/bin/phar.phar8.0
-
-RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/76a7060ccb93902cd7576b67264ad91c8a2700e2/web/installer -O - -q | php -- --quiet && \
+    update-alternatives --set phar.phar /usr/bin/phar.phar8.0 && \
+    wget https://raw.githubusercontent.com/composer/getcomposer.org/76a7060ccb93902cd7576b67264ad91c8a2700e2/web/installer -O - -q | php -- --quiet && \
     mv composer.phar /usr/local/bin/composer
 
 USER buildbot
 
-RUN mkdir -p /opt/buildhome/.php && ln -s /usr/bin/php8.0 /opt/buildhome/.php/php
+RUN mkdir -p /opt/buildhome/.php && \
+    ln -s /usr/bin/php8.0 /opt/buildhome/.php/php
+
 ENV PATH "/opt/buildhome/.php:$PATH"
 
 ################################################################################
@@ -414,14 +432,19 @@ RUN gimme | bash
 # Dotnet Core
 #
 ################################################################################
+
 WORKDIR /tmp
+
 ENV DOTNET_VERSION 6.0
-RUN wget https://dot.net/v1/dotnet-install.sh
-RUN chmod u+x /tmp/dotnet-install.sh
-RUN /tmp/dotnet-install.sh -c ${DOTNET_VERSION}
+
+RUN wget --quiet https://dot.net/v1/dotnet-install.sh && \
+    chmod u+x /tmp/dotnet-install.sh && \
+    /tmp/dotnet-install.sh -c ${DOTNET_VERSION}
+
 ENV PATH "$PATH:/opt/buildhome/.dotnet/tools"
 ENV PATH "$PATH:/opt/buildhome/.dotnet"
 ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
+
 #populate local package cache
 RUN dotnet new
 
@@ -438,20 +461,24 @@ ENV PATH "$SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH"
 ################################################################################
 #
 # Homebrew
+# only available for amd64 images NOT inside arm64
 #
 ################################################################################
+
 USER root
+
 RUN mkdir -p /home/linuxbrew/.linuxbrew && chown -R buildbot /home/linuxbrew/
+
 USER buildbot
-RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+RUN if [ "$TARGETARCH" = "amd64" ] ; then /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; fi
+
 ENV HOMEBREW_PREFIX "/home/linuxbrew/.linuxbrew"
 ENV PATH "${HOMEBREW_PREFIX}/bin:${PATH}"
 ENV HOMEBREW_CELLAR "${HOMEBREW_PREFIX}/Cellar"
 ENV HOMEBREW_REPOSITORY "${HOMEBREW_PREFIX}/Homebrew"
 ENV HOMEBREW_CACHE "/opt/buildhome/.homebrew-cache"
-RUN brew tap homebrew/bundle
 
-WORKDIR /
+RUN if [ "$TARGETARCH" = "amd64" ] ; then brew tap homebrew/bundle; fi
 
 ################################################################################
 #
@@ -461,29 +488,22 @@ WORKDIR /
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
 ENV PATH "$PATH:/opt/buildhome/.cargo/bin"
 
-# Cleanup
+################################################################################
+#
+# Cleanup 🧹
+#
+################################################################################
 USER root
 
 # Add buildscript for local testing
 RUN mkdir -p /opt/build-bin
-ADD run-build-functions.sh /opt/build-bin/run-build-functions.sh
-ADD run-build.sh /opt/build-bin/build
-ADD buildbot-git-config /root/.gitconfig
+COPY run-build-functions.sh /opt/build-bin/run-build-functions.sh
+COPY run-build.sh /opt/build-bin/build
+COPY buildbot-git-config /root/.gitconfig
 RUN rm -r /tmp/*
 
 USER buildbot
-# The semver version associated with this build (i.e. v3.0.0)
-ARG NF_IMAGE_VERSION
-ENV NF_IMAGE_VERSION ${NF_IMAGE_VERSION:-latest}
-
-# The commit SHA tag associated with this build
-ARG NF_IMAGE_TAG
-ENV NF_IMAGE_TAG ${NF_IMAGE_TAG:-latest}
-
-# The codename associated with this build (i.e. focal)
-ARG NF_IMAGE_NAME
-ENV NF_IMAGE_NAME ${NF_IMAGE_NAME:-focal}
-
+WORKDIR /
 
 ################################################################################
 #
@@ -496,7 +516,7 @@ FROM build-image as build-image-test
 USER buildbot
 SHELL ["/bin/bash", "-c"]
 
-ADD --chown=buildbot:buildbot package.json /opt/buildhome/test-env/package.json
+COPY --chown=buildbot:buildbot package.json /opt/buildhome/test-env/package.json
 
 # We need to install with `--legacy-peer-deps` because of:
 # https://github.com/bats-core/bats-assert/issues/27
@@ -504,7 +524,7 @@ RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i --legacy-peer-deps &&
     ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
     ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
 
-ADD --chown=buildbot:buildbot tests /opt/buildhome/test-env/tests
+COPY --chown=buildbot:buildbot tests /opt/buildhome/test-env/tests
 WORKDIR /opt/buildhome/test-env
 
 # Set `bats` as entrypoint

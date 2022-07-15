@@ -13,6 +13,8 @@ jobs:
         continue-on-error: true
       # Build the current commit in order to run the size checks
       - name: Build Docker image
+        env:
+          DOCKER_BUILDKIT: 1
         run: docker build . --build-arg NF_IMAGE_VERSION=$GITHUB_SHA  --target build-image -t netlify/build:$GITHUB_SHA
       # Compare the new size of the docker image
       - name: Check new image size

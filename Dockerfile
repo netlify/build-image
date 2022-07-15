@@ -183,7 +183,7 @@ RUN wget -nv https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5
     wkhtmltopdf -V
 
 # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
-RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-amd64.deb && \
+RUN wget -nv https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-amd64.deb && \
     dpkg -i pandoc-$PANDOC_VERSION-1-amd64.deb && \
     rm pandoc-$PANDOC_VERSION-1-amd64.deb && \
     pandoc -v
@@ -307,8 +307,8 @@ RUN virtualenv -p /opt/buildhome/bin/python3.7 --no-site-packages /opt/buildhome
     /bin/bash -c 'source /opt/buildhome/python3.7/bin/activate' && \
     ln -nfs /opt/buildhome/python3.7 /opt/buildhome/python3.7.2
 
-RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install "setuptools<45"
-RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
+RUN /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install "setuptools<45" && \
+    /opt/buildhome/python${PIPENV_RUNTIME}/bin/pip install pipenv
 
 USER root
 
@@ -363,9 +363,8 @@ RUN curl -sL https://download.clojure.org/install/linux-install-1.10.1.492.sh | 
 
 USER buildbot
 
-RUN lein
-
-RUN boot -u
+RUN lein && \
+    boot -u
 
 ################################################################################
 #
@@ -380,8 +379,8 @@ COPY lib/php/5.6 /php/5.6
 COPY lib/php/7.2 /php/7.2
 COPY lib/php/7.4 /php/7.4
 
-RUN dpkg -i /php/dependencies/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb
-RUN dpkg -i /php/dependencies/psmisc_22.21-2.1ubuntu0.1_amd64.deb
+RUN dpkg -i /php/dependencies/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb && \
+    dpkg -i /php/dependencies/psmisc_22.21-2.1ubuntu0.1_amd64.deb
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
     dpkg -i /php/dependencies/*.deb && \
@@ -448,9 +447,9 @@ RUN gimme | bash
 ################################################################################
 WORKDIR /tmp
 ENV DOTNET_VERSION 6.0
-RUN wget https://dot.net/v1/dotnet-install.sh
-RUN chmod u+x /tmp/dotnet-install.sh
-RUN /tmp/dotnet-install.sh -c ${DOTNET_VERSION}
+RUN wget -nv https://dot.net/v1/dotnet-install.sh && \
+    chmod u+x /tmp/dotnet-install.sh && \
+    /tmp/dotnet-install.sh -c ${DOTNET_VERSION}
 ENV PATH "$PATH:/opt/buildhome/.dotnet/tools"
 ENV PATH "$PATH:/opt/buildhome/.dotnet"
 ENV DOTNET_ROOT "/opt/buildhome/.dotnet"
@@ -498,11 +497,12 @@ USER root
 
 # Add buildscript for local testing
 RUN mkdir -p /opt/build-bin
-ADD run-build-functions.sh /opt/build-bin/run-build-functions.sh
-ADD run-build.sh /opt/build-bin/build
-ADD buildbot-git-config /root/.gitconfig
-RUN rm -r /tmp/*
-RUN rm -r /php
+COPY run-build-functions.sh /opt/build-bin/run-build-functions.sh
+COPY run-build.sh /opt/build-bin/build
+COPY buildbot-git-config /root/.gitconfig
+
+RUN rm -r /tmp/* && \
+    rm -r /php
 
 USER buildbot
 # The semver version associated with this build (i.e. v3.0.0)
@@ -529,7 +529,7 @@ FROM build-image as build-image-test
 USER buildbot
 SHELL ["/bin/bash", "-c"]
 
-ADD --chown=buildbot:buildbot package.json /opt/buildhome/test-env/package.json
+COPY --chown=buildbot:buildbot package.json /opt/buildhome/test-env/package.json
 
 # We need to install with `--legacy-peer-deps` because of:
 # https://github.com/bats-core/bats-assert/issues/27
@@ -537,7 +537,7 @@ RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i --legacy-peer-deps &&
     ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
     ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
 
-ADD --chown=buildbot:buildbot tests /opt/buildhome/test-env/tests
+COPY --chown=buildbot:buildbot tests /opt/buildhome/test-env/tests
 WORKDIR /opt/buildhome/test-env
 
 # Set `bats` as entrypoint

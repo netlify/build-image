@@ -1,0 +1,132 @@
+schemaVersion: "2.0.0"
+
+metadataTest:
+  entrypoint: []
+  cmd: ["/bin/bash"]
+  workdir: "/"
+  user: "buildbot"
+  env:
+    - key: NF_IMAGE_NAME
+      value: xenial
+    - key: NF_IMAGE_TAG
+      value: "^.+" # checks if it is set
+      isRegex: true
+    - key: NF_IMAGE_VERSION
+      value: "^.+" # checks if it is set
+      isRegex: true
+    - key: LANGUAGE
+      value: "en_US:en"
+    - key: LANG
+      value: "en_US.UTF-8"
+    - key: LC_ALL
+      value: "en_US.UTF-8"
+    - key: PATH
+      value: "/home/linuxbrew/.linuxbrew/bin:\
+        /opt/buildhome/.swiftenv/bin:\
+        /opt/buildhome/.swiftenv/shims:\
+        /opt/buildhome/.php:\
+        /opt/buildhome/.binrc/bin:\
+        /opt/buildhome/.yarn/bin:\
+        /usr/local/rvm/bin:\
+        /usr/local/sbin:\
+        /usr/local/bin:\
+        /usr/sbin:\
+        /usr/bin:\
+        /sbin:/bin:\
+        /opt/buildhome/.cask/bin:\
+        /opt/buildhome/.gimme/bin:\
+        /opt/buildhome/.dotnet/tools:\
+        /opt/buildhome/.dotnet:\
+        /opt/buildhome/.cargo/bin"
+  labels:
+    - key: maintainer
+      value: Netlify
+
+fileExistenceTests:
+  - name: "Home directory"
+    path: "/opt/buildhome/"
+    shouldExist: true
+    permissions: "drwxr-xr-x"
+    uid: 2500 # buildbot
+    gid: 2500 # buildbot
+
+  - name: Functions install script
+    path: "/opt/build-bin/run-build-functions.sh"
+    shouldExist: true
+    permissions: "-rwxrwxr-x"
+
+  - name: "NVM install script"
+    path: "/opt/buildhome/.nvm/nvm.sh"
+    shouldExist: true
+    permissions: "-rw-r--r--"
+    uid: 2500 # buildbot
+    gid: 2500 # buildbot
+
+commandTests:
+  - name: "zstd compression library"
+    command: "zstd"
+    args: ["--version"]
+    expectedOutput:
+      - zstd command line interface 64-bits v1\.3\.\d+
+
+  - name: "wkhtmltopdf"
+    command: "wkhtmltopdf"
+    args: ["-V"]
+    expectedOutput:
+      - wkhtmltopdf 0\.12\.\d+
+
+  - name: "vips is installed and CLI tools are available"
+    command: "vips"
+    args: ["-v"]
+    expectedOutput:
+      - vips-8\.\d+\.\d+
+
+  - name: "NODE"
+    command: "bash"
+    args:
+      - "-c"
+      - |
+        source /opt/buildhome/.nvm/nvm.sh
+        echo "NVM: $(nvm --version)"
+        echo "Node: $(node --version)"
+        echo "Yarn: $(yarn --version)"
+        echo "NPM: $(npm --version)"
+    expectedOutput:
+      - "Node: v12.18.0"
+      - "NVM: 0.35.3"
+      - "Yarn: 1.22.10"
+      - "NPM: 6.14.4"
+
+  - name: lz4 compression
+    command: "lz4"
+    args: ["--version"]
+    expectedError: # they print the version out on stderr
+      - "LZ4 command line interface 64-bits v1.8.0, by Yann Collet"
+
+  - name: "PHP"
+    command: "php"
+    args: ["--version"]
+    expectedOutput:
+      - PHP 5\.6\.\d+
+
+  - name: "DOTNet version 6.0 is installed and available at startup"
+    command: "dotnet"
+    args: ["--version"]
+    expectedOutput: ["6.0"]
+
+  - name: "Swift"
+    command: "swiftenv"
+    args: ["--version"]
+    expectedOutput: ["swiftenv 1.5.0"]
+
+  - name: "Homebrew"
+    command: "brew"
+    args: ["--version"]
+    expectedOutput:
+      - Homebrew 3\.5\.\d+
+
+  - name: "Rustup"
+    command: "rustup"
+    args: ["--version"]
+    expectedOutput:
+      - rustup 1\.\d+\.\d+

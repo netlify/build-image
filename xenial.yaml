@@ -2,7 +2,7 @@ schemaVersion: "2.0.0"
 
 metadataTest:
   entrypoint: []
-  cmd: ["bash"]
+  cmd: ["/bin/bash"]
   workdir: "/"
   user: "buildbot"
   env:
@@ -96,12 +96,6 @@ commandTests:
       - "NVM: 0.35.3"
       - "Yarn: 1.22.10"
       - "NPM: 6.14.4"
-
-  - name: hugo
-    command: "hugo"
-    args: ["version"]
-    expectedOutput:
-      - hugo v0\.\d+\.\d+
 
   - name: lz4 compression
     command: "lz4"

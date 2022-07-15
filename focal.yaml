@@ -65,6 +65,11 @@ fileExistenceTests:
     gid: 2500 # buildbot
 
 commandTests:
+  - name: "Elm compiler"
+    command: "elm"
+    args: ["--version"]
+    expectedOutput: ["0.19.1"]
+
   - name: "zstd compression library"
     command: "zstd"
     args: ["--version"]

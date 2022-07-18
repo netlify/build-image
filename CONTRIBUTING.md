@@ -52,7 +52,7 @@ Some examples:
 Our [changelog](./CHANGELOG.md) is powered by an automated [release-please](https://github.com/googleapis/release-please) action, which relies on commits following the [conventional commit format](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#summary).
 For the CI validation to succeed, make sure that **your PRs and commits follow the conventional commits format**.
 
-#### Building locally on Apple Silicon
+#### Building amd64 image locally on Apple Silicon
 
 - Create new builder: `docker builderx create --use`
 - Run build for amd64: `docker buildx build --platform linux/amd64 -t netlify/build:focal --load --target build-image .`

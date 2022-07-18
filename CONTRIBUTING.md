@@ -3,12 +3,6 @@
 Contributions are always welcome, no matter how large or small. Before contributing,
 please read the [code of conduct](CODE_OF_CONDUCT.md).
 
-## Releasing
-
-1. Merge the relevant package release PR created by `release-please`
-2. Wait for the Jenkins build to finish
-3. Create a PR in the [buildbot](https://github.com/netlify/buildbot) to bump [the version](https://github.com/netlify/buildbot/blob/a247edab7ead955cc27bb70ecc9f081e68f1aea6/script/docker-build.sh#L17) of the `build-image`.
-
 ## Development
 
 ### Linting
@@ -17,7 +11,31 @@ please read the [code of conduct](CODE_OF_CONDUCT.md).
 
 ### Tests
 
-We have a set of automated tests in [./tests](./tests). These are [bats](https://github.com/bats-core/bats-core) tests that we use to make assertions not only on the correct functioning of our bash/shell scripts, but also of the software provided by our Docker image. Any fix or feature should be accompanied by a set of tests to validate that those changes work as expected. For an overview on how [bats works see here](https://bats-core.readthedocs.io/en/stable/).
+For testing the Docker Image we use Googles [Container Structure Tests](https://github.com/GoogleContainerTools/container-structure-test). Those tests are used to test the metadata, filesystem or installed binaries of the image.
+
+#### Installing Container Structure Tests
+
+To install the container tests we recommend doing so by using a package manger like brew:
+
+```
+brew install container-structure-tests
+```
+
+#### Running Container Structure Tests
+
+To run the container structure tests you need to run the following command.
+
+```bash
+container-structure-test test  --image netlify/build:focal --config focal.yaml
+```
+
+For further install instructions please visit the [official installation guide](https://github.com/GoogleContainerTools/container-structure-test#installation).
+
+### Testing dynamic Versions
+
+To test Golang or Node versions which are dynamically downloaded via a script on startup we have a set of automated tests in [./tests](./tests). These are [bats](https://github.com/bats-core/bats-core) tests that we use to make assertions not only on the correct functioning of our bash/shell scripts, but also of the software provided by our Docker image. For an overview on how [bats works see here](https://bats-core.readthedocs.io/en/stable/).
+
+<mark>In General any fix or feature should be accompanied by a set of tests to validate that those changes work as expected.</mark>
 
 ### Developing
 
@@ -39,10 +57,10 @@ For the CI validation to succeed, make sure that **your PRs and commits follow t
 The bulk of our CI work takes place in [Circle CI](https://app.circleci.com/pipelines/github/netlify/build-image).
 
 If **you're part of the Netlify org** and have write access to the repo, our pipeline will take care of:
+
 - Linting the Dockerfile
 - Build your Dockerfile, tag it, and push it to our [docker hub repo](https://hub.docker.com/r/netlify/build)
 - Run the automated [bats tests](#tests)
-
 
 If you **don't have write access to the repo** and are submitting a PR via a forked repo, the CI pipeline will still execute for you. The main difference is that it won't push your built image to our docker repo.
 If required, someone with write accesss to the repo can trigger the push for you. If you require it (mainly useful for testing purposes) reach out to someone on the team :+1:
@@ -54,6 +72,7 @@ If required, someone with write accesss to the repo can trigger the push for you
 3. Commits which are prefaced withb `fix:` or `feat:` will trigger package release PRs created by [release-please](https://github.com/googleapis/release-please). Merge these PRs. If you need to manually trigger a release-please PR you can bump the version by creating an [empty PR](https://github.com/netlify/build-image/pull/728).
 4. Wait for the CI pipelines to finish. Renovate should automatically create a PR in `buildbot` with the latest `build-image` releases (this may not happen straight away, but you can speed it up by checking [the box in this PR](https://github.com/netlify/buildbot/issues/912) or manually create a PR to bump [the version](https://github.com/netlify/buildbot/blob/0ada244ab84a1759a70d6b2cfc27c9987b5c77ca/.circleci/config.yml#L141-L150)).
 5. Review, test and deploy the PR in `buildbot`.
+
 ### Running Test `buildbot` Releases
 
 If you want to test a particular `build-image` change before going through the regular release process, you can do so by creating a PR following the process above :point-up: and pointing to any `build-image` you want. Any branch

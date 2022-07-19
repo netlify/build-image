@@ -132,6 +132,10 @@ RUN apt-get -y update && \
         libxtst6 \
         libyaml-dev \
         mercurial \
+        # musl and musl-tools are needed for certain rust dependencies (ring) to compile correctly
+        # see https://github.com/netlify/pillar-runtime/issues/401
+        musl \
+        musl-tools \
         nasm \
         openjdk-8-jdk \
         optipng \

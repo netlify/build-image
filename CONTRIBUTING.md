@@ -18,7 +18,7 @@ For testing the Docker Image we use Googles [Container Structure Tests](https://
 To install the container tests we recommend doing so by using a package manger like brew:
 
 ```
-brew install container-structure-tests
+brew install container-structure-test
 ```
 
 #### Running Container Structure Tests
@@ -26,7 +26,7 @@ brew install container-structure-tests
 To run the container structure tests you need to run the following command.
 
 ```bash
-container-structure-test test  --image netlify/build:focal --config focal.yaml
+container-structure-test test --image netlify/build:focal --config focal.yaml
 ```
 
 For further install instructions please visit the [official installation guide](https://github.com/GoogleContainerTools/container-structure-test#installation).

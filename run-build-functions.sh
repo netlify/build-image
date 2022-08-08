@@ -331,11 +331,14 @@ install_dependencies() {
   local rvs=($(rvm list strings))
 
   local fulldruby="ruby-${druby}"
-  if [ -d $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} ]
+  if [ -d $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} ] && [ -d $NETLIFY_CACHE_DIR/ruby_version_gems/${fulldruby} ]
   then
     echo "Started restoring cached ruby version"
     rm -rf $RVM_DIR/rubies/${fulldruby}
     cp -p -r $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} $RVM_DIR/rubies/
+
+    rm -rf $RVM_DIR/gems/${fulldruby}
+    cp -p -r $NETLIFY_CACHE_DIR/ruby_version_gems/${fulldruby} $RVM_DIR/gems/
     echo "Finished restoring cached ruby version"
   fi
 
@@ -734,15 +737,20 @@ cache_artifacts() {
   # cache the version of ruby installed
   if [[ "$CUSTOM_RUBY" -ne "0" ]]
   then
-    if ! [ -d $NETLIFY_CACHE_DIR/ruby_version/ruby-$RUBY_VERSION ]
+    if ! [ -d $NETLIFY_CACHE_DIR/ruby_version/ruby-$RUBY_VERSION ] || ! [ -d $NETLIFY_CACHE_DIR/ruby_version_gems/ruby-$RUBY_VERSION ]
     then
       rm -rf $NETLIFY_CACHE_DIR/ruby_version
       mkdir $NETLIFY_CACHE_DIR/ruby_version
       mv $RVM_DIR/rubies/ruby-$RUBY_VERSION $NETLIFY_CACHE_DIR/ruby_version/
       echo "Cached ruby version $RUBY_VERSION"
+
+      rm -rf $NETLIFY_CACHE_DIR/ruby_version_gems
+      mkdir $NETLIFY_CACHE_DIR/ruby_version_gems
+      mv $RVM_DIR/gems/ruby-$RUBY_VERSION $NETLIFY_CACHE_DIR/ruby_version_gems/
     fi
   else
     rm -rf $NETLIFY_CACHE_DIR/ruby_version
+    rm -rf $NETLIFY_CACHE_DIR/ruby_version_gems
   fi
 
   # cache the version of Swift installed

@@ -148,6 +148,8 @@ jobs:
       # depends on it and we can take advantage of the cached layers
       - run: docker buildx version
       - run: |
+          docker buildx create --use
+
           docker buildx build \
             --tag=docker.io/netlify/build:test-arm64-0 \
             --target build-image  \

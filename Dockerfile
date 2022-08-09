@@ -34,12 +34,12 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
-    apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
+    # apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
     add-apt-repository -y ppa:ondrej/php && \
-    add-apt-repository -y ppa:openjdk-r/ppa && \
-    add-apt-repository -y ppa:git-core/ppa && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu focal contrib' && \
+    # add-apt-repository -y ppa:openjdk-r/ppa && \
+    # add-apt-repository -y ppa:git-core/ppa && \
+    # add-apt-repository -y ppa:deadsnakes/ppa && \
+    # apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu focal contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -53,7 +53,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         doxygen \
         elixir \
         emacs-nox \
-        esl-erlang \
+        # esl-erlang \
         expect \
         file \
         fontconfig \

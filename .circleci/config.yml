@@ -150,7 +150,7 @@ jobs:
       - run: |
           docker buildx create --use
 
-          docker buildx build \
+          docker buildx build --progress=plain \
             --tag=docker.io/netlify/build:test-arm64-0 \
             --target build-image  \
             --platform linux/amd64,linux/arm64 \

@@ -208,3 +208,21 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     apt-get autoremove -y
 
+
+################################################################################
+#
+# Pandoc & Wkhtmltopdf
+#
+################################################################################
+
+RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb
+RUN dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb
+    # rm wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb
+
+    # wkhtmltopdf -V && \
+    # # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
+    # wget --quiet https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+    # dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+    # rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+    # pandoc -v
+

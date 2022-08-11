@@ -53,7 +53,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         doxygen \
         elixir \
         emacs-nox \
-        # esl-erlang \
         expect \
         file \
         fontconfig \
@@ -171,6 +170,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php8.0-zip \
         php8.0-intl \
         pngcrush \
+        # procps is needed for homebrew on linux arm
+        procps \
         python-setuptools \
         python3-setuptools \
         python3.8-dev \
@@ -190,13 +191,20 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         xvfb \
         zip \
         zstd \
-# dotnet core dependencies
-	libunwind8-dev \
-	libicu-dev \
-	liblttng-ust0 \
-	libkrb5-3 \
-        && \
-    /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
+      # dotnet core dependencies
+        libunwind8-dev \
+        libicu-dev \
+        liblttng-ust0 \
+        libkrb5-3
+
+RUN wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && \
+    dpkg -i erlang-solutions_2.0_all.deb && \
+    # set the DEBIAN_FRONTEND to noninteractive to install erlang
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get update && \
+    apt-get install -y esl-erlang
+
+RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     apt-get autoremove -y && \
@@ -208,15 +216,15 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 #
 ################################################################################
 
-RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
-    dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
-    rm wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
-    wkhtmltopdf -V && \
-    # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
-    wget --quiet https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
-    dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
-    rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
-    pandoc -v
+# RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+#     dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+#     rm wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+#     wkhtmltopdf -V && \
+#     # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
+#     wget --quiet https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+#     dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+#     rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+#     pandoc -v
 
 
 ################################################################################

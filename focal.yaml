@@ -96,10 +96,10 @@ commandTests:
         echo "Yarn: $(yarn --version)"
         echo "NPM: $(npm --version)"
     expectedOutput:
-      - "Node: v16.16.0"
-      - "NVM: 0.38.0"
-      - "Yarn: 1.22.10"
-      - "NPM: 8.11.0"
+      - "Node: v16.17.0"
+      - "NVM: 0.39.1"
+      - "Yarn: 1.22.19"
+      - "NPM: 8.15.0"
 
   - name: hugo
     command: "hugo"

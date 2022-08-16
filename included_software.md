@@ -44,7 +44,7 @@ The specific patch versions included will depend on when the image was last buil
 
 * Node.js
   * Yarn - `YARN_VERSION`
-    * 1.22.10 (default)
+    * 1.22.19 (default)
     * Any version available via their installer.
   * NPM - `NPM_VERSION`
     * Version corresponding with Node.js version. (default)

@@ -9,7 +9,7 @@ load '../../node_modules/bats-file/load'
 YARN_CACHE_DIR=/opt/buildhome/.yarn_cache
 
 # So that we can speed up the `run_yarn` function and not require new yarn installs for tests
-YARN_DEFAULT_VERSION=1.22.10
+YARN_DEFAULT_VERSION=1.22.19
 
 setup() {
   TMP_DIR=$(setup_tmp_dir)
@@ -25,11 +25,6 @@ teardown() {
   rm -rf "$TMP_DIR"
   # Return to original dir
   cd - || return
-}
-
-@test 'yarn 1.22.10 is installed and available by default' {
-  run yarn --version
-  assert_output $YARN_DEFAULT_VERSION
 }
 
 @test 'run_yarn with a new yarn version correctly sets the new yarn binary in PATH' {

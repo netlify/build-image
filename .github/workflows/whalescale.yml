@@ -1,25 +1,25 @@
-name: "Check docker image size"
-on: push
+# name: "Check docker image size"
+# on: push
 
-jobs:
-  Build:
-    runs-on: ubuntu-latest
+# jobs:
+#   Build:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
-      # Use docker layer caching to speed checks between executions
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        # Ignore the failure of a step and avoid terminating the job.
-        continue-on-error: true
-      # Build the current commit in order to run the size checks
-      - name: Build Docker image
-        env:
-          DOCKER_BUILDKIT: 1
-        run: docker build . --build-arg NF_IMAGE_VERSION=$GITHUB_SHA  --target build-image -t netlify/build:$GITHUB_SHA
-      # Compare the new size of the docker image
-      - name: Check new image size
-        uses: netlify/whalescale@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          currentTag: netlify/build:${{ github.sha }}
-          defaultTag: netlify/build:focal
+#     steps:
+#       - uses: actions/checkout@v2
+#       # Use docker layer caching to speed checks between executions
+#       - uses: satackey/action-docker-layer-caching@v0.0.11
+#         # Ignore the failure of a step and avoid terminating the job.
+#         continue-on-error: true
+#       # Build the current commit in order to run the size checks
+#       - name: Build Docker image
+#         env:
+#           DOCKER_BUILDKIT: 1
+#         run: docker build . --build-arg NF_IMAGE_VERSION=$GITHUB_SHA  --target build-image -t netlify/build:$GITHUB_SHA
+#       # Compare the new size of the docker image
+#       - name: Check new image size
+#         uses: netlify/whalescale@v1
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           currentTag: netlify/build:${{ github.sha }}
+#           defaultTag: netlify/build:focal

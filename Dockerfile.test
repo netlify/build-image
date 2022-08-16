@@ -196,3 +196,10 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         libicu-dev \
         liblttng-ust0 \
         libkrb5-3
+
+RUN wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && \
+    dpkg -i erlang-solutions_2.0_all.deb && \
+    # set the DEBIAN_FRONTEND to noninteractive to install erlang
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get update && \
+    apt-get install -y esl-erlang

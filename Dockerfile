@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM ubuntu:20.04 as build-image
+FROM ubuntu:20.04 as build-image
 
 ARG TARGETARCH
 ENV TARGETARCH "${TARGETARCH}"
@@ -216,16 +216,15 @@ RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
 #
 ################################################################################
 
-# RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
-#     dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
-#     rm wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
-#     wkhtmltopdf -V && \
-#     # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
-#     wget --quiet https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
-#     dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
-#     rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
-#     pandoc -v
-
+RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+    dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+    rm wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
+    wkhtmltopdf -V && \
+    # install Pandoc (more recent version to what is provided in Ubuntu 14.04)
+    wget --quiet https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+    dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+    rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
+    pandoc -v
 
 ################################################################################
 #

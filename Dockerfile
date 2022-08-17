@@ -15,7 +15,6 @@ ENV NF_IMAGE_NAME "${NF_IMAGE_NAME:-focal}"
 ENV LANGUAGE en_US:en
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-ENV PANDOC_VERSION 2.13
 
 LABEL maintainer Netlify
 
@@ -215,6 +214,8 @@ RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
 # Pandoc & Wkhtmltopdf
 #
 ################################################################################
+
+ENV PANDOC_VERSION 2.13
 
 RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
     dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \

@@ -163,16 +163,18 @@ jobs:
             echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
             echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
       - run: |
-          docker buildx create --use
-
-          docker buildx build \
+          docker build \
             --progress plain \
             --tag=<< parameters.container-image >>:focal-<< parameters.executor >> \
             --target build-image  \
             --platform linux/<< parameters.executor >> \
             -f Dockerfile.multi \
-            --push \
             .
+      # Docker login
+      - docker/check
+      - docker/push:
+          image: << parameters.container-image >>
+          tag: "focal-<< parameters.executor >>"
 
   build-and-push-platform-images:
     parameters:

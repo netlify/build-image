@@ -305,9 +305,7 @@ jobs:
     parameters:
       container-image:
         type: string
-    machine:
-      image: ubuntu-2004:202111-02
-    resource_class: xlarge
+    executor: amd64
     steps:
       - checkout
       - setup-remote-docker-with-experimental-feats
@@ -335,7 +333,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       # Load the previously saved docker images from the CCI workspace
-      # - load-images
+      - load-images
       # Compute the env vars with the resulting docker tags and docker image names
       - compute-docker-tags:
           image-name: << parameters.container-image >>
@@ -417,19 +415,31 @@ workflows:
           context: [build-image-registry]
           container-image: "netlify/build"
           build-test-image: true
-          save-images-in-workflow: false
           matrix:
             parameters:
               executor: [amd64, arm64]
 
-      - run-tests:
+      ########################################################################
+      # Tests
+      ########################################################################
+      - run-tests-amd64:
           container-image: "netlify/build"
-          requires: [build-image, docker/hadolint] # TODO: add forks here as well
-          matrix:
-            parameters:
-              executor: [amd64, arm64]
+          requires: [build-image-amd64, docker/hadolint] # TODO: add forks here as well
+          executor: amd64
 
+      - run-tests-arm64:
+          container-image: "netlify/build"
+          requires: [build-image-arm64, docker/hadolint] # TODO: add forks here as well
+          executor: arm64
+
+      # container structure tests are only running on amd64 therefore just wait for amd64 to finish
+      - container-structure-tests:
+          container-image: "netlify/build"
+          requires: [build-image-amd64, docker/hadolint] # TODO: add forks here as well
+      ########################################################################
+      # Multi arch final image
       # create a multi-arch image out of the previous images
+      ########################################################################
       - create-multi-arch-image:
           context: [build-image-registry]
           container-image: "netlify/build"

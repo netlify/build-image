@@ -114,6 +114,13 @@ commands:
 
   build-image:
     parameters:
+      arch:
+        description: The architecture the image is built for
+        default: "amd64"
+        type: string
+      dockerfile:
+        type: string
+        default: "Dockerfile"
       step-name:
         type: string
         default: "Docker build"
@@ -133,8 +140,9 @@ commands:
       - docker/build:
           step-name: << parameters.step-name >>
           image: << parameters.image-name >>
-          extra_build_args: "--build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${VERSION_TAG} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
           tag: << parameters.image-tags >>
+          extra_build_args: "--build-arg TARGETARCH=<< parameters.arch >> --build-arg NF_IMAGE_VERSION=${CIRCLE_SHA1} --build-arg NF_IMAGE_TAG=${VERSION_TAG} --target << parameters.build-target >> <<# parameters.squash >> --squash <</ parameters.squash >>"
+          dockerfile: << parameters.dockerfile >>
 
 jobs:
   build-image:
@@ -149,6 +157,9 @@ jobs:
       push-images:
         type: boolean
         default: true
+      build-test-image:
+        type: boolean
+        default: false
       save-images-in-workflow:
         type: boolean
         default: true
@@ -160,11 +171,23 @@ jobs:
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
           arch-tag: "-<< parameters.executor >>"
-      - docker/build:
-          image: << parameters.container-image >>
-          tag: "${IMAGE_TAG_LIST}"
-          extra_build_args: "--build-arg TARGETARCH=<< parameters.executor >> --target build-image"
-          dockerfile: Dockerfile
+      - build-image:
+          step-name: "Build image for << parameters.executor >>"
+          build-target: "build-image"
+          image-tags: "${IMAGE_TAG_LIST}"
+          image-name: << parameters.container-image >> # netlify/build
+          arch: "<< parameters.executor >>" # amd64 or arm64
+          squash: << parameters.squash-images >>
+      # Only build the test image if required
+      - when:
+          condition: << parameters.build-test-image >>
+          steps:
+            - build-image:
+                step-name: "Build test image for << parameters.executor >>"
+                build-target: "build-image-test"
+                image-tags: "${SHA1_IMAGE_TAG}-test"
+                image-name: << parameters.container-image >>
+                arch: "<< parameters.executor >>" # amd64 or arm64
       # Conditionally push images (not for forked PRs)
       - when:
           condition: << parameters.push-images >>
@@ -181,12 +204,17 @@ jobs:
           condition: << parameters.save-images-in-workflow >>
           steps:
             - save-images:
-                images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
+                # TODO: save for tag
+                # images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
+                images: "${SHA1_IMAGE_URL} ${SHA1_IMAGE_URL}-test"
 
   create-multi-arch-image:
     parameters:
       container-image:
         type: string
+      build-test-image:
+        type: boolean
+        default: false
     # use docker executor here as it is way faster to spin up instead of the machines
     docker:
       - image: cimg/base:current
@@ -389,6 +417,7 @@ workflows:
               ignore: /pull\/[0-9]+/ # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
           context: [build-image-registry]
           container-image: "netlify/build"
+          build-test-image: true
           matrix:
             parameters:
               executor: [amd64, arm64]

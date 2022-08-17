@@ -1,0 +1,18 @@
+FROM --platform=$BUILDPLATFORM ubuntu:20.04 AS build-base
+
+ARG TARGETARCH
+ENV TARGETARCH "${TARGETARCH}"
+
+RUN echo "arch:$TARGETARCH" > build-base.txt
+RUN apt-get -y update && \
+    apt-get install -y --no-install-recommends \
+      wget
+
+
+FROM build-base AS build-image
+
+ARG TARGETARCH
+ENV PANDOC_VERSION 2.13
+
+RUN echo "arch:$TARGETARCH" > build-image.txt
+# RUN wget https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb

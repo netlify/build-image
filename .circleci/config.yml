@@ -3,6 +3,17 @@ version: 2.1
 orbs:
   docker: circleci/docker@2.0.0
 
+executors:
+  linux/arm64:
+    machine:
+      image: ubuntu-2004:202111-02
+      docker_layer_caching: true
+    resource_class: arm.large
+  linux/amd64:
+    docker:
+      - image: cimg/base:current
+    resource_class: xlarge
+
 commands:
   setup-remote-docker-with-experimental-feats:
     steps:
@@ -112,6 +123,15 @@ commands:
           tag: << parameters.image-tags >>
 
 jobs:
+  build-image:
+    parameters:
+      os:
+        type:
+    executor: << parameters.os >>
+    steps:
+      - checkout
+      - run: uname -a
+
   build-and-push-images:
     parameters:
       container-image:
@@ -261,8 +281,15 @@ jobs:
       - docker/push:
           image: << parameters.container-image >>
           tag: "${IMAGE_TAG_LIST}"
+
 # Workflows are where we specify the job order and job parameters (if applicable)
-# workflows:
+workflows:
+  build-image:
+    jobs:
+      - build-image:
+          matrix:
+            parameters:
+              platform: [linux/amd64, linux/arm64]
 # Workflow responsible for building git tags (commonly the final releases we use within buildbot)
 # build-git-tag-and-push:
 #   jobs:

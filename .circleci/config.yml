@@ -157,14 +157,14 @@ jobs:
             echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
             echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
       - docker/build:
-          image: << parameters.container-image >>>
-          tag: ":focal-<< parameters.executor >>"
+          image: << parameters.container-image >>
+          tag: "focal-<< parameters.executor >>"
           extra_build_args: "--build-arg TARGETARCH=<< parameters.executor >> --target build-image"
           dockerfile: Dockerfile.multi
       - docker/check
       - docker/push:
           image: << parameters.container-image >>
-          tag: ":focal-<< parameters.executor >>"
+          tag: "focal-<< parameters.executor >>"
 
   create-multi-arch-image:
     parameters:

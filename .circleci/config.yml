@@ -176,6 +176,7 @@ jobs:
     steps:
       - setup_remote_docker:
           docker_layer_caching: true # DLC will explicitly cache layers here and try to avoid rebuilding.
+      - docker/check
       - run:
           name: Build multi-arch image and push to registry
           command: |

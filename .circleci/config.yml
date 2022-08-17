@@ -140,12 +140,6 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - checkout
-      - run:
-          name: Docker Version
-          command: |
-            docker version
-            docker buildx version
-            docker buildx inspect
       # Compute the env vars with the resulting docker tags and docker image names
       - compute-docker-tags:
           image-name: << parameters.container-image >>
@@ -162,18 +156,34 @@ jobs:
             echo "SHA1_IMAGE_TAG: $SHA1_IMAGE_TAG"
             echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
             echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
+      - docker/build:
+          image: << parameters.container-image >>>
+          tag: ":focal-<< parameters.executor >>"
+          extra_build_args: "--build-arg TARGETARCH=<< parameters.executor >> --target build-image"
+          dockerfile: Dockerfile.multi
       - docker/check
-      - run: |
-          docker buildx create --use
+      - docker/push:
+          image: << parameters.container-image >>
+          tag: ":focal-<< parameters.executor >>"
 
-          docker buildx build \
-            --progress plain \
-            --tag=<< parameters.container-image >>:focal-<< parameters.executor >> \
-            --target build-image  \
-            --platform linux/<< parameters.executor >> \
-            -f Dockerfile.multi \
-            --push \
-            .
+  create-multi-arch-image:
+    parameters:
+      container-image:
+        type: string
+    docker:
+      - image: cimg/base:current
+    resource_class: xlarge
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true # DLC will explicitly cache layers here and try to avoid rebuilding.
+      - run:
+          name: Build multi-arch image and push to registry
+          command: |
+            docker manifest create << parameters.container-image >>:focal-multi-arch \
+              --amend << parameters.container-image >>:focal-amd64 \
+              --amend << parameters.container-image >>:focal-arm64
+
+            docker manifest push << parameters.container-image >>:focal-multi-arch
 
   build-and-push-platform-images:
     parameters:
@@ -340,6 +350,12 @@ workflows:
           matrix:
             parameters:
               executor: [amd64, arm64]
+
+      - create-multi-arch-image:
+          context: [build-image-registry]
+          container-image: "netlify/build"
+          requires:
+            - "build-image"
   # Workflow responsible for building git tags (commonly the final releases we use within buildbot)
   # build-git-tag-and-push:
   #   jobs:

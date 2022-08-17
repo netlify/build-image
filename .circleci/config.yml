@@ -4,12 +4,12 @@ orbs:
   docker: circleci/docker@2.0.0
 
 executors:
-  linux/arm64:
+  arm64:
     machine:
       image: ubuntu-2004:202111-02
       docker_layer_caching: true
     resource_class: arm.large
-  linux/amd64:
+  amd64:
     docker:
       - image: cimg/base:current
     resource_class: xlarge
@@ -125,9 +125,9 @@ commands:
 jobs:
   build-image:
     parameters:
-      os:
-        type:
-    executor: << parameters.os >>
+      executor:
+        type: executor
+    executor: << parameters.executor >>
     steps:
       - checkout
       - run: uname -a
@@ -284,12 +284,12 @@ jobs:
 
 # Workflows are where we specify the job order and job parameters (if applicable)
 workflows:
-  build-image:
+  ci:
     jobs:
       - build-image:
           matrix:
             parameters:
-              platform: [linux/amd64, linux/arm64]
+              executor: [amd64, arm64]
 # Workflow responsible for building git tags (commonly the final releases we use within buildbot)
 # build-git-tag-and-push:
 #   jobs:

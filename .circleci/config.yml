@@ -57,6 +57,15 @@ commands:
                   echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}<< parameters.arch-tag >>' >> "$BASH_ENV"
                   echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
                   echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+
+                  # Log the variables for debugging purpose
+                  echo "VERSION_TAG: $VERSION_TAG"
+                  echo "BRANCH: $BRANCH"
+                  echo "BRANCH_IMAGE_TAG: $BRANCH_IMAGE_TAG"
+                  echo "BRANCH_IMAGE_URL: $BRANCH_IMAGE_URL"
+                  echo "SHA1_IMAGE_TAG: $SHA1_IMAGE_TAG"
+                  echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
+                  echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
       # Only create the GIT_TAG related tags if we're building a tag
       # When building tags we don't tag the image with the SHA1 commit hash because the regular push based pipeline will
       # take care of that
@@ -148,17 +157,6 @@ jobs:
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
           arch-tag: "-<< parameters.executor >>"
-      - run:
-          name: Log Variables
-          command: |
-            echo "tag-<< parameters.executor >>"
-            echo "VERSION_TAG: $VERSION_TAG"
-            echo "BRANCH: $BRANCH"
-            echo "BRANCH_IMAGE_TAG: $BRANCH_IMAGE_TAG"
-            echo "BRANCH_IMAGE_URL: $BRANCH_IMAGE_URL"
-            echo "SHA1_IMAGE_TAG: $SHA1_IMAGE_TAG"
-            echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
-            echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
       - docker/build:
           image: << parameters.container-image >>
           tag: "${IMAGE_TAG_LIST}"
@@ -184,25 +182,15 @@ jobs:
     steps:
       - compute-docker-tags:
           image-name: << parameters.container-image >>
-      - run:
-          name: Log Variables
-          command: |
-            echo "VERSION_TAG: $VERSION_TAG"
-            echo "BRANCH: $BRANCH"
-            echo "BRANCH_IMAGE_TAG: $BRANCH_IMAGE_TAG"
-            echo "BRANCH_IMAGE_URL: $BRANCH_IMAGE_URL"
-            echo "SHA1_IMAGE_TAG: $SHA1_IMAGE_TAG"
-            echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
-            echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
       - docker/check
       - run:
           name: Build multi-arch image and push to registry
           command: |
-            docker manifest create << parameters.container-image >>:$IMAGE_TAG_LIST \
-              --amend << parameters.container-image >>:$SHA1_IMAGE_TAG-amd64 \
-              --amend << parameters.container-image >>:$SHA1_IMAGE_TAG-arm64
+            docker manifest create << parameters.container-image >>:${BRANCH_IMAGE_TAG} \
+              --amend << parameters.container-image >>:${SHA1_IMAGE_TAG}-amd64 \
+              --amend << parameters.container-image >>:${SHA1_IMAGE_TAG}-arm64
 
-            docker manifest push << parameters.container-image >>:$IMAGE_TAG_LIST
+            docker manifest push << parameters.container-image >>:${BRANCH_IMAGE_TAG}
 
   build-and-push-platform-images:
     parameters:

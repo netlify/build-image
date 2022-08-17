@@ -191,7 +191,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         liblttng-ust0 \
         libkrb5-3 && \
     # install erlang
-    wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && \
+    wget --quiet https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && \
     dpkg -i erlang-solutions_2.0_all.deb && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \

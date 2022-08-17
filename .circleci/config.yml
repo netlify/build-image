@@ -27,6 +27,9 @@ commands:
 
   compute-docker-tags:
     parameters:
+      arch:
+        description: The architecture to build the image for.
+        type: string
       image-name:
         type: string
       squash:
@@ -150,7 +153,7 @@ jobs:
         type: boolean
         default: true
       executor:
-        type: executor
+        type: string
     executor: << parameters.executor >>
     environment:
       DOCKER_BUILDKIT: 1
@@ -168,47 +171,49 @@ jobs:
       # depends on it and we can take advantage of the cached layers
       - run: docker buildx version
       - run: |
-          docker buildx create --use
 
-          docker buildx build --progress=plain \
-            --tag=docker.io/netlify/build:test-arm64-0 \
-            --target build-image  \
-            --platform linux/amd64,linux/arm64 \
-            .
-      - build-image:
-          step-name: "Build final image"
-          build-target: "build-image"
-          image-tags: "${IMAGE_TAG_LIST}"
-          image-name: << parameters.container-image >>
-          squash: << parameters.squash-images >>
-      # Only build the test image if required
-      - when:
-          condition: << parameters.build-test-image >>
-          steps:
-            - build-image:
-                step-name: "Build test image"
-                build-target: "build-image-test"
-                image-tags: "${SHA1_IMAGE_TAG}-test,${BRANCH_IMAGE_TAG}-test"
-                image-name: << parameters.container-image >>
-                squash: << parameters.squash-images >>
-      # Conditionally push images
-      - when:
-          condition: << parameters.push-images >>
-          steps:
-            # Docker login
-            - docker/check
-            - docker/push:
-                image: << parameters.container-image >>
-                tag: "${IMAGE_TAG_LIST}"
-      # We persist the images in the workspace, to later use them in jobs like
-      # run tests or pushing to remote repos.
-      # We prioritise pushing the tags first and we do this conditionally because it takes a while
-      # to persist everything
-      - when:
-          condition: << parameters.save-images-in-workflow >>
-          steps:
-            - save-images:
-                images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
+          echo "tag-<< parameters.executor >>"
+          echo "VERSION_TAG: $VERSION_TAG"
+          echo "BRANCH_IMAGE_TAG: $BRANCH_IMAGE_TAG"
+          echo "BRANCH_IMAGE_URL: $BRANCH_IMAGE_URL"
+          echo "SHA1_IMAGE_TAG: $SHA1_IMAGE_TAG"
+          echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
+          echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
+
+      # - build-image:
+      #     step-name: "Build final image"
+      #     build-target: "build-image"
+      #     image-tags: "${IMAGE_TAG_LIST}"
+      #     image-name: << parameters.container-image >>
+      #     squash: << parameters.squash-images >>
+      # # Only build the test image if required
+      # - when:
+      #     condition: << parameters.build-test-image >>
+      #     steps:
+      #       - build-image:
+      #           step-name: "Build test image"
+      #           build-target: "build-image-test"
+      #           image-tags: "${SHA1_IMAGE_TAG}-test,${BRANCH_IMAGE_TAG}-test"
+      #           image-name: << parameters.container-image >>
+      #           squash: << parameters.squash-images >>
+      # # Conditionally push images
+      # - when:
+      #     condition: << parameters.push-images >>
+      #     steps:
+      #       # Docker login
+      #       - docker/check
+      #       - docker/push:
+      #           image: << parameters.container-image >>
+      #           tag: "${IMAGE_TAG_LIST}"
+      # # We persist the images in the workspace, to later use them in jobs like
+      # # run tests or pushing to remote repos.
+      # # We prioritise pushing the tags first and we do this conditionally because it takes a while
+      # # to persist everything
+      # - when:
+      #     condition: << parameters.save-images-in-workflow >>
+      #     steps:
+      #       - save-images:
+      #           images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
 
   container-structure-tests:
     parameters:
@@ -322,22 +327,22 @@ workflows:
   # Workflow responsible for building, pushing and testing branches and PR forks
   build-test-and-push:
     jobs:
-      - docker/hadolint:
-          ignore-rules: "DL3003,DL3008,DL4001,DL4006"
+      # - docker/hadolint:
+      #     ignore-rules: "DL3003,DL3008,DL4001,DL4006"
       # Only push images directly if building from a trusted source
       # (i.e. not a forked repo)
-      # - build-and-push-images:
-      #     filters:
-      #       branches:
-      #         # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
-      #         ignore: /pull\/[0-9]+/
-      #     matrix:
-      #       parameters:
-      #         executor: [amd64, arm64]
-      #     context: build-image-registry
-      #     container-image: "netlify/build"
-      #     build-test-image: true
-      #     save-images-in-workflow: true
+      - build-and-push-images:
+          filters:
+            branches:
+              # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+              ignore: /pull\/[0-9]+/
+          matrix:
+            parameters:
+              executor: [amd64, arm64]
+          context: build-image-registry
+          container-image: "netlify/build"
+          build-test-image: true
+          save-images-in-workflow: true
   #     # If building from forked repos we don't push the images directly,
   #     # instead we require a manual approval step
   #     - build-and-push-images:

@@ -10,8 +10,9 @@ executors:
       docker_layer_caching: true
     resource_class: arm.large
   amd64:
-    docker:
-      - image: cimg/base:current
+    machine:
+      image: ubuntu-2004:202111-02
+      docker_layer_caching: true
     resource_class: xlarge
 
 commands:
@@ -55,7 +56,7 @@ commands:
                   echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
                   echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}' >> "$BASH_ENV"
                   echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
-                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG}<< parameters.arch >>,${BRANCH_IMAGE_TAG}<< parameters.arch >>' >> "$BASH_ENV"
       # Only create the GIT_TAG related tags if we're building a tag
       # When building tags we don't tag the image with the SHA1 commit hash because the regular push based pipeline will
       # take care of that
@@ -131,13 +132,47 @@ jobs:
     parameters:
       executor:
         type: string
+      container-image:
+        type: string
+      squash-images:
+        type: boolean
+        default: false
     executor: << parameters.executor >>
     steps:
       - checkout
-      - run: uname -a
-      - run: echo "asdf-<< parameters.executor >>"
+      - run:
+          name: Docker Version
+          command: |
+            docker version
+            docker buildx version
+            docker buildx inspect
+      # Compute the env vars with the resulting docker tags and docker image names
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
+          arch: << parameters.executor >>
+      - run:
+          name: Log Variables
+          command: |
+            echo "tag-<< parameters.executor >>"
+            echo "VERSION_TAG: $VERSION_TAG"
+            echo "BRANCH: $BRANCH"
+            echo "BRANCH_IMAGE_TAG: $BRANCH_IMAGE_TAG"
+            echo "BRANCH_IMAGE_URL: $BRANCH_IMAGE_URL"
+            echo "SHA1_IMAGE_TAG: $SHA1_IMAGE_TAG"
+            echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
+            echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
+      - run: |
+          docker buildx create --use
 
-  build-and-push-images:
+          docker buildx build \
+            --tag=<< parameters.container-image >>:focal-<< parameters.executor >> \
+            --target build-image  \
+            --platform linux/<< parameters.executor >> \
+            -f Dockerfile.multi \
+            .
+
+  build-and-push-platform-images:
     parameters:
       container-image:
         type: string
@@ -168,25 +203,29 @@ jobs:
       - compute-docker-tags:
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
+          arch: << parameters.executor >>
       # We build the final docker image first and tag it as the test image
       # depends on it and we can take advantage of the cached layers
-      - run: docker buildx version
+      - run: |
+          docker buildx version
+          docker buildx inspect
       - run: |
 
           echo "tag-<< parameters.executor >>"
           echo "VERSION_TAG: $VERSION_TAG"
+          echo "BRANCH: $BRANCH"
           echo "BRANCH_IMAGE_TAG: $BRANCH_IMAGE_TAG"
           echo "BRANCH_IMAGE_URL: $BRANCH_IMAGE_URL"
           echo "SHA1_IMAGE_TAG: $SHA1_IMAGE_TAG"
           echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
           echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
 
-      # - build-image:
-      #     step-name: "Build final image"
-      #     build-target: "build-image"
-      #     image-tags: "${IMAGE_TAG_LIST}"
-      #     image-name: << parameters.container-image >>
-      #     squash: << parameters.squash-images >>
+      - build-image:
+          step-name: "Build platform image"
+          build-target: "build-image"
+          image-tags: "${IMAGE_TAG_LIST}"
+          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
       # # Only build the test image if required
       # - when:
       #     condition: << parameters.build-test-image >>
@@ -293,6 +332,7 @@ workflows:
   ci:
     jobs:
       - build-image:
+          container-image: "netlify/build"
           matrix:
             parameters:
               executor: [amd64, arm64]
@@ -326,24 +366,24 @@ workflows:
   #         save-images-in-workflow: false
 
   # Workflow responsible for building, pushing and testing branches and PR forks
-  build-test-and-push:
-    jobs:
-      # - docker/hadolint:
-      #     ignore-rules: "DL3003,DL3008,DL4001,DL4006"
-      # Only push images directly if building from a trusted source
-      # (i.e. not a forked repo)
-      - build-and-push-images:
-          filters:
-            branches:
-              # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
-              ignore: /pull\/[0-9]+/
-          matrix:
-            parameters:
-              executor: [amd64, arm64]
-          context: build-image-registry
-          container-image: "netlify/build"
-          build-test-image: true
-          save-images-in-workflow: true
+  # build-test-and-push:
+  #   jobs:
+  #     # - docker/hadolint:
+  #     #     ignore-rules: "DL3003,DL3008,DL4001,DL4006"
+  #     # Only push images directly if building from a trusted source
+  #     # (i.e. not a forked repo)
+  #     - build-and-push-platform-images:
+  #         filters:
+  #           branches:
+  #             # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+  #             ignore: /pull\/[0-9]+/
+  #         matrix:
+  #           parameters:
+  #             executor: [amd64, arm64]
+  #         context: build-image-registry
+  #         container-image: "netlify/build"
+  #         build-test-image: true
+  #         save-images-in-workflow: true
   #     # If building from forked repos we don't push the images directly,
   #     # instead we require a manual approval step
   #     - build-and-push-images:

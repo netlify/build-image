@@ -166,10 +166,12 @@ jobs:
           docker buildx create --use
 
           docker buildx build \
+            --progress plain \
             --tag=<< parameters.container-image >>:focal-<< parameters.executor >> \
             --target build-image  \
             --platform linux/<< parameters.executor >> \
             -f Dockerfile.multi \
+            --push \
             .
 
   build-and-push-platform-images:

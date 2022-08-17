@@ -8,7 +8,7 @@ executors:
     machine:
       image: ubuntu-2004:202111-02
       docker_layer_caching: true
-    resource_class: arm.large
+    resource_class: arm.xlarge
   amd64:
     machine:
       image: ubuntu-2004:202111-02
@@ -160,7 +160,7 @@ jobs:
           image: << parameters.container-image >>
           tag: "focal-<< parameters.executor >>"
           extra_build_args: "--build-arg TARGETARCH=<< parameters.executor >> --target build-image"
-          dockerfile: Dockerfile.multi
+          dockerfile: Dockerfile
       - docker/check
       - docker/push:
           image: << parameters.container-image >>
@@ -170,6 +170,7 @@ jobs:
     parameters:
       container-image:
         type: string
+    # use docker executor here as it is way faster to spin up instead of the machines
     docker:
       - image: cimg/base:current
     resource_class: xlarge

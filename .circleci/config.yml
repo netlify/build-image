@@ -29,6 +29,7 @@ commands:
     parameters:
       arch:
         description: The architecture to build the image for.
+        default: ""
         type: string
       image-name:
         type: string

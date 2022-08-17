@@ -8,12 +8,12 @@ executors:
     machine:
       image: ubuntu-2004:202111-02
       docker_layer_caching: true
-    resource_class: arm.xlarge
+    resource_class: arm.2xlarge
   amd64:
     machine:
       image: ubuntu-2004:202111-02
       docker_layer_caching: true
-    resource_class: xlarge
+    resource_class: 2xlarge
 
 commands:
   setup-remote-docker-with-experimental-feats:
@@ -28,9 +28,9 @@ commands:
 
   compute-docker-tags:
     parameters:
-      arch:
-        description: The architecture to build the image for.
-        default: ""
+      arch-tag:
+        description: The arch tag specifies the architecture the image is built for and will be appended to the tag.
+        default: "" # by default leave it empty so nothing get's appended to the tag
         type: string
       image-name:
         type: string
@@ -52,11 +52,11 @@ commands:
                   # This is used within the build-image Dockerfile as the version tag env var. We use the branch by default
                   # if there's no git version tag to rely on
                   echo 'export VERSION_TAG=${BRANCH}' >> "$BASH_ENV"
-                  echo 'export BRANCH_IMAGE_TAG=${BRANCH}' >> "$BASH_ENV"
+                  echo 'export BRANCH_IMAGE_TAG=${BRANCH}<< parameters.arch-tag >>' >> "$BASH_ENV"
                   echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
-                  echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}' >> "$BASH_ENV"
+                  echo 'export SHA1_IMAGE_TAG=${CIRCLE_SHA1}<< parameters.arch-tag >>' >> "$BASH_ENV"
                   echo 'export SHA1_IMAGE_URL=<< parameters.image-name >>:${SHA1_IMAGE_TAG}' >> "$BASH_ENV"
-                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG}<< parameters.arch >>,${BRANCH_IMAGE_TAG}<< parameters.arch >>' >> "$BASH_ENV"
+                  echo 'export IMAGE_TAG_LIST=${SHA1_IMAGE_TAG},${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
       # Only create the GIT_TAG related tags if we're building a tag
       # When building tags we don't tag the image with the SHA1 commit hash because the regular push based pipeline will
       # take care of that
@@ -144,7 +144,7 @@ jobs:
       - compute-docker-tags:
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
-          arch: << parameters.executor >>
+          arch-tag: "-<< parameters.executor >>"
       - run:
           name: Log Variables
           command: |
@@ -158,13 +158,13 @@ jobs:
             echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
       - docker/build:
           image: << parameters.container-image >>
-          tag: "focal-<< parameters.executor >>"
+          tag: "${IMAGE_TAG_LIST}"
           extra_build_args: "--build-arg TARGETARCH=<< parameters.executor >> --target build-image"
           dockerfile: Dockerfile
       - docker/check
       - docker/push:
           image: << parameters.container-image >>
-          tag: "focal-<< parameters.executor >>"
+          tag: "${IMAGE_TAG_LIST}"
 
   create-multi-arch-image:
     parameters:
@@ -173,8 +173,21 @@ jobs:
     # use docker executor here as it is way faster to spin up instead of the machines
     docker:
       - image: cimg/base:current
-    resource_class: xlarge
     steps:
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
+      - run:
+          name: Log Variables
+          command: |
+            echo "tag-<< parameters.executor >>"
+            echo "VERSION_TAG: $VERSION_TAG"
+            echo "BRANCH: $BRANCH"
+            echo "BRANCH_IMAGE_TAG: $BRANCH_IMAGE_TAG"
+            echo "BRANCH_IMAGE_URL: $BRANCH_IMAGE_URL"
+            echo "SHA1_IMAGE_TAG: $SHA1_IMAGE_TAG"
+            echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
+            echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
       - docker/check
       - run:
           name: Build multi-arch image and push to registry

@@ -422,12 +422,14 @@ workflows:
       ########################################################################
       # Tests
       ########################################################################
-      - run-tests-amd64:
+      - run-tests:
+          name: run-tests-amd64
           container-image: "netlify/build"
           requires: [build-image-amd64, docker/hadolint] # TODO: add forks here as well
           executor: amd64
 
-      - run-tests-arm64:
+      - run-tests:
+          name: run-tests-arm64
           container-image: "netlify/build"
           requires: [build-image-arm64, docker/hadolint] # TODO: add forks here as well
           executor: arm64

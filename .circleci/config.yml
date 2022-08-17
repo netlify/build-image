@@ -149,6 +149,9 @@ jobs:
       push-images:
         type: boolean
         default: true
+      save-images-in-workflow:
+        type: boolean
+        default: true
     executor: << parameters.executor >>
     steps:
       - checkout
@@ -171,6 +174,14 @@ jobs:
             - docker/push:
                 image: << parameters.container-image >>
                 tag: "${IMAGE_TAG_LIST}"
+      # We persist the images in the workspace, to later use them in jobs like running tests
+      # We prioritise pushing the tags first and we do this conditionally because it takes a while
+      # to persist everything
+      - when:
+          condition: << parameters.save-images-in-workflow >>
+          steps:
+            - save-images:
+                images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
 
   create-multi-arch-image:
     parameters:
@@ -226,19 +237,6 @@ jobs:
           arch: << parameters.executor >>
       # We build the final docker image first and tag it as the test image
       # depends on it and we can take advantage of the cached layers
-      - run: |
-          docker buildx version
-          docker buildx inspect
-      - run: |
-
-          echo "tag-<< parameters.executor >>"
-          echo "VERSION_TAG: $VERSION_TAG"
-          echo "BRANCH: $BRANCH"
-          echo "BRANCH_IMAGE_TAG: $BRANCH_IMAGE_TAG"
-          echo "BRANCH_IMAGE_URL: $BRANCH_IMAGE_URL"
-          echo "SHA1_IMAGE_TAG: $SHA1_IMAGE_TAG"
-          echo "SHA1_IMAGE_URL: $SHA1_IMAGE_URL"
-          echo "IMAGE_TAG_LIST: $IMAGE_TAG_LIST"
 
       - build-image:
           step-name: "Build platform image"

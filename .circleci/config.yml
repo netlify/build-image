@@ -335,6 +335,7 @@ workflows:
   ci:
     jobs:
       - build-image:
+          context: [build-image-registry]
           container-image: "netlify/build"
           matrix:
             parameters:

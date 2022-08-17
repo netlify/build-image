@@ -406,24 +406,29 @@ workflows:
           matrix:
             parameters:
               executor: [amd64, arm64]
-      - build-image:
-          name: build-image-for-forks
-          filters:
-            branches:
-              # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
-              only: /pull\/[0-9]+/
-          container-image: "netlify/build"
-          push-images: false
-          matrix:
-            parameters:
-              executor: [amd64, arm64]
-
       # create a multi-arch image out of the previous images
       - create-multi-arch-image:
           context: [build-image-registry]
           container-image: "netlify/build"
           requires:
-            - "build-image"
+            - build-image
+
+      ########################################################################
+      # FORKED PRS
+      # Those jobs just apply to forked PRs
+      ########################################################################
+      # - build-image:
+      #     name: build-image-for-forks
+      #     filters:
+      #       branches:
+      #         # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+      #         only: /pull\/[0-9]+/
+      #     container-image: "netlify/build"
+      #     push-images: false
+      #     matrix:
+      #       parameters:
+      #         executor: [amd64, arm64]
+
   #     - build-and-push-platform-images:
   #         filters:
   #           branches:

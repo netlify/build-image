@@ -176,11 +176,9 @@ jobs:
     steps:
       - compute-docker-tags:
           image-name: << parameters.container-image >>
-          squash: << parameters.squash-images >>
       - run:
           name: Log Variables
           command: |
-            echo "tag-<< parameters.executor >>"
             echo "VERSION_TAG: $VERSION_TAG"
             echo "BRANCH: $BRANCH"
             echo "BRANCH_IMAGE_TAG: $BRANCH_IMAGE_TAG"

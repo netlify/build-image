@@ -5,6 +5,41 @@ please read the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Development
 
+To local develop on the image you need to first build the `Dockerfile` with `make build-base`.
+Here you can already verify if the Install is succeeding. Currently we are supporting the two architectures `arm64` and `amd64`
+
+If you want to develop on the functionality of the `run-build-functions.sh`. Run the `make run-local` which will leverage the already built image and run it.
+
+> Note:
+> For Debugging purpose you can change the `make run-local` to run the docker image with `-e NETLIFY_VERBOSE=1` which will set verbose logging to on.
+
+#### Running the build
+
+If you are inside the image you need to run the build script:
+
+```bash
+/opt/build-bin/build
+```
+
+#### Running functions individually
+
+Additionally you can directly source the build-functions and invoke functions individually:
+
+```bash
+source /opt/build-bin/run-build-functions.sh
+```
+
+After that the functions like `install_dependencies` can be run
+
+```bash
+# Node = 16
+# Ruby = 2.6.2
+# Yarn = 1.13.0
+# Go = 1.16.4
+# Python = 3.8
+install_dependencies 16 2.6.2 1.13.0 1.16.4 3.8
+```
+
 ### Linting
 
 [ShellCheck](https://github.com/koalaman/shellcheck) usage is recommended, however it is not enforced.

@@ -16,16 +16,6 @@ executors:
     resource_class: 2xlarge
 
 commands:
-  setup-remote-docker-with-experimental-feats:
-    steps:
-      - run:
-          # We need this in order to `squash` images
-          # https://support.circleci.com/hc/en-us/articles/360050448351-Enabling-Docker-Experimental-Features-on-Remote-Docker
-          name: Enable Docker experimental features
-          command: |
-            sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
-            sudo systemctl restart docker
-
   compute-docker-tags:
     parameters:
       arch-tag:
@@ -145,7 +135,7 @@ commands:
           dockerfile: << parameters.dockerfile >>
 
 jobs:
-  build-image:
+  build-and-push-image:
     parameters:
       executor:
         type: string
@@ -229,77 +219,12 @@ jobs:
               --amend << parameters.container-image >>:${SHA1_IMAGE_TAG}-amd64 \
               --amend << parameters.container-image >>:${SHA1_IMAGE_TAG}-arm64
 
+            docker manifest create << parameters.container-image >>:${SHA1_IMAGE_TAG} \
+              --amend << parameters.container-image >>:${SHA1_IMAGE_TAG}-amd64 \
+              --amend << parameters.container-image >>:${SHA1_IMAGE_TAG}-arm64
+
             docker manifest push << parameters.container-image >>:${BRANCH_IMAGE_TAG}
-
-  build-and-push-platform-images:
-    parameters:
-      container-image:
-        type: string
-      build-test-image:
-        type: boolean
-        default: false
-      save-images-in-workflow:
-        type: boolean
-        default: false
-      squash-images:
-        type: boolean
-        default: false
-      push-images:
-        type: boolean
-        default: true
-      executor:
-        type: string
-    executor: << parameters.executor >>
-    environment:
-      DOCKER_BUILDKIT: 1
-    steps:
-      - checkout
-      # - setup-remote-docker-with-experimental-feats
-      - run:
-          name: Docker version
-          command: docker version
-      # Compute the env vars with the resulting docker tags and docker image names
-      - compute-docker-tags:
-          image-name: << parameters.container-image >>
-          squash: << parameters.squash-images >>
-          arch: << parameters.executor >>
-      # We build the final docker image first and tag it as the test image
-      # depends on it and we can take advantage of the cached layers
-
-      - build-image:
-          step-name: "Build platform image"
-          build-target: "build-image"
-          image-tags: "${IMAGE_TAG_LIST}"
-          image-name: << parameters.container-image >>
-          squash: << parameters.squash-images >>
-      # # Only build the test image if required
-      # - when:
-      #     condition: << parameters.build-test-image >>
-      #     steps:
-      #       - build-image:
-      #           step-name: "Build test image"
-      #           build-target: "build-image-test"
-      #           image-tags: "${SHA1_IMAGE_TAG}-test,${BRANCH_IMAGE_TAG}-test"
-      #           image-name: << parameters.container-image >>
-      #           squash: << parameters.squash-images >>
-      # # Conditionally push images
-      # - when:
-      #     condition: << parameters.push-images >>
-      #     steps:
-      #       # Docker login
-      #       - docker/check
-      #       - docker/push:
-      #           image: << parameters.container-image >>
-      #           tag: "${IMAGE_TAG_LIST}"
-      # # We persist the images in the workspace, to later use them in jobs like
-      # # run tests or pushing to remote repos.
-      # # We prioritise pushing the tags first and we do this conditionally because it takes a while
-      # # to persist everything
-      # - when:
-      #     condition: << parameters.save-images-in-workflow >>
-      #     steps:
-      #       - save-images:
-      #           images: "${SHA1_IMAGE_URL} ${GIT_TAG_IMAGE_URL} ${BRANCH_IMAGE_URL} ${SHA1_IMAGE_URL}-test ${BRANCH_IMAGE_URL}-test"
+            docker manifest push << parameters.container-image >>:${SHA1_IMAGE_TAG}
 
   container-structure-tests:
     parameters:
@@ -311,7 +236,6 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - checkout
-      - setup-remote-docker-with-experimental-feats
       # Load the previously saved docker images from the CCI workspace
       - load-images
       # Compute the env vars with the resulting docker tags and docker image names
@@ -351,22 +275,22 @@ jobs:
       - store_test_results:
           path: ./report.xml
 
-  push-to-registry:
+  forks-push-to-registry:
     parameters:
+      executor:
+        type: string
       container-image:
         type: string
       squash-images:
         type: boolean
         default: false
-    machine:
-      image: ubuntu-2004:202111-02
-    resource_class: xlarge
+    executor: << parameters.executor >>
     steps:
       # Compute the env vars with the resulting docker tags and docker image names
       - compute-docker-tags:
           image-name: << parameters.container-image >>
           squash: << parameters.squash-images >>
-      - setup-remote-docker-with-experimental-feats
+          arch-tag: "-<< parameters.executor >>"
       # Load the previously saved docker images from the CCI workspace
       - load-images
       # Docker login
@@ -411,9 +335,8 @@ workflows:
     jobs:
       - docker/hadolint:
           ignore-rules: "DL3003,DL3008,DL4001,DL4006"
-      # Only push images directly if building from a trusted source
-      # (i.e. not a forked repo)
-      - build-image:
+      # Build multi arch variants for regular PRs and branches
+      - build-and-push-image:
           filters:
             branches:
               ignore: /pull\/[0-9]+/ # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
@@ -424,25 +347,61 @@ workflows:
             parameters:
               executor: [amd64, arm64]
 
+      # Build multi arch variants for forked PRS
+      # If building from forked repos we don't push the images directly,
+      # instead we require a manual approval step
+      # - build-and-push-image:
+      #     name: build-images-for-forks
+      #     filters:
+      #       branches:
+      #         # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+      #         only: /pull\/[0-9]+/
+      #     context: [build-image-registry]
+      #     container-image: "netlify/build"
+      #     build-test-image: true
+      #     push-images: false
+      #     matrix:
+      #       parameters:
+      #         executor: [amd64, arm64]
+
+      # - hold-push-to-registry:
+      #     type: approval
+      #     requires:
+      #       - build-images-for-forks
+
+      # - forks-push-to-registry:
+      #     context: build-image-registry
+      #     container-image: "netlify/build"
+      #     requires: [hold-push-to-registry]
+      #     matrix:
+      #       parameters:
+      #         executor: [amd64, arm64]
+
       ########################################################################
       # Tests
       ########################################################################
       - run-tests:
           name: run-tests-amd64
           container-image: "netlify/build"
-          requires: [build-image-amd64, docker/hadolint] # TODO: add forks here as well
+          requires:
+            - build-and-push-image-amd64
+            # - build-images-for-forks-amd64
           executor: amd64
 
       - run-tests:
           name: run-tests-arm64
           container-image: "netlify/build"
-          requires: [build-image-arm64, docker/hadolint] # TODO: add forks here as well
+          requires:
+            - build-and-push-image-arm64
+            # - build-images-for-forks-arm64
           executor: arm64
 
       # container structure tests are only running on amd64 therefore just wait for amd64 to finish
       - container-structure-tests:
           container-image: "netlify/build"
-          requires: [build-image-amd64, docker/hadolint] # TODO: add forks here as well
+          requires:
+            - build-and-push-image-amd64
+            # - build-images-for-forks-amd64
           executor: amd64
       ########################################################################
       # Multi arch final image
@@ -452,7 +411,8 @@ workflows:
           context: [build-image-registry]
           container-image: "netlify/build"
           requires:
-            - build-image
+            - build-and-push-image
+            # - forks-push-to-registry
 
       ########################################################################
       # FORKED PRS

@@ -232,7 +232,7 @@ jobs:
         type: string
       container-image:
         type: string
-    executor: amd64 # the tests always run on an amd64 machine (but need to test both images arm64 and amd64)
+    executor: << parameters.executor >>
     steps:
       - checkout
       # Load the previously saved docker images from the CCI workspace

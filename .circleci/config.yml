@@ -389,7 +389,9 @@ workflows:
       - container-structure-tests:
           name: container-structure-tests-arm64
           container-image: "netlify/build"
-          executor: [amd64, arm64]
+          matrix:
+            parameters:
+              executor: [amd64, arm64]
       ########################################################################
       # Multi arch final image
       # create a multi-arch image out of the previous images

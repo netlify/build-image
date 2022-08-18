@@ -61,7 +61,7 @@ brew install container-structure-test
 To run the container structure tests you need to run the following command.
 
 ```bash
-container-structure-test test --image netlify/build:focal --config focal.yaml
+make container-test
 ```
 
 For further install instructions please visit the [official installation guide](https://github.com/GoogleContainerTools/container-structure-test#installation).

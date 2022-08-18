@@ -6,6 +6,9 @@ metadataTest:
   workdir: "/"
   user: "buildbot"
   env:
+    - key: TARGETARCH
+      value: "^(amd64|arm64)$"
+      isRegex: true
     - key: NF_IMAGE_NAME
       value: focal
     - key: NF_IMAGE_TAG
@@ -53,7 +56,6 @@ fileExistenceTests:
   - name: Functions install script
     path: "/opt/build-bin/run-build-functions.sh"
     shouldExist: true
-    permissions: "-rwxrwxr-x"
 
   - name: "NVM install script"
     path: "/opt/buildhome/.nvm/nvm.sh"
@@ -102,7 +104,13 @@ commandTests:
   - name: hugo
     command: "hugo"
     args: ["version"]
-    expectedOutput: ["hugo v0.85.0-724D5DB5"]
+    expectedOutput: ["hugo v0.101.0"]
+
+  - name: binrc
+    command: "binrc"
+    args: ["version"]
+    expectedOutput:
+      - ^[0-9a-f]{40} # matches a git long sha
 
   - name: lz4 compression
     command: "lz4"
@@ -125,7 +133,7 @@ commandTests:
         install_go 1.18 > /dev/null
         go version
     expectedOutput:
-      - "go version go1.18 linux/amd64"
+      - go version go1.18 linux/(amd64|arm64)
 
   - name: "DOTNet version 6.0 is installed and available at startup"
     command: "dotnet"
@@ -137,11 +145,12 @@ commandTests:
     args: ["--version"]
     expectedOutput: ["swiftenv 1.5.0"]
 
-  - name: "Homebrew"
-    command: "brew"
-    args: ["--version"]
-    expectedOutput:
-      - Homebrew 3\.5\.\d+
+  # HOMEBREW does not exist on arm64
+  # - name: "Homebrew"
+  #   command: "brew"
+  #   args: ["--version"]
+  #   expectedOutput:
+  #     - Homebrew 3\.5\.\d+
 
   - name: "Rustup"
     command: "rustup"

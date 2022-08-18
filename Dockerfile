@@ -330,7 +330,7 @@ ENV BINRC_VERSION 0.2.9
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
-    ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_${TARGETARCH}/binrc_${BINRC_VERSION}_linux_${TARGETARCH} /usr/local/bin/binrc
+    ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
 
 # Create a place for binrc to link/persist installs to the PATH
 USER buildbot
@@ -345,10 +345,14 @@ USER root
 #
 ################################################################################
 
-ENV HUGO_VERSION 0.85.0
+ENV HUGO_VERSION 0.101.0
 
-RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_${HUGO_VERSION} && \
-    ln -s /usr/local/bin/hugo_${HUGO_VERSION} /usr/local/bin/hugo
+RUN case "$TARGETARCH" in \
+      "arm64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-ARM64.deb" ;; \
+      "amd64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-64bit.deb" ;; \
+    esac && \
+    wget -nv --quiet https://github.com/gohugoio/hugo/releases/download/v0.101.0/${HUGO_FILE} && \
+    dpkg -i ${HUGO_FILE}
 
 ################################################################################
 #

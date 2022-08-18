@@ -228,33 +228,28 @@ jobs:
 
   container-structure-tests:
     parameters:
+      arch-tag:
+        type: string
       container-image:
         type: string
-      executor:
-        type: string
-        default: amd64
-    executor: << parameters.executor >>
+    executor: amd64 # the tests always run on an amd64 machine (but need to test both images arm64 and amd64)
     steps:
       - checkout
-      - run: |
-          docker pull netlify/build:chore-build-multiarch-image-arm64
       # Load the previously saved docker images from the CCI workspace
-      # - load-images
+      - load-images
       # Compute the env vars with the resulting docker tags and docker image names
-      # - compute-docker-tags:
-      #     image-name: << parameters.container-image >>
-      #     arch-tag: "-<< parameters.executor >>"
+      - compute-docker-tags:
+          image-name: << parameters.container-image >>
+          arch-tag: "-<< parameters.arch-tag >>"
       - run:
           name: Install Google Container Structure Test
           command: curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && mkdir -p $HOME/bin && export PATH=$PATH:$HOME/bin && mv container-structure-test-linux-amd64 $HOME/bin/container-structure-test
-      - run: |
-          container-structure-test test --image netlify/build:chore-build-multiarch-image-arm64 --config focal.yaml
-      # - run:
-      #     name: Run Tests
-      #     command: |
-      #       container-structure-test test --image ${SHA1_IMAGE_URL} --config focal.yaml --test-report container-structure.xml --output junit
-      # - store_test_results:
-      #     path: ./container-structure.xml
+      - run:
+          name: Run Tests
+          command: |
+            container-structure-test test --image ${SHA1_IMAGE_URL} --config focal.yaml --test-report container-structure.xml --output junit
+      - store_test_results:
+          path: ./container-structure.xml
 
   run-tests:
     parameters:
@@ -337,96 +332,120 @@ workflows:
   # Workflow responsible for building, pushing and testing branches and PR forks
   build-test-and-push:
     jobs:
-      # - docker/hadolint:
-      #     ignore-rules: "DL3003,DL3008,DL4001,DL4006"
+      - docker/hadolint:
+          ignore-rules: "DL3003,DL3008,DL4001,DL4006"
       # Build multi arch variants for regular PRs and branches
-      # - build-and-push-image:
-      #     filters:
-      #       branches:
-      #         ignore: /pull\/[0-9]+/ # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
-      #     context: [build-image-registry]
-      #     container-image: "netlify/build"
-      #     build-test-image: true
-      #     matrix:
-      #       parameters:
-      #         executor: [amd64, arm64]
+      - build-and-push-image:
+          filters:
+            branches:
+              ignore: /pull\/[0-9]+/ # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+          context: [build-image-registry]
+          container-image: "netlify/build"
+          build-test-image: true
+          matrix:
+            parameters:
+              executor: [amd64, arm64]
 
       ########################################################################
       # Tests
       ########################################################################
-      # - run-tests:
-      #     name: run-tests-amd64
-      #     container-image: "netlify/build"
-      #     requires:
-      #       - build-and-push-image-amd64
-      #       # - build-images-for-forks-amd64
-      #     executor: amd64
-
-      # - run-tests:
-      #     name: run-tests-arm64
-      #     container-image: "netlify/build"
-      #     requires:
-      #       - build-and-push-image-arm64
-      #       # - build-images-for-forks-arm64
-      #     executor: arm64
-
-      # # container structure tests are only running on amd64 therefore just wait for amd64 to finish
-      # - container-structure-tests:
-      #     container-image: "netlify/build"
-      #     requires:
-      #       - build-and-push-image-amd64
-      #       # - build-images-for-forks-amd64
-      #     executor: amd64
-      - container-structure-tests:
+      - run-tests:
+          name: run-tests-amd64
           container-image: "netlify/build"
+          requires:
+            - build-and-push-image-amd64
+            # - build-images-for-forks-amd64
           executor: amd64
 
+      - run-tests:
+          name: run-tests-arm64
+          container-image: "netlify/build"
+          requires:
+            - build-and-push-image-arm64
+            # - build-images-for-forks-arm64
+          executor: arm64
+
+      - container-structure-tests:
+          name: container-structure-tests-amd64
+          container-image: "netlify/build"
+          requires:
+            - build-and-push-image-amd64
+            # - build-images-for-forks-amd64
+          arch-tag: amd64
+
+      - container-structure-tests:
+          name: container-structure-tests-arm64
+          container-image: "netlify/build"
+          requires:
+            - build-and-push-image-arm64
+            # - build-images-for-forks-arm64
+          arch-tag: arm64
       ########################################################################
       # Multi arch final image
       # create a multi-arch image out of the previous images
       ########################################################################
-      # - create-multi-arch-image:
-      #     context: [build-image-registry]
-      #     container-image: "netlify/build"
-      #     requires:
-      #       - build-and-push-image
-      #       # - forks-push-to-registry
+      - create-multi-arch-image:
+          context: [build-image-registry]
+          container-image: "netlify/build"
+          requires:
+            - build-and-push-image
+            # - forks-push-to-registry
 
       ########################################################################
       # FORKED PRS
       # Those jobs just apply to forked PRs
       ########################################################################
-
-      # Build multi arch variants for forked PRS
-      # If building from forked repos we don't push the images directly,
-      # instead we require a manual approval step
-      # - build-and-push-image:
-      #     name: build-images-for-forks
+      # - build-image:
+      #     name: build-image-for-forks
       #     filters:
       #       branches:
       #         # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
       #         only: /pull\/[0-9]+/
-      #     context: [build-image-registry]
       #     container-image: "netlify/build"
-      #     build-test-image: true
       #     push-images: false
       #     matrix:
       #       parameters:
       #         executor: [amd64, arm64]
 
-      # - hold-push-to-registry:
-      #     type: approval
-      #     requires:
-      #       - build-images-for-forks
-
-      # - forks-push-to-registry:
-      #     context: build-image-registry
-      #     container-image: "netlify/build"
-      #     requires: [hold-push-to-registry]
-      #     matrix:
-      #       parameters:
-      #         executor: [amd64, arm64]
-
+  #     - build-and-push-platform-images:
+  #         filters:
+  #           branches:
+  #             # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+  #             ignore: /pull\/[0-9]+/
+  #         matrix:
+  #           parameters:
+  #             executor: [amd64, arm64]
+  #         context: build-image-registry
+  #         container-image: "netlify/build"
+  #         build-test-image: true
+  #         save-images-in-workflow: true
+  #     # If building from forked repos we don't push the images directly,
+  #     # instead we require a manual approval step
+  #     - build-and-push-images:
+  #         filters:
+  #           branches:
+  #             # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+  #             only: /pull\/[0-9]+/
+  #         name: build-images-for-forks
+  #         container-image: "netlify/build"
+  #         build-test-image: true
+  #         save-images-in-workflow: true
+  #         push-images: false
+  #     - hold-push-to-registry:
+  #         type: approval
+  #         requires: [build-images-for-forks]
+  #     - push-to-registry:
+  #         context: build-image-registry
+  #         container-image: "netlify/build"
+  #         requires: [hold-push-to-registry]
+  #     - run-tests:
+  #         container-image: "netlify/build"
+  #         requires:
+  #           [build-and-push-images, build-images-for-forks, docker/hadolint]
+  #     - container-structure-tests:
+  #         container-image: "netlify/build"
+  #         requires:
+  #           [build-and-push-images, build-images-for-forks, docker/hadolint]
   # # A scheduled daily build and test run to detect issues early instead of during a release or fix
   # daily-test:
   #   triggers: # Use the triggers key to indicate a scheduled build

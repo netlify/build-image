@@ -305,7 +305,10 @@ jobs:
     parameters:
       container-image:
         type: string
-    executor: amd64
+      executor:
+        type: string
+        default: amd64
+    executor: << parameters.executor >>
     steps:
       - checkout
       - setup-remote-docker-with-experimental-feats
@@ -314,6 +317,7 @@ jobs:
       # Compute the env vars with the resulting docker tags and docker image names
       - compute-docker-tags:
           image-name: << parameters.container-image >>
+          arch-tag: "-<< parameters.executor >>"
       - run:
           name: Install Google Container Structure Test
           command: curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && mkdir -p $HOME/bin && export PATH=$PATH:$HOME/bin && mv container-structure-test-linux-amd64 $HOME/bin/container-structure-test
@@ -337,6 +341,7 @@ jobs:
       # Compute the env vars with the resulting docker tags and docker image names
       - compute-docker-tags:
           image-name: << parameters.container-image >>
+          arch-tag: "-<< parameters.executor >>"
       - run:
           name: Run Tests
           command: |
@@ -438,6 +443,7 @@ workflows:
       - container-structure-tests:
           container-image: "netlify/build"
           requires: [build-image-amd64, docker/hadolint] # TODO: add forks here as well
+          executor: amd64
       ########################################################################
       # Multi arch final image
       # create a multi-arch image out of the previous images

@@ -142,9 +142,6 @@ commands:
       image:
         description: The image name + tag to run the tests on
         type: string
-      config:
-        description: The path to the config file that describes the test files
-        type: string
     steps:
       - run:
           name: Install Google Container Structure Test
@@ -158,9 +155,14 @@ commands:
       - run:
           name: Container Structure Tests 🧪
           command: |
-            container-structure-test test --image << parameters.image >> --config << parameters.config >> --test-report container-structure.xml --output junit
+            container-structure-test test --image << parameters.image >> --config focal.yaml --test-report container-structure.xml --output junit
+            if [ "<< parameters.arch >>" = "amd64" ] ; then
+              container-structure-test test --image << parameters.image >> --config focal-amd64.yaml --test-report container-structure-amd64.xml --output junit
+            fi
       - store_test_results:
           path: ./container-structure.xml
+      - store_test_results:
+          path: ./container-structure-amd64.xml
 
   runtime-tests:
     parameters:
@@ -235,7 +237,6 @@ jobs:
             - container-structure-tests:
                 arch: << parameters.executor >>
                 image: ${SHA1_IMAGE_URL}
-                config: focal.yaml
       # Conditionally push images (not for forked PRs)
       - when:
           condition: << parameters.push-images >>

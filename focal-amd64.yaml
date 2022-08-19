@@ -1,0 +1,19 @@
+schemaVersion: "2.0.0"
+
+commandTests:
+  - name: "Elm compiler"
+    command: "elm"
+    args: ["--version"]
+    expectedOutput: ["0.19.1"]
+
+  - name: binrc
+    command: "binrc"
+    args: ["version"]
+    expectedOutput:
+      - ^[0-9a-f]{40} # matches a git long sha
+
+  - name: "Homebrew"
+    command: "brew"
+    args: ["--version"]
+    expectedOutput:
+      - Homebrew 3\.5\.\d+

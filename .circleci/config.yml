@@ -325,6 +325,11 @@ workflows:
             parameters:
               executor: [amd64, arm64]
       - create-multi-arch-image:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           context: [build-image-registry]
           container-image: "netlify/build"
           requires:

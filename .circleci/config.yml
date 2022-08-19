@@ -375,24 +375,34 @@ workflows:
             parameters:
               executor: [amd64, arm64]
 
-      - hold-push-to-registry:
+      - hold-push-to-registry-amd64:
           type: approval
           requires:
-            - build-test-and-push-image
+            - build-test-and-push-image-amd64
 
-      - forks-push-to-registry:
+      - hold-push-to-registry-arm64:
+          type: approval
+          requires:
+            - build-test-and-push-image-arm64
+
+      - forks-push-to-registry-amd64:
           context: build-image-registry
           container-image: "netlify/build"
-          requires: [hold-push-to-registry]
-          matrix:
-            parameters:
-              executor: [amd64, arm64]
+          requires: [hold-push-to-registry-amd64]
+          executor: amd64
+
+      - forks-push-to-registry-arm64:
+          context: build-image-registry
+          container-image: "netlify/build"
+          requires: [hold-push-to-registry-arm64]
+          executor: arm64
 
       - create-multi-arch-image:
           context: [build-image-registry]
           container-image: "netlify/build"
           requires:
-            - forks-push-to-registry
+            - forks-push-to-registry-amd64
+            - forks-push-to-registry-arm64
 
   # A scheduled daily build and test run to detect issues early instead of during a release or fix
   daily-test:

@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as build-image
+FROM ubuntu:20.04 as build-base
 
 ARG TARGETARCH
 ENV TARGETARCH "${TARGETARCH}"
@@ -203,6 +203,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get autoremove -y && \
     unset DEBIAN_FRONTEND
 
+FROM build-base as build-image
+
+ARG TARGETARCH
 ################################################################################
 #
 # Pandoc & Wkhtmltopdf

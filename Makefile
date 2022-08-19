@@ -8,7 +8,6 @@ test: build-test-image ## Run tests.
 	docker run --rm -it \
 		$(test-image)
 
-
 # TODO conditionally build the `$(test-image)` if it doesn't exist
 test-local: build-test-image ## Volume the tests directory and build scripts, and run the tests. Useful while developing locally
 	docker run --rm -it \

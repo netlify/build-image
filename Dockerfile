@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as build-image-base
+FROM ubuntu:20.04 as build-image
 
 ARG TARGETARCH
 ENV TARGETARCH "${TARGETARCH}"
@@ -205,39 +205,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 
 ################################################################################
 #
-# Elm compiler
-#
-################################################################################
-
-FROM build-image-base as elm
-ARG TARGETARCH
-
-ENV ELM_VERSION 0.19.1
-
-# if we have arm architecture we need to compile it from source
-RUN if [ "$TARGETARCH" = "arm64" ] ; then \
-      apt-get update && \
-      apt-get install -y cabal-install && \
-      git clone https://github.com/elm/compiler.git && \
-      cd compiler && \
-      git checkout ${ELM_VERSION} && \
-      rm worker/elm.cabal && \
-      cabal new-update && \
-      cabal new-configure && \
-      cabal new-build && \
-      cp /compiler/dist-newstyle/build/aarch64-linux/ghc-8.6.5/elm-${ELM_VERSION}/x/elm/build/elm /elm; \
-    else \
-      curl -L -o elm.gz https://github.com/elm/compiler/releases/download/0.19.1/binary-for-linux-64-bit.gz \
-      && gunzip elm.gz \
-      && chmod +x elm \
-      && mv elm /elm; \
-    fi;
-
-
-
-FROM build-image-base  as build-image
-################################################################################
-#
 # Pandoc & Wkhtmltopdf
 #
 ################################################################################
@@ -254,8 +221,15 @@ RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/
     rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     pandoc -v
 
-
-COPY --from=elm /elm /usr/local/bin/elm
+################################################################################
+#
+# Elm compiler
+#
+################################################################################
+RUN curl -L -o elm.gz https://github.com/elm/compiler/releases/download/0.19.1/binary-for-linux-64-bit.gz \
+    && gunzip elm.gz \
+    && chmod +x elm \
+    && mv elm /usr/local/bin/
 
 ################################################################################
 #

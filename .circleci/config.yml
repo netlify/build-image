@@ -264,12 +264,16 @@ jobs:
       build-test-image:
         type: boolean
         default: false
+      squash-images:
+        type: boolean
+        default: false
     # use docker executor here as it is way faster to spin up instead of the machines
     docker:
       - image: cimg/base:current
     steps:
       - compute-docker-tags:
           image-name: << parameters.container-image >>
+          squash: << parameters.squash-images >>
       - docker/check
       - run:
           name: Build multi-arch image and push to registry
@@ -332,6 +336,7 @@ workflows:
               ignore: /.*/
           context: [build-image-registry]
           container-image: "netlify/build"
+          squash-images: true
           requires:
             - build-test-and-push-image
 

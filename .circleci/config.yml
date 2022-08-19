@@ -13,7 +13,7 @@ executors:
     machine:
       image: ubuntu-2004:202111-02
       docker_layer_caching: true
-    resource_class: 2xlarge
+    resource_class: xlarge
 
 commands:
   compute-docker-tags:
@@ -156,7 +156,7 @@ commands:
             export PATH=$PATH:$HOME/bin
             mv container-structure-test-linux-${arch} $HOME/bin/container-structure-test
       - run:
-          name: Run Tests
+          name: Container Structure Tests 🧪
           command: |
             container-structure-test test --image << parameters.image >> --config << parameters.config >> --test-report container-structure.xml --output junit
       - store_test_results:
@@ -219,16 +219,6 @@ jobs:
           image-name: << parameters.container-image >> # netlify/build
           arch: "<< parameters.executor >>" # amd64 or arm64
           squash: << parameters.squash-images >>
-      # Conditionally push images (not for forked PRs)
-      - when:
-          condition: << parameters.push-images >>
-          steps:
-            # log into the docker registry with the check command
-            - docker/check
-            - docker/push:
-                image: << parameters.container-image >>
-                tag: "${IMAGE_TAG_LIST}"
-
       # If tests is specified test the built images
       - when:
           condition: << parameters.tests >>
@@ -242,7 +232,15 @@ jobs:
                 arch: << parameters.executor >>
                 image: ${SHA1_IMAGE_URL}
                 config: focal.yaml
-
+      # Conditionally push images (not for forked PRs)
+      - when:
+          condition: << parameters.push-images >>
+          steps:
+            # log into the docker registry with the check command
+            - docker/check
+            - docker/push:
+                image: << parameters.container-image >>
+                tag: "${IMAGE_TAG_LIST}"
       # We persist the images in the workspace, to later use them in jobs like running tests
       # We prioritise pushing the tags first and we do this conditionally because it takes a while
       # to persist everything
@@ -288,15 +286,11 @@ jobs:
         type: string
       container-image:
         type: string
-      squash-images:
-        type: boolean
-        default: false
     executor: << parameters.executor >>
     steps:
       # Compute the env vars with the resulting docker tags and docker image names
       - compute-docker-tags:
           image-name: << parameters.container-image >>
-          squash: << parameters.squash-images >>
           arch-tag: "-<< parameters.executor >>"
       # Load the previously saved docker images from the CCI workspace
       - load-images
@@ -358,55 +352,35 @@ workflows:
           container-image: "netlify/build"
           requires:
             - build-test-and-push-image
-            # - forks-push-to-registry
 
       ########################################################################
       # FORKED PRS
       # Those jobs just apply to forked PRs
       ########################################################################
-      # - build-image:
-      #     name: build-image-for-forks
+      # - build-test-and-push-image:
+      #     name: build-test-image-for-forks
       #     filters:
       #       branches:
       #         # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
       #         only: /pull\/[0-9]+/
       #     container-image: "netlify/build"
+      #     save-images-in-workflow: true # we need to save them to push them in a later job
       #     push-images: false
       #     matrix:
       #       parameters:
       #         executor: [amd64, arm64]
 
-  #     - build-and-push-platform-images:
-  #         filters:
-  #           branches:
-  #             # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
-  #             ignore: /pull\/[0-9]+/
-  #         matrix:
-  #           parameters:
-  #             executor: [amd64, arm64]
-  #         context: build-image-registry
-  #         container-image: "netlify/build"
-  #         build-test-image: true
-  #         save-images-in-workflow: true
-  #     # If building from forked repos we don't push the images directly,
-  #     # instead we require a manual approval step
-  #     - build-and-push-images:
-  #         filters:
-  #           branches:
-  #             # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
-  #             only: /pull\/[0-9]+/
-  #         name: build-images-for-forks
-  #         container-image: "netlify/build"
-  #         build-test-image: true
-  #         save-images-in-workflow: true
-  #         push-images: false
-  #     - hold-push-to-registry:
-  #         type: approval
-  #         requires: [build-images-for-forks]
-  #     - push-to-registry:
-  #         context: build-image-registry
-  #         container-image: "netlify/build"
-  #         requires: [hold-push-to-registry]
+      # - hold-push-to-registry:
+      #     type: approval
+      #     requires:
+      #       - build-test-image-for-forks-amd64
+      #       - build-test-image-for-forks-arm64
+
+      # - forks-push-to-registry:
+      #     context: build-image-registry
+      #     container-image: "netlify/build"
+      #     requires: [hold-push-to-registry]
+      #     executor: arm64
   #     - run-tests:
   #         container-image: "netlify/build"
   #         requires:

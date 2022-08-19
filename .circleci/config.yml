@@ -375,23 +375,27 @@ workflows:
             parameters:
               executor: [amd64, arm64]
 
-      - hold-push-to-registry-amd64:
+      - hold-push-to-registry:
+          name: hold-push-to-registry-amd64
           type: approval
           requires:
             - build-test-and-push-image-amd64
 
-      - hold-push-to-registry-arm64:
+      - hold-push-to-registry:
+          name: hold-push-to-registry-arm64
           type: approval
           requires:
             - build-test-and-push-image-arm64
 
-      - forks-push-to-registry-amd64:
+      - forks-push-to-registry:
+          name: forks-push-to-registry-amd64
           context: build-image-registry
           container-image: "netlify/build"
           requires: [hold-push-to-registry-amd64]
           executor: amd64
 
-      - forks-push-to-registry-arm64:
+      - forks-push-to-registry:
+          name: forks-push-to-registry-arm64
           context: build-image-registry
           container-image: "netlify/build"
           requires: [hold-push-to-registry-arm64]

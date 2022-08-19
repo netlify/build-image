@@ -1,5 +1,7 @@
 schemaVersion: "2.0.0"
 
+# These command Tests are only working on amd64 on the CI.
+# Homebrew is not installed on the arm64 image
 commandTests:
   - name: "Elm compiler"
     command: "elm"

@@ -311,7 +311,6 @@ workflows:
     jobs:
       # Only build squash images for git tags (the final release used in buildbot)
       - build-test-and-push-image:
-          name: build-and-push-git-tag-squash-image
           filters:
             tags:
               only: /^v.*/
@@ -319,24 +318,17 @@ workflows:
               ignore: /.*/
           context: [build-image-registry]
           container-image: "netlify/build"
-          push-images: false # TODO: revert just for testing out
+          push-images: true
           tests: false
           squash-images: true
           matrix:
             parameters:
               executor: [amd64, arm64]
-  #     # For git tags we still want to build and push non squashed images
-  #     - build-and-push-images:
-  #         filters:
-  #           tags:
-  #             only: /^v.*/
-  #           branches:
-  #             ignore: /.*/
-  #         name: build-and-push-git-tag-image
-  #         context: build-image-registry
-  #         container-image: "netlify/build"
-  #         build-test-image: false
-  #         save-images-in-workflow: false
+      - create-multi-arch-image:
+          context: [build-image-registry]
+          container-image: "netlify/build"
+          requires:
+            - build-test-and-push-image
 
   # Workflow responsible for building, pushing and testing branches and PR forks
   build-test-and-push:

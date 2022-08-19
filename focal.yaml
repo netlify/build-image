@@ -65,10 +65,10 @@ fileExistenceTests:
     gid: 2500 # buildbot
 
 commandTests:
-  - name: "Elm compiler"
-    command: "elm"
-    args: ["--version"]
-    expectedOutput: ["0.19.1"]
+  # - name: "Elm compiler"
+  #   command: "elm"
+  #   args: ["--version"]
+  #   expectedOutput: ["0.19.1"]
 
   - name: "zstd compression library"
     command: "zstd"
@@ -106,11 +106,11 @@ commandTests:
     args: ["version"]
     expectedOutput: ["hugo v0.101.0"]
 
-  - name: binrc
-    command: "binrc"
-    args: ["version"]
-    expectedOutput:
-      - ^[0-9a-f]{40} # matches a git long sha
+  # - name: binrc
+  #   command: "binrc"
+  #   args: ["version"]
+  #   expectedOutput:
+  #     - ^[0-9a-f]{40} # matches a git long sha
 
   - name: lz4 compression
     command: "lz4"

@@ -67,9 +67,10 @@ commands:
                 name: Set git tag image tagging env
                 command: |
                   echo 'export VERSION_TAG=${CIRCLE_TAG}' >> "$BASH_ENV"
-                  echo 'export BRANCH_IMAGE_TAG=${CIRCLE_TAG}<<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
+                  echo 'export BRANCH_IMAGE_TAG=${CIRCLE_TAG}-<< parameters.arch-tag >><<# parameters.squash >>-squash<</ parameters.squash >>' >> "$BASH_ENV"
                   echo 'export BRANCH_IMAGE_URL=<< parameters.image-name >>:${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
                   echo 'export IMAGE_TAG_LIST=${BRANCH_IMAGE_TAG}' >> "$BASH_ENV"
+
   save-images:
     parameters:
       tmp-dir:
@@ -323,8 +324,8 @@ workflows:
           context: [build-image-registry]
           container-image: "netlify/build"
           push-images: true
-          tests: false
           squash-images: true
+          tests: false
           matrix:
             parameters:
               executor: [amd64, arm64]

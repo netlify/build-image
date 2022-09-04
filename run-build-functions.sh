@@ -786,7 +786,7 @@ fast_copy_cache() {
   if [ -d $src ]
   then
     echo "Started $3"
-    cp --reflink=always $src $dst
+    cp -r --reflink=auto $src $dst
     echo "Finished $3"
   fi
 }

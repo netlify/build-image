@@ -4,6 +4,10 @@ image = netlify/build
 test-image = $(image)-test
 arch = $(shell uname -m)
 
+ifneq ($(arch), arm64)
+	arch = amd64
+endif
+
 test: build-test-image ## Run tests.
 	docker run --rm -it \
 		$(test-image)

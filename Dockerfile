@@ -34,6 +34,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
     add-apt-repository -y ppa:ondrej/php && \
+    add-apt-repository -y ppa:git-core/ppa && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \

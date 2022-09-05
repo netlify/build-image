@@ -99,7 +99,7 @@ commandTests:
   - name: hugo
     command: "hugo"
     args: ["version"]
-    expectedOutput: ["hugo v0.101.0"]
+    expectedOutput: ["hugo v0.85.0"]
 
   - name: lz4 compression
     command: "lz4"

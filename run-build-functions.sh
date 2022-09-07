@@ -237,11 +237,11 @@ read_node_version_file() {
 }
 
 install_dependencies() {
-  local defaultNodeVersion=$1
-  local defaultRubyVersion=$2
-  local defaultYarnVersion=$3
-  local installGoVersion=$4
-  local defaultPythonVersion=$5
+  local defaultNodeVersion=$1 # 16
+  local defaultRubyVersion=$2 # 2.6.2
+  local defaultYarnVersion=$3 # 1.13.0
+  local installGoVersion=$4 # 1.16.4
+  local defaultPythonVersion=$5 # 3.8
   local featureFlags="$6"
 
   # Python Version
@@ -917,7 +917,7 @@ install_go() {
     GIMME_ENV_PREFIX=$HOME/.gimme/env GIMME_VERSION_PREFIX=$HOME/.gimme/versions gimme $resolvedGoVersion
     if [ $? -eq 0 ]
     then
-      source $HOME/.gimme/env/go$resolvedGoVersion.linux.amd64.env
+      source $HOME/.gimme/env/go$resolvedGoVersion.linux.$(dpkg --print-architecture).env
     else
       echo "Failed to install Go version '$resolvedGoVersion'"
       exit 1

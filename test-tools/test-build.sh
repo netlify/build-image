@@ -54,9 +54,9 @@ docker run --rm \
        -e GO_VERSION \
        -e GO_IMPORT_PATH \
        -e SWIFT_VERSION \
-       -v "${REPO_PATH}:/opt/repo":z \
-       -v "${BASE_PATH}/run-build.sh:/opt/build-bin/build":z \
-       -v "${BASE_PATH}/run-build-functions.sh:/opt/build-bin/run-build-functions.sh":z \
-       -v $PWD/$T/cache:/opt/buildhome/cache:z \
+       -v "${REPO_PATH}:/opt/repo:z" \
+       -v "${BASE_PATH}/run-build.sh:/opt/build-bin/build:z" \
+       -v "${BASE_PATH}/run-build-functions.sh:/opt/build-bin/run-build-functions.sh:z" \
+       -v "$PWD/$T/cache:/opt/buildhome/cache:z" \
        -it \
        $NETLIFY_IMAGE $SCRIPT

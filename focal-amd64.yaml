@@ -24,6 +24,6 @@ commandTests:
     command: "deno"
     args: ["--version"]
     expectedOutput:
-      - "deno 1.25.2 \(release, .+-.+-.+\)"
+      - "deno 1.25.2 \\(release, .+-.+-.+\\)"
       - "v8 .*"
       - "typescript .*"

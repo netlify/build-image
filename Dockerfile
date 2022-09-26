@@ -306,12 +306,12 @@ USER root
 #
 ################################################################################
 
-RUN curl -o- -L https://deno.land/x/install/install.sh > /usr/local/bin/deno-installer.sh
+RUN if [ "$TARGETARCH" = "amd64" ] ; then curl -o- -L https://deno.land/x/install/install.sh > /usr/local/bin/deno-installer.sh; fi
 ENV DENO_VERSION=v1.25.4
 
 USER buildbot
 
-RUN /bin/bash /usr/local/bin/deno-installer.sh $DENO_VERSION
+RUN if [ "$TARGETARCH" = "amd64" ] ; then /bin/bash /usr/local/bin/deno-installer.sh $DENO_VERSION; fi
 
 USER root
 

@@ -29,8 +29,8 @@ metadataTest:
         /opt/buildhome/.swiftenv/shims:\
         /opt/buildhome/.php:\
         /opt/buildhome/.binrc/bin:\
-        /opt/buildhome/.yarn/bin:\
         /opt/buildhome/.deno/bin:\
+        /opt/buildhome/.yarn/bin:\
         /usr/local/rvm/bin:\
         /usr/local/sbin:\
         /usr/local/bin:\

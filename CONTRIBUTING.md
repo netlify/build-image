@@ -111,7 +111,7 @@ If required, someone with write accesss to the repo can trigger the push for you
 1. Create two PRs, one branching off `focal` and one branching off `xenial`, with your changes applied to each.
 2. Once the PRs are approved, merge them into their respective base branches. The merge commit should also follow the [conventional commit format](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#summary).
 3. Commits which are prefaced with `fix:` or `feat:` will trigger package release PRs created by [release-please](https://github.com/googleapis/release-please). Merge these PRs. If you need to manually trigger a release-please PR you can bump the version by creating an [empty PR](https://github.com/netlify/build-image/pull/728).
-4. Wait for the CI pipelines to finish. Renovate should automatically create a PR in `buildbot` with the latest `build-image` releases (this may not happen straight away, but you can speed it up by checking [the box in this PR](https://github.com/netlify/buildbot/issues/912) or manually create a PR to bump [the version](https://github.com/netlify/buildbot/blob/0ada244ab84a1759a70d6b2cfc27c9987b5c77ca/.circleci/config.yml#L141-L150)).
+4. Wait for the CI pipelines to finish. Renovate should automatically create a PR in `buildbot` with the latest `build-image` releases (this may not happen straight away, but you can speed it up by checking [the box in the dependency dashboard](https://github.com/netlify/buildbot/issues/912) or manually create a PR to bump [the version](https://github.com/netlify/buildbot/blob/0ada244ab84a1759a70d6b2cfc27c9987b5c77ca/.circleci/config.yml#L141-L150)).
 5. Review, test and deploy the PR in `buildbot`.
 
 ### Running Test `buildbot` Releases

@@ -26,8 +26,6 @@ The specific patch versions included will depend on when the image was last buil
   * Any version available on the [Go downloads page](https://golang.org/dl/)
 * Java
   * 8 (default)
-* Deno
-  * 1.25 (default)
 * Emacs
   * 26.3 (default)
 * Erlang

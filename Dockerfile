@@ -302,6 +302,22 @@ USER root
 
 ################################################################################
 #
+# Deno
+#
+################################################################################
+
+RUN if [ "$TARGETARCH" = "amd64" ] ; then curl -o- -L https://deno.land/x/install/install.sh > /usr/local/bin/deno-installer.sh; fi
+ENV DENO_VERSION=v1.25.4
+
+USER buildbot
+
+RUN if [ "$TARGETARCH" = "amd64" ] ; then /bin/bash /usr/local/bin/deno-installer.sh $DENO_VERSION; fi
+ENV PATH "/opt/buildhome/.deno/bin:$PATH"
+
+USER root
+
+################################################################################
+#
 # Python
 #
 ################################################################################

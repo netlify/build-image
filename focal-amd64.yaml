@@ -19,3 +19,11 @@ commandTests:
     args: ["--version"]
     expectedOutput:
       - Homebrew 3\.6\.\d+
+
+  - name: "Deno"
+    command: "deno"
+    args: ["--version"]
+    expectedOutput:
+      - "deno 1.25.4 \\(release, .+-.+-.+\\)"
+      - "v8 .*"
+      - "typescript .*"

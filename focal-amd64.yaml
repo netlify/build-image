@@ -18,4 +18,4 @@ commandTests:
     command: "brew"
     args: ["--version"]
     expectedOutput:
-      - Homebrew 3\.5\.\d+
+      - Homebrew 3\.6\.\d+

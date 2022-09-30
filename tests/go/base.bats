@@ -24,5 +24,5 @@ setup() {
   run install_go $customGoVersion
   assert_success
   assert_output --partial "Installing Go version 1.16.4"
-  assert_output --partial "go version go1.16.4 linux/amd64"
+  assert_output --partial "go version go1.16.4"
 }

@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM ubuntu:20.04 as build-image
+FROM ubuntu:20.04 as build-base
 
 ARG TARGETARCH
 ENV TARGETARCH "${TARGETARCH}"
@@ -15,7 +15,6 @@ ENV NF_IMAGE_NAME "${NF_IMAGE_NAME:-focal}"
 ENV LANGUAGE en_US:en
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-ENV PANDOC_VERSION 2.13
 
 LABEL maintainer Netlify
 
@@ -34,12 +33,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
-    apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
     add-apt-repository -y ppa:ondrej/php && \
-    add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu focal contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -53,7 +48,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         doxygen \
         elixir \
         emacs-nox \
-        esl-erlang \
         expect \
         file \
         fontconfig \
@@ -171,6 +165,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php8.0-zip \
         php8.0-intl \
         pngcrush \
+        # procps is needed for homebrew on linux arm
+        procps \
         python-setuptools \
         python3-setuptools \
         python3.8-dev \
@@ -190,23 +186,34 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         xvfb \
         zip \
         zstd \
-# dotnet core dependencies
-	libunwind8-dev \
-	libicu-dev \
-	liblttng-ust0 \
-	libkrb5-3 \
-        && \
+      # dotnet core dependencies
+        libunwind8-dev \
+        libicu-dev \
+        liblttng-ust0 \
+        libkrb5-3 && \
+    # install erlang
+    wget --quiet https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && \
+    dpkg -i erlang-solutions_2.0_all.deb && \
+    apt-get -y update && \
+    apt-get install -y --no-install-recommends \
+        esl-erlang && \
+    # Clean up
     /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     apt-get autoremove -y && \
     unset DEBIAN_FRONTEND
 
+FROM build-base as build-image
+
+ARG TARGETARCH
 ################################################################################
 #
 # Pandoc & Wkhtmltopdf
 #
 ################################################################################
+
+ENV PANDOC_VERSION 2.13
 
 RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
     dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
@@ -217,7 +224,6 @@ RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/
     dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     pandoc -v
-
 
 ################################################################################
 #
@@ -296,6 +302,22 @@ USER root
 
 ################################################################################
 #
+# Deno
+#
+################################################################################
+
+RUN if [ "$TARGETARCH" = "amd64" ] ; then curl -o- -L https://deno.land/x/install/install.sh > /usr/local/bin/deno-installer.sh; fi
+ENV DENO_VERSION=v1.25.4
+
+USER buildbot
+
+RUN if [ "$TARGETARCH" = "amd64" ] ; then /bin/bash /usr/local/bin/deno-installer.sh $DENO_VERSION; fi
+ENV PATH "/opt/buildhome/.deno/bin:$PATH"
+
+USER root
+
+################################################################################
+#
 # Python
 #
 ################################################################################
@@ -328,7 +350,7 @@ ENV BINRC_VERSION 0.2.9
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
-    ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_${TARGETARCH}/binrc_${BINRC_VERSION}_linux_${TARGETARCH} /usr/local/bin/binrc
+    ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
 
 # Create a place for binrc to link/persist installs to the PATH
 USER buildbot
@@ -345,8 +367,12 @@ USER root
 
 ENV HUGO_VERSION 0.85.0
 
-RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_${HUGO_VERSION} && \
-    ln -s /usr/local/bin/hugo_${HUGO_VERSION} /usr/local/bin/hugo
+RUN case "$TARGETARCH" in \
+      "arm64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-ARM64.deb" ;; \
+      "amd64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-64bit.deb" ;; \
+    esac && \
+    wget -nv --quiet https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILE} && \
+    dpkg -i ${HUGO_FILE}
 
 ################################################################################
 #

@@ -277,7 +277,7 @@ USER root
 
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
-ENV NVM_VERSION=0.38.0
+ENV NVM_VERSION=0.39.1
 
 # Install node.js, yarn, grunt, bower and elm
 USER buildbot
@@ -287,7 +287,7 @@ RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd /
 
 ENV ELM_VERSION=0.19.1-5
-ENV YARN_VERSION=1.22.10
+ENV YARN_VERSION=1.22.19
 
 ENV NETLIFY_NODE_VERSION="16"
 

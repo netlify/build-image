@@ -93,7 +93,7 @@ commandTests:
         echo "NPM: $(npm --version)"
     expectedOutput:
       - "Node: v16.*.*"
-      - "NVM: 0.38.0"
+      - "NVM: 0.39.1"
       - "Yarn: 1.22.*"
       - "NPM: 8.*.*"
 

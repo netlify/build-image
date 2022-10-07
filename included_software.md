@@ -27,7 +27,7 @@ The specific patch versions included will depend on when the image was last buil
 * Java
   * 8 (default)
 * Emacs
-  * 26.3 (default)
+  * 28.1 (default)
 * Erlang
   * 22.2 (default)
 * Elixir

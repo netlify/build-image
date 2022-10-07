@@ -35,6 +35,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     update-locale en_US.UTF-8 && \
     add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:git-core/ppa && \
+    add-apt-repository -y ppa:kelleyk/emacs && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -47,7 +48,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         cmake \
         doxygen \
         elixir \
-        emacs-nox \
+        emacs28-nox \
         expect \
         file \
         fontconfig \

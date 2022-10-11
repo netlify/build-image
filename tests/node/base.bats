@@ -10,8 +10,9 @@ setup() {
   source_nvm
 }
 
+NODE_VERSION=16
+
 @test 'node version ${NODE_VERSION} is installed and available at startup' {
-  NODE_VERSION=16
   run node --version
   assert_success
   assert_output --partial $NODE_VERSION

@@ -132,32 +132,17 @@ restore_node_modules() {
 
 run_yarn() {
   yarn_version=$1
-  if [ -d $NETLIFY_CACHE_DIR/yarn ]
-  then
-    export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
-  fi
   restore_home_cache ".yarn_cache" "yarn cache"
 
-  if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]
+  if [ "$(yarn --version)" != "$yarn_version" ]
   then
     echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
-    rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
-    npm uninstall yarn -g
-  fi
-
-  if ! [ $(which yarn) ]
-  then
-    echo "Installing yarn at version $yarn_version"
-    rm -rf $HOME/.yarn
-    bash /usr/local/bin/yarn-installer.sh --version $yarn_version
-    mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
-    export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
+    corepack prepare yarn@$yarn_version --activate
   fi
 
   restore_node_modules "yarn"
 
   echo "Installing NPM modules using Yarn version $(yarn --version)"
-  run_npm_set_temp
 
   # Remove the cache-folder flag if the user set any.
   # We want to control where to put the cache
@@ -177,10 +162,29 @@ run_yarn() {
   export PATH=$(yarn bin):$PATH
 }
 
-run_npm_set_temp() {
-  # Make sure we're not limited by space in the /tmp mount
-  mkdir $HOME/tmp
-  npm set tmp $HOME/tmp
+
+run_pnpm() {
+  pnpm_version=$1
+  restore_home_cache ".pnpm-store" "pnpm cache"
+
+  if [ "$(pnpm --version)" != "$pnpm_version" ]
+  then
+    echo "Found pnpm version ($(pnpm --version)) that doesn't match expected ($pnpm_version)"
+    corepack prepare pnpm@$pnpm_version --activate
+  fi
+
+  restore_node_modules "pnpm"
+
+  echo "Installing NPM modules using PNPM version $(pnpm --version)"
+  if pnpm install
+  then
+    echo "NPM modules installed using PNPM"
+  else
+    echo "Error during PNPM install"
+    exit 1
+  fi
+
+  export PATH=$(pnpm bin):$PATH
 }
 
 run_npm() {
@@ -205,7 +209,7 @@ run_npm() {
   if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
   then
     echo "Installing NPM modules using NPM version $(npm --version)"
-    run_npm_set_temp
+
     if npm install ${NPM_FLAGS:+$NPM_FLAGS}
     then
       echo "NPM modules installed"
@@ -240,9 +244,10 @@ install_dependencies() {
   local defaultNodeVersion=$1 # 16
   local defaultRubyVersion=$2 # 2.6.2
   local defaultYarnVersion=$3 # 1.13.0
-  local installGoVersion=$4 # 1.16.4
-  local defaultPythonVersion=$5 # 3.8
-  local featureFlags="$6"
+  local defaultPnpmVersion=$4 # 7.13.4
+  local installGoVersion=$5 # 1.16.4
+  local defaultPythonVersion=$6 # 3.8
+  local featureFlags="$7"
 
   # Python Version
   if [ -f runtime.txt ]
@@ -527,19 +532,22 @@ install_dependencies() {
 
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
+  : ${PNPM_VERSION="$defaultPnpmVersion"}
   : ${CYPRESS_CACHE_FOLDER="./node_modules/.cache/CypressBinary"}
   export CYPRESS_CACHE_FOLDER
 
   if [ -f package.json ]
   then
-    if [ "$NODE_ENV" == "production" ]
-    then
+    if [ "$NODE_ENV" == "production" ];then
       warn "The environment variable 'NODE_ENV' is set to 'production'. Any 'devDependencies' in package.json will not be installed"
     fi
 
-    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
-    then
+    restore_home_cache ".node/corepack" "corepack dependencies"
+
+    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]); then
       run_yarn $YARN_VERSION
+    elif [ "$NETLIFY_USE_PNPM" = "true" ] || ([ "$NETLIFY_USE_PNPM" != "false" ] && [ -f pnpm-lock.yaml ]); then
+      run_pnpm $PNPM_VERSION
     else
       run_npm "$featureFlags"
     fi
@@ -707,6 +715,8 @@ cache_artifacts() {
     cache_cwd_directory_fast_copy "target" "rust compile output"
   fi
 
+  cache_home_directory ".node/corepack" "corepack cache"
+  cache_home_directory ".pnpm-store" "pnpm cache"
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache/pip" "pip cache"
   cache_home_directory ".cask" "emacs cask dependencies"

@@ -301,6 +301,9 @@ install_dependencies() {
     exit 1
   fi
 
+  echo "Enabling node corepack"
+  corepack enable
+
   if [ -n "$NPM_TOKEN" ]
   then
     if [ ! -f .npmrc ]

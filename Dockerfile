@@ -274,9 +274,6 @@ USER root
 #
 ################################################################################
 
-
-RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
-
 ENV NVM_VERSION=0.39.1
 
 # Install node.js, yarn, grunt, bower
@@ -299,7 +296,6 @@ RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          corepack enable && \
          corepack prepare yarn@$YARN_VERSION --activate && \
          corepack prepare pnpm@$PNPM_VERSION --activate"
-ENV PATH "/opt/buildhome/.yarn/bin:$PATH"
 
 USER root
 

@@ -47,7 +47,6 @@ container-test: build-base ## Run a container structure test
 run-local: build-base ## Volume the build scripts and run a bash shell in the build-image
 	docker run --rm -it \
 		-e NETLIFY_BUILD_BASE="/opt/buildhome" \
-		-u root \
 		-v $(PWD)/run-build.sh:/opt/build-bin/build:ro \
 		-v $(PWD)/run-build-functions.sh:/opt/build-bin/run-build-functions.sh:ro \
 		$(image)

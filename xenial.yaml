@@ -119,12 +119,6 @@ commandTests:
     args: ["--version"]
     expectedOutput: ["swiftenv 1.5.0"]
 
-  - name: "Homebrew"
-    command: "brew"
-    args: ["--version"]
-    expectedOutput:
-      - Homebrew 3\.5\.\d+
-
   - name: "Rustup"
     command: "rustup"
     args: ["--version"]

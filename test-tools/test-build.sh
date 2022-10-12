@@ -19,6 +19,7 @@ fi
 : ${NODE_VERSION="10"}
 : ${RUBY_VERSION="2.6.2"}
 : ${YARN_VERSION="1.13.0"}
+: ${PNPM_VERSION="7.13.4"}
 : ${NPM_VERSION=""}
 : ${HUGO_VERSION="0.54.0"}
 : ${PHP_VERSION="5.6"}
@@ -48,6 +49,7 @@ docker run --rm \
        -e RUBY_VERSION \
        -e YARN_VERSION \
        -e NPM_VERSION \
+       -e PNPM_VERSION \
        -e HUGO_VERSION \
        -e PHP_VERSION \
        -e NETLIFY_VERBOSE \

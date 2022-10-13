@@ -72,6 +72,13 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 : ${NPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
+# get's the major version out of a string
+get_major_version() {
+  local version=$1
+  # The sed replaces all non alphanumeric values if a version starts with `v1.3.0` it should provide `1.4.0`
+  echo $(cut -d '.' -f 1 <<< "$version" | sed "s/[^[:digit:].-]//g")
+}
+
 # Feature flags are a comma-separated list.
 # The following logic relies on the fact that feature flags cannot currently
 # have escaped commas in their value. Otherwise, parsing the list as an array,
@@ -280,7 +287,12 @@ install_dependencies() {
     read_node_version_file ".node-version"
   fi
 
-  if nvm install --no-progress $NODE_VERSION
+  # Ensures that we are always installing the latests patch + minor for the requested node version
+  # to have all the security updates in place and allows us to take advantage of new technologies that are backported
+  local nodeMajor=$(get_major_version "$NODE_VERSION")
+  local requestedNodeVersion=$NODE_VERSION
+
+  if nvm install --no-progress $nodeMajor
   then
     NODE_VERSION=$(nvm current)
     # no echo needed because nvm does that for us
@@ -294,6 +306,17 @@ install_dependencies() {
   else
     echo "Failed to install node version '$NODE_VERSION'"
     exit 1
+  fi
+
+  # don't log when node version is 16 as it's the default
+  # don't log when the requested matches the major as then just the major got requested
+  # don't log wehn the requested matches the actual then it was as expected
+  if [ "$NODE_VERSION" != "16" ] &&
+     [ "v$requestedNodeVersion" != "$(node --version)" ] &&
+     [ "$requestedNodeVersion" != "$nodeMajor" ]
+  then
+    echo "We've installed a newer node version $NODE_VERSION as the one you've requested $requestedNodeVersion."
+    echo "This is done to provide you with the latest security patches and features to ensure a safe build! 🫡"
   fi
 
   if [ -n "$NPM_TOKEN" ]

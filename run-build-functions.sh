@@ -72,6 +72,13 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 : ${NPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
+# get's the major version out of a string
+get_major_version() {
+  local version=$1
+  # The sed replaces all non alphanumeric values if a version starts with `v1.3.0` it should provide `1.4.0`
+  echo $(cut -d '.' -f 1 <<< "$version" | sed "s/[^[:digit:].-]//g")
+}
+
 # Feature flags are a comma-separated list.
 # The following logic relies on the fact that feature flags cannot currently
 # have escaped commas in their value. Otherwise, parsing the list as an array,
@@ -132,12 +139,26 @@ restore_node_modules() {
 
 run_yarn() {
   yarn_version=$1
+  if [ -d $NETLIFY_CACHE_DIR/yarn ]
+  then
+    export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
+  fi
   restore_home_cache ".yarn_cache" "yarn cache"
 
-  if [ "$(yarn --version)" != "$yarn_version" ]
+  if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]
   then
     echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
-    corepack prepare yarn@$yarn_version --activate
+    rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
+    npm uninstall yarn -g
+  fi
+
+  if ! [ $(which yarn) ]
+  then
+    echo "Installing yarn at version $yarn_version"
+    rm -rf $HOME/.yarn
+    bash /usr/local/bin/yarn-installer.sh --version $yarn_version
+    mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
+    export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
   fi
 
   restore_node_modules "yarn"
@@ -170,6 +191,15 @@ run_pnpm() {
   if [ "$(pnpm --version)" != "$pnpm_version" ]
   then
     echo "Found pnpm version ($(pnpm --version)) that doesn't match expected ($pnpm_version)"
+
+    if ! [ $(which corepack) ]; then
+      echo "Error during installing PNPM  $pnpm_version"
+      echo "We cannot install the expected version as your required Node.js version $NODE_VERSION does not allow that"
+      echo "Please assure that you use at least Node Version 14.19.0 or greater than 16.9.0"
+
+      exit 1
+    fi
+
     corepack prepare pnpm@$pnpm_version --activate
   fi
 
@@ -301,8 +331,19 @@ install_dependencies() {
     exit 1
   fi
 
-  echo "Enabling node corepack"
-  corepack enable
+  # Node.js Corepack
+  # corepack was packported to 14.19.0
+  dpkg --compare-versions "$NODE_VERSION" "ge" "14.19.0"
+
+  if [ $? -eq 0 ]; then
+    # corepack was added in 16.9.0 and packported to 14.19.0
+    dpkg --compare-versions "$NODE_VERSION" "ge" "16.9.0"
+    if [ $? -eq 0 ] || [ "$(get_major_version $NODE_VERSION)" == "14" ]; then
+      echo "Enabling node corepack"
+      corepack enable
+    fi
+  fi
+
 
   if [ -n "$NPM_TOKEN" ]
   then

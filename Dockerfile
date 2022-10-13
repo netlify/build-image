@@ -274,6 +274,9 @@ USER root
 #
 ################################################################################
 
+
+RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
+
 ENV NVM_VERSION=0.39.1
 
 # Install node.js, yarn, grunt, bower
@@ -291,11 +294,12 @@ ENV NETLIFY_NODE_VERSION="16"
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
          npm install -g grunt-cli bower && \
+         bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm alias default node && \
          nvm cache clear && \
          corepack enable && \
-         corepack prepare yarn@$YARN_VERSION --activate && \
          corepack prepare pnpm@$PNPM_VERSION --activate"
+ENV PATH "/opt/buildhome/.yarn/bin:$PATH"
 
 USER root
 

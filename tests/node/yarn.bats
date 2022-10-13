@@ -43,7 +43,7 @@ teardown() {
   local newYarnVersion=1.21.0
   run run_yarn $newYarnVersion
   assert_success
-  assert_output --partial "Installing NPM modules using Yarn version $newYarnVersion"
+  assert_output --partial "Installing yarn at version $newYarnVersion"
   assert_dir_exist $YARN_CACHE_DIR
 
   # The cache dir is actually being used

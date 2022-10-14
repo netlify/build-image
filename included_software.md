@@ -65,7 +65,7 @@ The specific patch versions included will depend on when the image was last buil
   * Boot
     * 2.5.2
 * Hugo - `HUGO_VERSION`
-  * 0.82 extended (default)
+  * 0.85.0 extended (default)
   * Any version installable via `binrc`.
 * Zola - `ZOLA_VERSION` (formerly Gutenberg - `GUTENBERG_VERSION`)
   * Any version installable via `binrc`.

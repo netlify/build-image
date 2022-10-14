@@ -139,26 +139,33 @@ restore_node_modules() {
 
 run_yarn() {
   yarn_version=$1
-  if [ -d $NETLIFY_CACHE_DIR/yarn ]
-  then
-    export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
-  fi
   restore_home_cache ".yarn_cache" "yarn cache"
 
-  if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]
-  then
-    echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
-    rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
-    npm uninstall yarn -g
-  fi
+  if ! [ $(which corepack) ]; then
+    if [ -d $NETLIFY_CACHE_DIR/yarn ]
+    then
+      export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
+    fi
 
-  if ! [ $(which yarn) ]
-  then
-    echo "Installing yarn at version $yarn_version"
-    rm -rf $HOME/.yarn
-    bash /usr/local/bin/yarn-installer.sh --version $yarn_version
-    mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
-    export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
+    if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]; then
+        echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
+        rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
+        npm uninstall yarn -g
+    fi
+
+    if ! [ $(which yarn) ]; then
+      echo "Installing yarn at version $yarn_version"
+      rm -rf $HOME/.yarn
+      bash /usr/local/bin/yarn-installer.sh --version $yarn_version
+      mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
+      export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
+    fi
+  else
+    # if corepack is installed use it for changing the yarn version
+    if [ "$(yarn --version)" != "$yarn_version" ]; then
+      echo "Installing yarn at version $yarn_version"
+      corepack prepare yarn@$yarn_version --activate
+    fi
   fi
 
   restore_node_modules "yarn"
@@ -188,17 +195,17 @@ run_pnpm() {
   pnpm_version=$1
   restore_home_cache ".pnpm-store" "pnpm cache"
 
+  if ! [ $(which corepack) ]; then
+    echo "Error while installing PNPM $pnpm_version"
+    echo "We cannot install the expected version of PNPM ($pnpm_version) as your required Node.js version $NODE_VERSION does not allow that"
+    echo "Please assure that you use at least Node Version 14.19.0 or greater than 16.9.0"
+
+    exit 1
+  fi
+
   if [ "$(pnpm --version)" != "$pnpm_version" ]
   then
     echo "Found pnpm version ($(pnpm --version)) that doesn't match expected ($pnpm_version)"
-
-    if ! [ $(which corepack) ]; then
-      echo "Error during installing PNPM  $pnpm_version"
-      echo "We cannot install the expected version as your required Node.js version $NODE_VERSION does not allow that"
-      echo "Please assure that you use at least Node Version 14.19.0 or greater than 16.9.0"
-
-      exit 1
-    fi
 
     corepack prepare pnpm@$pnpm_version --activate
   fi
@@ -253,47 +260,9 @@ run_npm() {
   export PATH=$(npm bin):$PATH
 }
 
-check_python_version() {
-  if source $HOME/python${PYTHON_VERSION}/bin/activate
-  then
-    echo "Python version set to ${PYTHON_VERSION}"
-  else
-    echo "Error setting python version from $1"
-    echo "Please see https://github.com/netlify/build-image/blob/focal/included_software.md for current versions"
-    exit 1
-  fi
-}
+install_node() {
+  local defaultNodeVersion=$1
 
-read_node_version_file() {
-  local nodeVersionFile="$1"
-  NODE_VERSION="$(cat "$nodeVersionFile")"
-  echo "Attempting node version '$NODE_VERSION' from $nodeVersionFile"
-}
-
-install_dependencies() {
-  local defaultNodeVersion=$1 # 16
-  local defaultRubyVersion=$2 # 2.6.2
-  local defaultYarnVersion=$3 # 1.13.0
-  local defaultPnpmVersion=$4 # 7.13.4
-  local installGoVersion=$5 # 1.16.4
-  local defaultPythonVersion=$6 # 3.8
-  local featureFlags="$7"
-
-  # Python Version
-  if [ -f runtime.txt ]
-  then
-    PYTHON_VERSION=$(cat runtime.txt)
-    check_python_version "runtime.txt"
-  elif [ -f Pipfile ]
-  then
-    echo "Found Pipfile restoring Pipenv virtualenv"
-    restore_cwd_cache ".venv" "python virtualenv"
-  else
-    PYTHON_VERSION=$defaultPythonVersion
-    check_python_version "the PYTHON_VERSION environment variable"
-  fi
-
-  # Node version
   source $NVM_DIR/nvm.sh
   : ${NODE_VERSION="$defaultNodeVersion"}
 
@@ -354,6 +323,50 @@ install_dependencies() {
       echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
     fi
   fi
+}
+
+check_python_version() {
+  if source $HOME/python${PYTHON_VERSION}/bin/activate
+  then
+    echo "Python version set to ${PYTHON_VERSION}"
+  else
+    echo "Error setting python version from $1"
+    echo "Please see https://github.com/netlify/build-image/blob/focal/included_software.md for current versions"
+    exit 1
+  fi
+}
+
+read_node_version_file() {
+  local nodeVersionFile="$1"
+  NODE_VERSION="$(cat "$nodeVersionFile")"
+  echo "Attempting node version '$NODE_VERSION' from $nodeVersionFile"
+}
+
+install_dependencies() {
+  local defaultNodeVersion=$1 # 16
+  local defaultRubyVersion=$2 # 2.6.2
+  local defaultYarnVersion=$3 # 1.13.0
+  local defaultPnpmVersion=$4 # 7.13.4
+  local installGoVersion=$5 # 1.16.4
+  local defaultPythonVersion=$6 # 3.8
+  local featureFlags="$7"
+
+  # Python Version
+  if [ -f runtime.txt ]
+  then
+    PYTHON_VERSION=$(cat runtime.txt)
+    check_python_version "runtime.txt"
+  elif [ -f Pipfile ]
+  then
+    echo "Found Pipfile restoring Pipenv virtualenv"
+    restore_cwd_cache ".venv" "python virtualenv"
+  else
+    PYTHON_VERSION=$defaultPythonVersion
+    check_python_version "the PYTHON_VERSION environment variable"
+  fi
+
+  # Node version
+  install_node $defaultNodeVersion
 
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]

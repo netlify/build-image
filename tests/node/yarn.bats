@@ -27,6 +27,17 @@ teardown() {
   cd - || return
 }
 
+@test 'run_yarn installs a new yarn version if different from the one installed, installs deps and creates cache dir' {
+  local newYarnVersion=1.21.0
+  run run_yarn $newYarnVersion
+  assert_success
+  assert_output --partial "Installing yarn at version $newYarnVersion"
+  assert_dir_exist $YARN_CACHE_DIR
+
+  # The cache dir is actually being used
+  assert_dir_exist "$YARN_CACHE_DIR/v6"
+}
+
 @test 'run_yarn with a new yarn version correctly sets the new yarn binary in PATH' {
   local newYarnVersion=1.21.0
   # We can't use bats `run` because environmental changes aren't persisted
@@ -37,17 +48,6 @@ teardown() {
   # New yarn binary is set in PATH
   run yarn --version
   assert_output $newYarnVersion
-}
-
-@test 'run_yarn installs a new yarn version if different from the one installed, installs deps and creates cache dir' {
-  local newYarnVersion=1.21.0
-  run run_yarn $newYarnVersion
-  assert_success
-  assert_output --partial "Installing yarn at version $newYarnVersion"
-  assert_dir_exist $YARN_CACHE_DIR
-
-  # The cache dir is actually being used
-  assert_dir_exist "$YARN_CACHE_DIR/v6"
 }
 
 @test 'run_yarn allows passing multiple yarn flags via YARN_FLAGS env var to yarn install' {
@@ -71,4 +71,19 @@ teardown() {
   # The cache dir is actually being used
   assert_dir_exist "$YARN_CACHE_DIR/v6"
   assert_dir_not_exist "$tmpCacheDir"
+}
+
+# run this test as last one as it changes the node version and would affect the other tests
+@test 'run_yarn with a new yarn version correctly on an old node version without corepack' {
+  local newYarnVersion=1.21.0
+
+  # We can't use bats `run` because environmental changes aren't persisted
+  # We also need to ignore the exit code as the test env is set to return on any non-zero exit code, which we use for
+  # our workspaces checks
+  install_node "12" || true > /dev/null 2>&1
+  run_yarn $newYarnVersion || true > /dev/null 2>&1
+
+  # New yarn binary is set in PATH
+  run yarn --version
+  assert_output $newYarnVersion
 }

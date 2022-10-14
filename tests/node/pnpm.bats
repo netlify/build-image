@@ -44,3 +44,11 @@ teardown() {
   # The cache dir is actually being used
   assert_dir_exist "/opt/buildhome/.pnpm-store/v3"
 }
+
+@test 'run_pnpm should exit and fail when trying to be used on a to old node version' {
+  local newPnpmVersion=6.32.20
+
+  run bash -c ". '/opt/build-bin/run-build-functions.sh' && install_node 12 && run_pnpm $newPnpmVersion"
+  assert_failure
+  assert_output --partial "Error while installing PNPM $newPnpmVersion"
+}

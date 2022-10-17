@@ -240,9 +240,10 @@ install_dependencies() {
   local defaultNodeVersion=$1
   local defaultRubyVersion=$2
   local defaultYarnVersion=$3
-  local installGoVersion=$4
-  local defaultPythonVersion=$5
-  local featureFlags="$6"
+  local defaultPnpmVersion=$4 # unused on xenial (we won't add support for pnpm here anymore just in focal)
+  local installGoVersion=$5
+  local defaultPythonVersion=$6
+  local featureFlags="$7"
 
   # Python Version
   if [ -f runtime.txt ]

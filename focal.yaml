@@ -30,7 +30,6 @@ metadataTest:
         /opt/buildhome/.php:\
         /opt/buildhome/.binrc/bin:\
         /opt/buildhome/.deno/bin:\
-        /opt/buildhome/.yarn/bin:\
         /usr/local/rvm/bin:\
         /usr/local/sbin:\
         /usr/local/bin:\
@@ -91,11 +90,13 @@ commandTests:
         echo "Node: $(node --version)"
         echo "Yarn: $(yarn --version)"
         echo "NPM: $(npm --version)"
+        echo "PNPM: $(pnpm --version)"
     expectedOutput:
       - "Node: v16.*.*"
       - "NVM: 0.39.1"
       - "Yarn: 1.22.*"
       - "NPM: 8.*.*"
+      - "PNPM: 7.*.*"
 
   - name: hugo
     command: "hugo"

@@ -306,6 +306,14 @@ install_node() {
       echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
     fi
   fi
+
+  if [ -n "$NPM_RC" ]
+  then
+    if [ ! -f ".npmrc" ]
+    then
+      echo $NPM_RC > .npmrc
+    fi
+  fi
 }
 
 check_python_version() {

@@ -300,21 +300,11 @@ install_node() {
     exit 1
   fi
 
-  # remove the v in front of the node version
-  local cleanNodeVersion=$(echo "$NODE_VERSION"| sed "s/[^[:digit:].-]//g")
-  # Node.js Corepack
-  # corepack was packported to 14.19.0
-  dpkg --compare-versions "$cleanNodeVersion" "ge" "14.19.0"
-
-  if [ $? -eq 0 ]; then
-    # corepack was added in 16.9.0 and backported to 14.19.0
-    dpkg --compare-versions "$cleanNodeVersion" "ge" "16.9.0"
-    if [ $? -eq 0 ] || [ "$(get_major_version $cleanNodeVersion)" == "14" ]; then
-      echo "Enabling node corepack"
-      corepack enable
-    fi
+  # if Node.js Corepack is available enable it
+  if [ $(which corepack) ]; then
+    echo "Enabling node corepack"
+    corepack enable
   fi
-
 
   if [ -n "$NPM_TOKEN" ]
   then

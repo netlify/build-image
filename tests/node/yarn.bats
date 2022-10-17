@@ -73,6 +73,20 @@ teardown() {
   assert_dir_not_exist "$tmpCacheDir"
 }
 
+@test 'run_yarn with a new yarn version correctly on a newer node version' {
+  local newYarnVersion=1.21.0
+
+  # We can't use bats `run` because environmental changes aren't persisted
+  # We also need to ignore the exit code as the test env is set to return on any non-zero exit code, which we use for
+  # our workspaces checks
+  install_node "18" || true > /dev/null 2>&1
+  run_yarn $newYarnVersion || true > /dev/null 2>&1
+
+  # New yarn binary is set in PATH
+  run yarn --version
+  assert_output $newYarnVersion
+}
+
 # run this test as last one as it changes the node version and would affect the other tests
 @test 'run_yarn with a new yarn version correctly on an old node version without corepack' {
   local newYarnVersion=1.21.0

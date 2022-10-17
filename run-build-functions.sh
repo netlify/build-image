@@ -75,7 +75,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 # get's the major version out of a string
 get_major_version() {
   local version=$1
-  # The sed replaces all non alphanumeric values if a version starts with `v1.3.0` it should provide `1.4.0`
+  # The sed replaces all non alphanumeric values if a version starts with `v1.4.0` it should provide `1.4.0`
   echo $(cut -d '.' -f 1 <<< "$version" | sed "s/[^[:digit:].-]//g")
 }
 

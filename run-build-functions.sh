@@ -307,7 +307,7 @@ install_node() {
   dpkg --compare-versions "$cleanNodeVersion" "ge" "14.19.0"
 
   if [ $? -eq 0 ]; then
-    # corepack was added in 16.9.0 and packported to 14.19.0
+    # corepack was added in 16.9.0 and backported to 14.19.0
     dpkg --compare-versions "$cleanNodeVersion" "ge" "16.9.0"
     if [ $? -eq 0 ] || [ "$(get_major_version $cleanNodeVersion)" == "14" ]; then
       echo "Enabling node corepack"

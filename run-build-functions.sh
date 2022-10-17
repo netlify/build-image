@@ -307,6 +307,14 @@ install_node() {
     fi
   fi
 
+  if [ -n "$GITHUB_PACKAGES_TOKEN" ]
+  then
+    if [ ! -f .npmrc ]
+    then
+      echo "//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}" > .npmrc
+    fi
+  fi
+
   if [ -n "$NPM_RC" ]
   then
     if [ ! -f ".npmrc" ]

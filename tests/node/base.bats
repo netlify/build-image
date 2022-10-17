@@ -34,8 +34,17 @@ NODE_VERSION=16
   assert_success
 }
 
-@test 'install_node should create an npmrc file' {
-  local npm_rc="//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_SECRET}\n@netlify:registry=https://npm.pkg.github.com/"
+@test 'install_node should create a GitHub packages npmrc file' {
+  GITHUB_PACKAGES_TOKEN=test_token_value
+
+  install_node "16"
+
+  assert_success
+  assert_file_exist ".npmrc"
+}
+
+@test 'install_node should create a custom npmrc file' {
+  local npm_rc="//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}\n@netlify:registry=https://npm.pkg.github.com/"
   NPM_RC=$npm_rc
 
   install_node "16"

@@ -72,13 +72,6 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 : ${NPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
-# get's the major version out of a string
-get_major_version() {
-  local version=$1
-  # The sed replaces all non alphanumeric values if a version starts with `v1.4.0` it should provide `1.4.0`
-  echo $(cut -d '.' -f 1 <<< "$version" | sed "s/[^[:digit:].-]//g")
-}
-
 # Feature flags are a comma-separated list.
 # The following logic relies on the fact that feature flags cannot currently
 # have escaped commas in their value. Otherwise, parsing the list as an array,

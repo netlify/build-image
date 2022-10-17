@@ -198,7 +198,7 @@ run_pnpm() {
   if ! [ $(which corepack) ]; then
     echo "Error while installing PNPM $pnpm_version"
     echo "We cannot install the expected version of PNPM ($pnpm_version) as your required Node.js version $NODE_VERSION does not allow that"
-    echo "Please assure that you use at least Node Version 14.19.0 or greater than 16.9.0"
+    echo "Please ensure that you use at least Node Version 14.19.0 or greater than 16.9.0"
 
     exit 1
   fi

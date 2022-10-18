@@ -324,8 +324,7 @@ jobs:
                 "run-workflow-build-executer": true,
                 "run-workflow-test-build-and-push": false,
                 "run-workflow-integration-tests-only": true
-              },
-              "branch": "nicola/use-integration-tests-repo-for-build-tests"
+              }
             }'; PAYLOAD=$(echo $json_data | jq --arg sha $BRANCH '.parameters["image-sha"]=$sha'); \
             echo "export PAYLOAD='${PAYLOAD}'" >> "$BASH_ENV"
       - run:
@@ -393,8 +392,6 @@ workflows:
           requires:
             - build-test-and-push-image
             - create-multi-arch-image
-
-
 
   ########################################################################
   # FORKED PRS

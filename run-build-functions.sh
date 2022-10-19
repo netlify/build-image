@@ -237,7 +237,7 @@ run_npm() {
     fi
   fi
 
-  if has_feature_flag "$featureFlags" "bypass_module_cache"
+  if has_feature_flag "$featureFlags" "buildbot_bypass_module_cache"
   then
     echo "Installing NPM modules using NPM version $(npm --version)"
     if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}

@@ -23,7 +23,7 @@ commandTests:
   - name: hugo
     command: "hugo"
     args: ["version"]
-    expectedOutput: ["hugo v0.85.0-724D5DB5+extended linux/amd64 BuildDate=2021-07-05T10:46:28Z VendorInfo=gohugoio"]
+    expectedOutput: ["hugo v0\.85\.0.*extended.*"]
 
   - name: "Deno"
     command: "deno"

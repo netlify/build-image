@@ -259,7 +259,9 @@ run_npm() {
         echo "Error during NPM install"
         exit 1
       fi
-      echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
+
+      echo "Creating package sha"
+      echo "$(shasum package.json)-$NODE_VERSION" > "$NETLIFY_CACHE_DIR/package-sha"
     fi
   fi
   

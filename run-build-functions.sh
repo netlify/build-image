@@ -70,6 +70,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
+: ${PNPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
 # Feature flags are a comma-separated list.
@@ -206,7 +207,7 @@ run_pnpm() {
   restore_node_modules "pnpm"
 
   echo "Installing NPM modules using PNPM version $(pnpm --version)"
-  if pnpm install
+  if pnpm install ${PNPM_FLAGS:+$PNPM_FLAGS}
   then
     echo "NPM modules installed using PNPM"
   else

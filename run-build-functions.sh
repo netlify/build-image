@@ -220,6 +220,7 @@ run_pnpm() {
 
 run_npm() {
   restore_node_modules "npm"
+  local featureFlags="$1"
 
   if [ -n "$NPM_VERSION" ]
   then
@@ -237,20 +238,35 @@ run_npm() {
     fi
   fi
 
-  if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
+  if has_feature_flag "$featureFlags" "buildbot_bypass_module_cache"
   then
+    echo "Bypassing sha validation. Running pre & post install scripts"
     echo "Installing NPM modules using NPM version $(npm --version)"
-
-    if npm install ${NPM_FLAGS:+$NPM_FLAGS}
+    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
     then
       echo "NPM modules installed"
     else
       echo "Error during NPM install"
       exit 1
     fi
+  else
+    if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
+    then
+      echo "Installing NPM modules using NPM version $(npm --version)"
 
-    echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
+      if npm install ${NPM_FLAGS:+$NPM_FLAGS}
+      then
+        echo "NPM modules installed"
+      else
+        echo "Error during NPM install"
+        exit 1
+      fi
+
+      echo "Creating package sha"
+      echo "$(shasum package.json)-$NODE_VERSION" > "$NETLIFY_CACHE_DIR/package-sha"
+    fi
   fi
+  
   export PATH=$(npm bin):$PATH
 }
 

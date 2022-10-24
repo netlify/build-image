@@ -240,6 +240,7 @@ run_npm() {
 
   if has_feature_flag "$featureFlags" "buildbot_bypass_module_cache"
   then
+    echo "Bypassing sha validation. Running pre & post install scripts"
     echo "Installing NPM modules using NPM version $(npm --version)"
     if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
     then

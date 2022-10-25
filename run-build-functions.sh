@@ -104,7 +104,7 @@ restore_node_modules() {
   local installer=$1
 
 	if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
-			local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces.packages | join(" ")'))
+			local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces | join(" ")'))
 
 			if [ "$workspaces" ]; then
 				restore_js_workspaces_cache "${workspaces[@]}"

@@ -133,6 +133,7 @@ restore_node_modules() {
 
 run_yarn() {
   yarn_version=$1
+  featureFlags=$2
   restore_home_cache ".yarn_cache" "yarn cache"
 
   if ! [ $(which corepack) ] || has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
@@ -187,6 +188,7 @@ run_yarn() {
 
 run_pnpm() {
   pnpm_version=$1
+  featureFlags=$2
   restore_home_cache ".pnpm-store" "pnpm cache"
 
   if ! [ $(which corepack) ] || has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
@@ -272,6 +274,7 @@ run_npm() {
 
 install_node() {
   local defaultNodeVersion=$1
+  local featureFlags=$2
 
   source $NVM_DIR/nvm.sh
   : ${NODE_VERSION="$defaultNodeVersion"}
@@ -366,7 +369,7 @@ install_dependencies() {
   fi
 
   # Node version
-  install_node $defaultNodeVersion
+  install_node "$defaultNodeVersion" "$featureFlags"
 
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]
@@ -604,9 +607,9 @@ install_dependencies() {
     restore_home_cache ".node/corepack" "corepack dependencies"
 
     if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]); then
-      run_yarn $YARN_VERSION
+      run_yarn $YARN_VERSION "$featureFlags"
     elif [ "$NETLIFY_USE_PNPM" = "true" ] || ([ "$NETLIFY_USE_PNPM" != "false" ] && [ -f pnpm-lock.yaml ]); then
-      run_pnpm $PNPM_VERSION
+      run_pnpm $PNPM_VERSION "$featureFlags"
     else
       run_npm "$featureFlags"
     fi

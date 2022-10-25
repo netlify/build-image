@@ -135,7 +135,7 @@ run_yarn() {
   yarn_version=$1
   restore_home_cache ".yarn_cache" "yarn cache"
 
-  if ! [ $(which corepack) ]; then
+  if ! [ $(which corepack) ] || has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
     if [ -d $NETLIFY_CACHE_DIR/yarn ]
     then
       export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
@@ -189,7 +189,7 @@ run_pnpm() {
   pnpm_version=$1
   restore_home_cache ".pnpm-store" "pnpm cache"
 
-  if ! [ $(which corepack) ]; then
+  if ! [ $(which corepack) ] || has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
     echo "Error while installing PNPM $pnpm_version"
     echo "We cannot install the expected version of PNPM ($pnpm_version) as your required Node.js version $NODE_VERSION does not allow that"
     echo "Please ensure that you use at least Node Version 14.19.0 or greater than 16.9.0"
@@ -266,7 +266,7 @@ run_npm() {
       echo "$(shasum package.json)-$NODE_VERSION" > "$NETLIFY_CACHE_DIR/package-sha"
     fi
   fi
-  
+
   export PATH=$(npm bin):$PATH
 }
 
@@ -311,7 +311,7 @@ install_node() {
   fi
 
   # if Node.js Corepack is available enable it
-  if [ $(which corepack) ]; then
+  if [ $(which corepack) ] && ! has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
     echo "Enabling node corepack"
     corepack enable
   fi

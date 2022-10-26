@@ -25,6 +25,10 @@ DEFAULT_SWIFT_VERSION="5.4"
 # PHP version
 DEFAULT_PHP_VERSION="8.0"
 
+# Internal yarn config
+# We use an "internal" yarn v1 executable as to not be impacted by corepack yarn selection
+INTERNAL_YARN_PATH="$HOME/.yarn/bin"
+
 # Pipenv configuration
 export PIPENV_RUNTIME=3.8
 export PIPENV_VENV_IN_PROJECT=1
@@ -107,7 +111,7 @@ restore_node_modules() {
   # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
   # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
   # we can actually use this command for npm workspaces as well
-  workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info 2>/dev/null)"
+  workspace_output="$(YARN_IGNORE_PATH=1 "$INTERNAL_YARN_PATH/yarn" workspaces --json info 2>/dev/null)"
   workspace_exit_code=$?
   if [ $workspace_exit_code -eq 0 ]
   then
@@ -137,6 +141,10 @@ run_yarn() {
   restore_home_cache ".yarn_cache" "yarn cache"
 
   if ! [ $(which corepack) ] || has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
+
+    # We manually add our internal yarn version to our path as a fallback, as this means the customer won't have a default
+    # yarn version installed
+    export PATH=$INTERNAL_YARN_PATH:$PATH
     if [ -d $NETLIFY_CACHE_DIR/yarn ]
     then
       export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH

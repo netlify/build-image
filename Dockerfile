@@ -291,10 +291,13 @@ ENV PNPM_VERSION=7.13.4
 
 ENV NETLIFY_NODE_VERSION="16"
 
+# We install an "internal" yarn v1 executable to be used only for workspace detection. We can remove it once we have a better
+# strategy in place
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
          npm install -g grunt-cli bower && \
          nvm alias default node && \
+         bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm cache clear && \
          corepack enable && \
          corepack prepare yarn@$YARN_VERSION --activate && \

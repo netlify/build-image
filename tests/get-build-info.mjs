@@ -1,7 +1,7 @@
 import { getBuildInfo } from "@netlify/build-info";
 
-const [projectDir] = process.argv.slice(2);
-const buildInfo = await getBuildInfo({ projectDir });
+const [rootDir, projectDir] = process.argv.slice(2);
+const buildInfo = await getBuildInfo({ rootDir, projectDir });
 
 if (!buildInfo.jsWorkspaces) {
   // this is needed for jq (basically mimic the logic from buildbot)
@@ -11,4 +11,4 @@ if (!buildInfo.jsWorkspaces) {
   buildInfo.jsWorkspaces = buildInfo.jsWorkspaces.packages;
 }
 
-console.log(JSON.stringify(buildInfo));
+console.log(JSON.stringify(buildInfo, null, 2));

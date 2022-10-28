@@ -24,9 +24,10 @@ source ~/.nvm/nvm.sh
 # We need to install with `--legacy-peer-deps` because of:
 # https://github.com/bats-core/bats-assert/issues/27
 npm install --legacy-peer-deps
-defaultBuildInfo=$(node get-build-info.mjs $NETLIFY_REPO_DIR)
+defaultBuildInfo=$(node "$NETLIFY_BUILD_BASE/get-build-info.mjs" "$NETLIFY_REPO_DIR" "$NETLIFY_PACKAGE_DIR")
 
-cd "$NETLIFY_REPO_DIR" || exit
+# cd into the repo + the base directory
+cd "$NETLIFY_REPO_DIR/$NETLIFY_PACKAGE_DIR" || exit
 
 : "${NODE_VERSION="16"}"
 : "${RUBY_VERSION="2.7.2"}"

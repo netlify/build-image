@@ -69,6 +69,14 @@ Here is an example that sets `NODE_VERSION` and `NODE_ENV` before running a buil
 export NODE_VERSION=8 NODE_ENV=production ; build npm run build
 ```
 
+### Testing it for a mono repository
+
+If you like to run a debugging build for your mono repository you need to pass the **Base directory** like in the Netlify UI.
+
+```
+./test-tools/test-build.sh path/to/site/repo base/directory 'your build command'
+```
+
 ### Testing locally with cache
 
 If you'd like to run a debugging build using our caching mechanisms, with verbose shell output, you can replace steps 2 and 3 above with the following command:

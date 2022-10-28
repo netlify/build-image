@@ -107,6 +107,7 @@ restore_node_modules() {
 			local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces | join(" ")'))
 
 			if [ "$workspaces" ]; then
+			  echo "$installer workspaces detected"
 				restore_js_workspaces_cache "${workspaces[@]}"
 			else
 				echo "No $installer workspaces detected"

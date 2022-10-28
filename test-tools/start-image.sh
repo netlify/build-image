@@ -2,7 +2,7 @@
 
 BASE_PATH=$(pwd)
 REPO_PATH=$(cd $1 && pwd)
-: ${NETLIFY_IMAGE="netlify/build:focal"}
+: "${NETLIFY_IMAGE="netlify/build:focal"}"
 
 docker run --rm -t -i \
 	-e NODE_VERSION \
@@ -15,7 +15,10 @@ docker run --rm -t -i \
 	-e GO_VERSION \
 	-e SWIFT_VERSION \
 	-e PYTHON_VERSION \
-	-v ${REPO_PATH}:/opt/repo \
-	-v ${BASE_PATH}/run-build.sh:/opt/build-bin/build \
+	-v "${REPO_PATH}:/opt/buildhome/repo" \
+	-v "${BASE_PATH}/run-build.sh:/opt/build-bin/build" \
+  -v "${BASE_PATH}/tests/get-build-info.mjs:/opt/buildhome/get-build-info.mjs" \
+  -v "${BASE_PATH}/package.json:/opt/buildhome/package.json" \
+  -v "${BASE_PATH}/package-lock.json:/opt/buildhome/package-lock.json" \
 	-v ${BASE_PATH}/run-build-functions.sh:/opt/build-bin/run-build-functions.sh \
-	$NETLIFY_IMAGE /bin/bash
+	"$NETLIFY_IMAGE" /bin/bash

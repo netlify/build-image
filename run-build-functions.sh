@@ -104,6 +104,10 @@ restore_node_modules() {
   local installer=$1
 
 	if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
+      if [ "$NETLIFY_BUILD_DEBUG" ]; then
+        echo "BUILD_INFO:\n$buildinfo\n"
+      fi
+
 			local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces | join(" ")'))
 
 			if [ "$workspaces" ]; then

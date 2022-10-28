@@ -548,7 +548,7 @@ FROM build-image as build-image-test
 USER buildbot
 SHELL ["/bin/bash", "-c"]
 
-COPY --chown=buildbot:buildbot package.json /opt/buildhome/test-env/package.json
+COPY --chown=buildbot:buildbot package.json package-lock.json /opt/buildhome/test-env/
 
 # We need to install with `--legacy-peer-deps` because of:
 # https://github.com/bats-core/bats-assert/issues/27

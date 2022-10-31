@@ -76,6 +76,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 : ${NPM_FLAGS=""}
 : ${PNPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
+: ${COMPOSER_FLAGS=""}
 
 # Feature flags are a comma-separated list.
 # The following logic relies on the fact that feature flags cannot currently
@@ -748,7 +749,7 @@ install_dependencies() {
   if [ -f composer.json ]
   then
     restore_home_cache ".composer" "composer dependencies"
-    composer install
+    composer install ${COMPOSER_FLAGS:+$COMPOSER_FLAGS}
   fi
 
   install_go $installGoVersion

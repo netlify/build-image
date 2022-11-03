@@ -243,7 +243,8 @@ install_dependencies() {
   local defaultPnpmVersion=$4 # unused on xenial (we won't add support for pnpm here anymore just in focal)
   local installGoVersion=$5
   local defaultPythonVersion=$6
-  local featureFlags="$7"
+	local buildInfo="$7" #  unused on xenial
+  local featureFlags="$8"
 
   # Python Version
   if [ -f runtime.txt ]

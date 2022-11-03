@@ -24,9 +24,11 @@ cd $NETLIFY_REPO_DIR
 : ${PNPM_VERSION="7.13.4"}
 : ${GO_VERSION="1.14.4"}
 : ${PYTHON_VERSION="2.7"}
+: ${BUILD_INFO=""}
+: ${FEATURE_FLAGS=""}
 
 echo "Installing dependencies"
-install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PNPM_VERSION $GO_VERSION $PYTHON_VERSION
+install_dependencies $NODE_VERSION $RUBY_VERSION $YARN_VERSION $PNPM_VERSION $GO_VERSION $PYTHON_VERSION $BUILD_INFO $FEATURE_FLAGS
 
 echo "Installing missing commands"
 install_missing_commands

@@ -291,10 +291,13 @@ ENV PNPM_VERSION=7.13.4
 
 ENV NETLIFY_NODE_VERSION="16"
 
+# We install an "internal" yarn v1 executable to be used only for workspace detection. We can remove it once we have a better
+# strategy in place
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
          npm install -g grunt-cli bower && \
          nvm alias default node && \
+         bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
          nvm cache clear && \
          corepack enable && \
          corepack prepare yarn@$YARN_VERSION --activate && \
@@ -371,7 +374,7 @@ ENV HUGO_VERSION 0.85.0
 
 RUN case "$TARGETARCH" in \
       "arm64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-ARM64.deb" ;; \
-      "amd64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-64bit.deb" ;; \
+      "amd64") HUGO_FILE="hugo_extended_${HUGO_VERSION}_Linux-64bit.deb" ;; \
     esac && \
     wget -nv --quiet https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILE} && \
     dpkg -i ${HUGO_FILE}

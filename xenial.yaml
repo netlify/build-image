@@ -5,7 +5,7 @@ metadataTest:
   cmd: ["/bin/bash"]
   workdir: "/"
   user: "buildbot"
-  env:
+  envVars:
     - key: NF_IMAGE_NAME
       value: xenial
     - key: NF_IMAGE_TAG

@@ -33,7 +33,7 @@ cd "$NETLIFY_REPO_DIR/$NETLIFY_PACKAGE_DIR" || exit
 : "${RUBY_VERSION="2.7.2"}"
 : "${YARN_VERSION="1.22.19"}"
 : "${PNPM_VERSION="7.13.4"}"
-: "${GO_VERSION="1.17"}"
+: "${GO_VERSION="1.19"}"
 : "${PYTHON_VERSION="3.8"}"
 : "${BUILD_INFO="$defaultBuildInfo"}"
 : "${FEATURE_FLAGS="build-image_use_new_package_manager_detection"}"

@@ -107,7 +107,7 @@ install_deps() {
 restore_node_modules() {
   local installer=$1
 
-	if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
+  if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
     local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces | join(" ")'))
 
     if [ "$workspaces" ]; then
@@ -143,7 +143,7 @@ restore_node_modules() {
       echo "No $installer workspaces detected"
       restore_cwd_cache node_modules "node modules"
     fi
-	fi # end feature flag if
+  fi # end feature flag if
 }
 
 run_yarn() {
@@ -626,22 +626,22 @@ install_dependencies() {
 
     restore_home_cache ".node/corepack" "corepack dependencies"
 
-		if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
-			local pkgManager=$(echo "$buildInfo" | jq -r '.packageManager.name')
-			case $pkgManager in
-				"yarn")
-					run_yarn "$YARN_VERSION" "$featureFlags"
-					;;
-				"pnpm")
-					run_pnpm "$PNPM_VERSION" "$featureFlags"
-					;;
-				*)
-					run_npm "$featureFlags"
-					;;
-			esac
+  if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
+    local pkgManager=$(echo "$buildInfo" | jq -r '.packageManager.name')
+    case $pkgManager in
+      "yarn")
+        run_yarn "$YARN_VERSION" "$featureFlags"
+        ;;
+      "pnpm")
+        run_pnpm "$PNPM_VERSION" "$featureFlags"
+        ;;
+      *)
+        run_npm "$featureFlags"
+        ;;
+    esac
 
-		else
-			# feature flag turned off use the old detection
+    else
+      # feature flag turned off use the old detection
       if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]); then
         run_yarn $YARN_VERSION "$featureFlags"
       elif [ "$NETLIFY_USE_PNPM" = "true" ] || ([ "$NETLIFY_USE_PNPM" != "false" ] && [ -f pnpm-lock.yaml ]); then

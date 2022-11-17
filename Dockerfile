@@ -282,29 +282,34 @@ USER root
 #
 ################################################################################
 
-
+# this installer is needed for older node versions where no corepack is available
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
 ENV NVM_VERSION=0.39.1
 
-# Install node.js, yarn, grunt, bower and elm
+# Install node.js, yarn, grunt, bower
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd ~/.nvm && \
     git checkout v$NVM_VERSION && \
     cd /
 
-ENV ELM_VERSION=0.19.1-5
 ENV YARN_VERSION=1.22.19
+ENV PNPM_VERSION=7.13.4
 
 ENV NETLIFY_NODE_VERSION="16"
 
+# We install an "internal" yarn v1 executable to be used only for workspace detection. We can remove it once we have a better
+# strategy in place
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
          npm install -g grunt-cli bower && \
-             bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
-         nvm alias default node && nvm cache clear"
-ENV PATH "/opt/buildhome/.yarn/bin:$PATH"
+         nvm alias default node && \
+         bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
+         nvm cache clear && \
+         corepack enable && \
+         corepack prepare yarn@$YARN_VERSION --activate && \
+         corepack prepare pnpm@$PNPM_VERSION --activate"
 
 USER root
 
@@ -377,10 +382,10 @@ ENV HUGO_VERSION 0.85.0
 
 RUN case "$TARGETARCH" in \
       "arm64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-ARM64.deb" ;; \
-      "amd64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-64bit.deb" ;; \
+      "amd64") HUGO_FILE="hugo_extended_${HUGO_VERSION}_Linux-64bit.deb" ;; \
     esac && \
-    wget -nv --quiet https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILE} && \
-    dpkg -i ${HUGO_FILE}
+    wget -nv --quiet "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILE}" && \
+    dpkg -i "${HUGO_FILE}"
 
 ################################################################################
 #
@@ -554,11 +559,11 @@ FROM build-image as build-image-test
 USER buildbot
 SHELL ["/bin/bash", "-c"]
 
-COPY --chown=buildbot:buildbot package.json /opt/buildhome/test-env/package.json
+COPY --chown=buildbot:buildbot package.json package-lock.json /opt/buildhome/test-env/
 
 # We need to install with `--legacy-peer-deps` because of:
 # https://github.com/bats-core/bats-assert/issues/27
-RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i --legacy-peer-deps &&\
+RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm ci --legacy-peer-deps &&\
     ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
     ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
 

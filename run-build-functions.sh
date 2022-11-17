@@ -108,20 +108,15 @@ restore_node_modules() {
   local installer=$1
 
 	if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
-      if [ "$NETLIFY_BUILD_DEBUG" ]; then
-        echo "BUILD_INFO:\n$buildinfo\n"
-      fi
+    local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces | join(" ")'))
 
-			local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces | join(" ")'))
-
-			if [ "$workspaces" ]; then
-			  echo "$installer workspaces detected"
-				restore_js_workspaces_cache "${workspaces[@]}"
-			else
-				echo "No $installer workspaces detected"
-				restore_cwd_cache node_modules "node modules"
-			fi
-
+    if [ "$workspaces" ]; then
+      echo "$installer workspaces detected"
+      restore_js_workspaces_cache "${workspaces[@]}"
+    else
+      echo "No $installer workspaces detected"
+      restore_cwd_cache node_modules "node modules"
+    fi
 	else
     # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
     # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
@@ -376,7 +371,7 @@ install_dependencies() {
   local defaultPnpmVersion=$4 # 7.13.4
   local installGoVersion=$5 # 1.16.4
   local defaultPythonVersion=$6 # 3.8
-	local buildInfo="$7" # the build info json
+  local buildInfo="$7" # the build info json
   local featureFlags="$8"
 
   # Python Version
@@ -654,7 +649,7 @@ install_dependencies() {
       else
         run_npm "$featureFlags"
       fi
-		fi # end ifelse feature flag
+    fi # end ifelse feature flag
   fi
 
   # Bower Dependencies

@@ -376,8 +376,8 @@ RUN case "$TARGETARCH" in \
       "arm64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-ARM64.deb" ;; \
       "amd64") HUGO_FILE="hugo_extended_${HUGO_VERSION}_Linux-64bit.deb" ;; \
     esac && \
-    wget -nv --quiet https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILE} && \
-    dpkg -i ${HUGO_FILE}
+    wget -nv --quiet "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILE}" && \
+    dpkg -i "${HUGO_FILE}"
 
 ################################################################################
 #

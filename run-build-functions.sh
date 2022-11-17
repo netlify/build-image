@@ -107,7 +107,7 @@ install_deps() {
 restore_node_modules() {
   local installer=$1
 
-	if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
+  if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
     local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces | join(" ")'))
 
     if [ "$workspaces" ]; then
@@ -143,7 +143,7 @@ restore_node_modules() {
       echo "No $installer workspaces detected"
       restore_cwd_cache node_modules "node modules"
     fi
-	fi # end feature flag if
+  fi # end feature flag if
 }
 
 run_yarn() {
@@ -618,30 +618,28 @@ install_dependencies() {
   : ${CYPRESS_CACHE_FOLDER="./node_modules/.cache/CypressBinary"}
   export CYPRESS_CACHE_FOLDER
 
-  if [ -f package.json ]
-  then
+  if [ -f package.json ];then
     if [ "$NODE_ENV" == "production" ];then
       warn "The environment variable 'NODE_ENV' is set to 'production'. Any 'devDependencies' in package.json will not be installed"
     fi
 
     restore_home_cache ".node/corepack" "corepack dependencies"
 
-		if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
-			local pkgManager=$(echo "$buildInfo" | jq -r '.packageManager.name')
-			case $pkgManager in
-				"yarn")
-					run_yarn "$YARN_VERSION" "$featureFlags"
-					;;
-				"pnpm")
-					run_pnpm "$PNPM_VERSION" "$featureFlags"
-					;;
-				*)
-					run_npm "$featureFlags"
-					;;
-			esac
-
-		else
-			# feature flag turned off use the old detection
+    if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
+      local pkgManager=$(echo "$buildInfo" | jq -r '.packageManager.name')
+      case $pkgManager in
+        "yarn")
+          run_yarn "$YARN_VERSION" "$featureFlags"
+          ;;
+        "pnpm")
+          run_pnpm "$PNPM_VERSION" "$featureFlags"
+          ;;
+        *)
+          run_npm "$featureFlags"
+          ;;
+      esac
+    else
+      # feature flag turned off use the old detection
       if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]); then
         run_yarn $YARN_VERSION "$featureFlags"
       elif [ "$NETLIFY_USE_PNPM" = "true" ] || ([ "$NETLIFY_USE_PNPM" != "false" ] && [ -f pnpm-lock.yaml ]); then
@@ -653,8 +651,7 @@ install_dependencies() {
   fi
 
   # Bower Dependencies
-  if [ -f bower.json ]
-  then
+  if [ -f bower.json ];then
     if ! [ $(which bower) ]
     then
       if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
@@ -679,8 +676,7 @@ install_dependencies() {
   fi
 
   # Leiningen
-  if [ -f project.clj ]
-  then
+  if [ -f project.clj ]; then
     restore_home_cache ".m2" "maven dependencies"
     if install_deps project.clj $JAVA_VERSION $NETLIFY_CACHE_DIR/project-clj-sha
     then

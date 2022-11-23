@@ -309,6 +309,31 @@ jobs:
           image: << parameters.container-image >>
           tag: "${IMAGE_TAG_LIST}"
 
+  integration-tests:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: Sanitize branch name
+          command: echo export "BRANCH=${CIRCLE_BRANCH//\//-}" >> "$BASH_ENV"
+      - run:
+          name: Set payload
+          command: |
+            json_data='{
+              "parameters":{
+                "run-workflow-build-executer": true,
+                "run-workflow-test-build-and-push": false,
+                "run-workflow-integration-tests-only": true
+              }
+            }'; PAYLOAD=$(echo $json_data | jq --arg sha $BRANCH '.parameters["image-sha"]=$sha'); \
+            echo "export PAYLOAD='${PAYLOAD}'" >> "$BASH_ENV"
+      - run:
+          name: Trigger buildbot integration tests pipeline
+          command: |
+            curl --location --request POST 'https://circleci.com/api/v2/project/github/netlify/buildbot/pipeline' \
+            --header 'Content-Type: application/json' \
+            -u "${CIRCLE_API_TOKEN}:" \
+            --data "${PAYLOAD}"
 # Workflows are where we specify the job order and job parameters (if applicable)
 workflows:
   # Workflow responsible for building git tags (commonly the final releases we use within buildbot)
@@ -362,6 +387,11 @@ workflows:
           container-image: "netlify/build"
           requires:
             - build-test-and-push-image
+
+      - integration-tests:
+          requires:
+            - build-test-and-push-image
+            - create-multi-arch-image
 
   ########################################################################
   # FORKED PRS

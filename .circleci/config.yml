@@ -389,6 +389,9 @@ workflows:
             - build-test-and-push-image
 
       - integration-tests:
+          filters:
+            branches:
+              ignore: /pull\/[0-9]+/ # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
           requires:
             - build-test-and-push-image
             - create-multi-arch-image

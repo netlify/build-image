@@ -9,7 +9,7 @@ load '../../node_modules/bats-file/load'
 YARN_CACHE_DIR=/opt/buildhome/.yarn_cache
 
 # So that we can speed up the `run_yarn` function and not require new yarn installs for tests
-YARN_DEFAULT_VERSION=1.22.10
+YARN_DEFAULT_VERSION=1.22.19
 
 setup() {
   TMP_DIR=$(setup_tmp_dir)
@@ -27,9 +27,15 @@ teardown() {
   cd - || return
 }
 
-@test 'yarn 1.22.10 is installed and available by default' {
-  run yarn --version
-  assert_output $YARN_DEFAULT_VERSION
+@test 'run_yarn installs a new yarn version if different from the one installed, installs deps and creates cache dir' {
+  local newYarnVersion=1.21.0
+  run run_yarn $newYarnVersion
+  assert_success
+  assert_output --partial "Installing yarn at version $newYarnVersion"
+  assert_dir_exist $YARN_CACHE_DIR
+
+  # The cache dir is actually being used
+  assert_dir_exist "$YARN_CACHE_DIR/v6"
 }
 
 @test 'run_yarn with a new yarn version correctly sets the new yarn binary in PATH' {
@@ -42,17 +48,6 @@ teardown() {
   # New yarn binary is set in PATH
   run yarn --version
   assert_output $newYarnVersion
-}
-
-@test 'run_yarn installs a new yarn version if different from the one installed, installs deps and creates cache dir' {
-  local newYarnVersion=1.21.0
-  run run_yarn $newYarnVersion
-  assert_success
-  assert_output --partial "Installing yarn at version $newYarnVersion"
-  assert_dir_exist $YARN_CACHE_DIR
-
-  # The cache dir is actually being used
-  assert_dir_exist "$YARN_CACHE_DIR/v6"
 }
 
 @test 'run_yarn allows passing multiple yarn flags via YARN_FLAGS env var to yarn install' {
@@ -76,4 +71,33 @@ teardown() {
   # The cache dir is actually being used
   assert_dir_exist "$YARN_CACHE_DIR/v6"
   assert_dir_not_exist "$tmpCacheDir"
+}
+
+@test 'run_yarn with a new yarn version correctly on a newer node version' {
+  local newYarnVersion=1.21.0
+
+  # We can't use bats `run` because environmental changes aren't persisted
+  # We also need to ignore the exit code as the test env is set to return on any non-zero exit code, which we use for
+  # our workspaces checks
+  install_node "18" || true > /dev/null 2>&1
+  run_yarn $newYarnVersion || true > /dev/null 2>&1
+
+  # New yarn binary is set in PATH
+  run yarn --version
+  assert_output $newYarnVersion
+}
+
+# run this test as last one as it changes the node version and would affect the other tests
+@test 'run_yarn with a new yarn version correctly on an old node version without corepack' {
+  local newYarnVersion=1.21.0
+
+  # We can't use bats `run` because environmental changes aren't persisted
+  # We also need to ignore the exit code as the test env is set to return on any non-zero exit code, which we use for
+  # our workspaces checks
+  install_node "12" || true > /dev/null 2>&1
+  run_yarn $newYarnVersion || true > /dev/null 2>&1
+
+  # New yarn binary is set in PATH
+  run yarn --version
+  assert_output $newYarnVersion
 }

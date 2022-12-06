@@ -25,6 +25,10 @@ DEFAULT_SWIFT_VERSION="5.4"
 # PHP version
 DEFAULT_PHP_VERSION="8.0"
 
+# Internal yarn config
+# We use an "internal" yarn v1 executable as to not be impacted by corepack yarn selection
+INTERNAL_YARN_PATH="$HOME/.yarn/bin"
+
 # Pipenv configuration
 export PIPENV_RUNTIME=3.8
 export PIPENV_VENV_IN_PROJECT=1
@@ -70,6 +74,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.cargo
 
 : ${YARN_FLAGS=""}
 : ${NPM_FLAGS=""}
+: ${PNPM_FLAGS=""}
 : ${BUNDLER_FLAGS=""}
 
 # Feature flags are a comma-separated list.
@@ -100,64 +105,86 @@ install_deps() {
 }
 
 restore_node_modules() {
-  local workspace_output
-  local workspace_exit_code
   local installer=$1
-  # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
-  # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
-  # we can actually use this command for npm workspaces as well
-  workspace_output="$(YARN_IGNORE_PATH=1 yarn workspaces --json info 2>/dev/null)"
-  workspace_exit_code=$?
-  if [ $workspace_exit_code -eq 0 ]
-  then
-    echo "$installer workspaces detected"
-    local package_locations
-    # Extract all the packages and respective locations. .data will be a JSON object like
-    # {
-    #   "my-package-1": {
-    #     "location": "packages/blog-1",
-    #     "workspaceDependencies": [],
-    #     "mismatchedWorkspaceDependencies": []
-    #   },
-    #   (...)
-    # }
-    # We need to cache all the node_module dirs, or we'll always be installing them on each run
-    mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
-    restore_js_workspaces_cache "${package_locations[@]}"
-  else
-    echo "No $installer workspaces detected"
-    restore_cwd_cache node_modules "node modules"
-  fi
+
+  if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
+    local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces | join(" ")'))
+
+    if [ "$workspaces" ]; then
+      echo "$installer workspaces detected"
+      restore_js_workspaces_cache "${workspaces[@]}"
+    else
+      echo "No $installer workspaces detected"
+      restore_cwd_cache node_modules "node modules"
+    fi
+	else
+    # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
+    # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
+    # we can actually use this command for npm workspaces as well
+    workspace_output="$(YARN_IGNORE_PATH=1 "$INTERNAL_YARN_PATH/yarn" workspaces --json info 2>/dev/null)"
+    workspace_exit_code=$?
+    if [ $workspace_exit_code -eq 0 ]
+    then
+      echo "$installer workspaces detected"
+      local package_locations
+      # Extract all the packages and respective locations. .data will be a JSON object like
+      # {
+      #   "my-package-1": {
+      #     "location": "packages/blog-1",
+      #     "workspaceDependencies": [],
+      #     "mismatchedWorkspaceDependencies": []
+      #   },
+      #   (...)
+      # }
+      # We need to cache all the node_module dirs, or we'll always be installing them on each run
+      mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
+      restore_js_workspaces_cache "${package_locations[@]}"
+    else
+      echo "No $installer workspaces detected"
+      restore_cwd_cache node_modules "node modules"
+    fi
+  fi # end feature flag if
 }
 
 run_yarn() {
   yarn_version=$1
-  if [ -d $NETLIFY_CACHE_DIR/yarn ]
-  then
-    export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
-  fi
+  featureFlags=$2
   restore_home_cache ".yarn_cache" "yarn cache"
 
-  if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]
-  then
-    echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
-    rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
-    npm uninstall yarn -g
-  fi
+  if ! [ $(which corepack) ] || has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
 
-  if ! [ $(which yarn) ]
-  then
-    echo "Installing yarn at version $yarn_version"
-    rm -rf $HOME/.yarn
-    bash /usr/local/bin/yarn-installer.sh --version $yarn_version
-    mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
-    export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
+    # We manually add our internal yarn version to our path as a fallback, as this means the customer won't have a default
+    # yarn version installed
+    export PATH=$INTERNAL_YARN_PATH:$PATH
+    if [ -d $NETLIFY_CACHE_DIR/yarn ]
+    then
+      export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
+    fi
+
+    if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]; then
+        echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
+        rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
+        npm uninstall yarn -g
+    fi
+
+    if ! [ $(which yarn) ]; then
+      echo "Installing yarn at version $yarn_version"
+      rm -rf $HOME/.yarn
+      bash /usr/local/bin/yarn-installer.sh --version $yarn_version
+      mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
+      export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
+    fi
+  else
+    # if corepack is installed use it for changing the yarn version
+    if [ "$(yarn --version)" != "$yarn_version" ]; then
+      echo "Installing yarn at version $yarn_version"
+      corepack prepare yarn@$yarn_version --activate
+    fi
   fi
 
   restore_node_modules "yarn"
 
   echo "Installing NPM modules using Yarn version $(yarn --version)"
-  run_npm_set_temp
 
   # Remove the cache-folder flag if the user set any.
   # We want to control where to put the cache
@@ -177,14 +204,44 @@ run_yarn() {
   export PATH=$(yarn bin):$PATH
 }
 
-run_npm_set_temp() {
-  # Make sure we're not limited by space in the /tmp mount
-  mkdir $HOME/tmp
-  npm set tmp $HOME/tmp
+
+run_pnpm() {
+  pnpm_version=$1
+  featureFlags=$2
+  restore_home_cache ".pnpm-store" "pnpm cache"
+
+  if ! [ $(which corepack) ] || has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
+    echo "Error while installing PNPM $pnpm_version"
+    echo "We cannot install the expected version of PNPM ($pnpm_version) as your required Node.js version $NODE_VERSION does not allow that"
+    echo "Please ensure that you use at least Node Version 14.19.0 or greater than 16.9.0"
+
+    exit 1
+  fi
+
+  if [ "$(pnpm --version)" != "$pnpm_version" ]
+  then
+    echo "Found pnpm version ($(pnpm --version)) that doesn't match expected ($pnpm_version)"
+
+    corepack prepare pnpm@$pnpm_version --activate
+  fi
+
+  restore_node_modules "pnpm"
+
+  echo "Installing NPM modules using PNPM version $(pnpm --version)"
+  if pnpm install ${PNPM_FLAGS:+$PNPM_FLAGS}
+  then
+    echo "NPM modules installed using PNPM"
+  else
+    echo "Error during PNPM install"
+    exit 1
+  fi
+
+  export PATH=$(pnpm bin):$PATH
 }
 
 run_npm() {
   restore_node_modules "npm"
+  local featureFlags="$1"
 
   if [ -n "$NPM_VERSION" ]
   then
@@ -202,63 +259,42 @@ run_npm() {
     fi
   fi
 
-  if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
+  if has_feature_flag "$featureFlags" "buildbot_bypass_module_cache"
   then
+    echo "Bypassing sha validation. Running pre & post install scripts"
     echo "Installing NPM modules using NPM version $(npm --version)"
-    run_npm_set_temp
-    if npm install ${NPM_FLAGS:+$NPM_FLAGS}
+    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
     then
       echo "NPM modules installed"
     else
       echo "Error during NPM install"
       exit 1
     fi
+  else
+    if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
+    then
+      echo "Installing NPM modules using NPM version $(npm --version)"
 
-    echo "$(shasum package.json)-$NODE_VERSION" > $NETLIFY_CACHE_DIR/package-sha
+      if npm install ${NPM_FLAGS:+$NPM_FLAGS}
+      then
+        echo "NPM modules installed"
+      else
+        echo "Error during NPM install"
+        exit 1
+      fi
+
+      echo "Creating package sha"
+      echo "$(shasum package.json)-$NODE_VERSION" > "$NETLIFY_CACHE_DIR/package-sha"
+    fi
   fi
+
   export PATH=$(npm bin):$PATH
 }
 
-check_python_version() {
-  if source $HOME/python${PYTHON_VERSION}/bin/activate
-  then
-    echo "Python version set to ${PYTHON_VERSION}"
-  else
-    echo "Error setting python version from $1"
-    echo "Please see https://github.com/netlify/build-image/blob/focal/included_software.md for current versions"
-    exit 1
-  fi
-}
-
-read_node_version_file() {
-  local nodeVersionFile="$1"
-  NODE_VERSION="$(cat "$nodeVersionFile")"
-  echo "Attempting node version '$NODE_VERSION' from $nodeVersionFile"
-}
-
-install_dependencies() {
+install_node() {
   local defaultNodeVersion=$1
-  local defaultRubyVersion=$2
-  local defaultYarnVersion=$3
-  local installGoVersion=$4
-  local defaultPythonVersion=$5
-  local featureFlags="$6"
+  local featureFlags=$2
 
-  # Python Version
-  if [ -f runtime.txt ]
-  then
-    PYTHON_VERSION=$(cat runtime.txt)
-    check_python_version "runtime.txt"
-  elif [ -f Pipfile ]
-  then
-    echo "Found Pipfile restoring Pipenv virtualenv"
-    restore_cwd_cache ".venv" "python virtualenv"
-  else
-    PYTHON_VERSION=$defaultPythonVersion
-    check_python_version "the PYTHON_VERSION environment variable"
-  fi
-
-  # Node version
   source $NVM_DIR/nvm.sh
   : ${NODE_VERSION="$defaultNodeVersion"}
 
@@ -296,6 +332,12 @@ install_dependencies() {
     exit 1
   fi
 
+  # if Node.js Corepack is available enable it
+  if [ $(which corepack) ] && ! has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
+    echo "Enabling node corepack"
+    corepack enable
+  fi
+
   if [ -n "$NPM_TOKEN" ]
   then
     if [ ! -f .npmrc ]
@@ -303,6 +345,51 @@ install_dependencies() {
       echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
     fi
   fi
+}
+
+check_python_version() {
+  if source $HOME/python${PYTHON_VERSION}/bin/activate
+  then
+    echo "Python version set to ${PYTHON_VERSION}"
+  else
+    echo "Error setting python version from $1"
+    echo "Please see https://github.com/netlify/build-image/blob/focal/included_software.md for current versions"
+    exit 1
+  fi
+}
+
+read_node_version_file() {
+  local nodeVersionFile="$1"
+  NODE_VERSION="$(cat "$nodeVersionFile")"
+  echo "Attempting node version '$NODE_VERSION' from $nodeVersionFile"
+}
+
+install_dependencies() {
+  local defaultNodeVersion=$1 # 16
+  local defaultRubyVersion=$2 # 2.6.2
+  local defaultYarnVersion=$3 # 1.13.0
+  local defaultPnpmVersion=$4 # 7.13.4
+  local installGoVersion=$5 # 1.16.4
+  local defaultPythonVersion=$6 # 3.8
+  local buildInfo="$7" # the build info json
+  local featureFlags="$8"
+
+  # Python Version
+  if [ -f runtime.txt ]
+  then
+    PYTHON_VERSION=$(cat runtime.txt)
+    check_python_version "runtime.txt"
+  elif [ -f Pipfile ]
+  then
+    echo "Found Pipfile restoring Pipenv virtualenv"
+    restore_cwd_cache ".venv" "python virtualenv"
+  else
+    PYTHON_VERSION=$defaultPythonVersion
+    check_python_version "the PYTHON_VERSION environment variable"
+  fi
+
+  # Node version
+  install_node "$defaultNodeVersion" "$featureFlags"
 
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]
@@ -527,27 +614,44 @@ install_dependencies() {
 
   # NPM Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
+  : ${PNPM_VERSION="$defaultPnpmVersion"}
   : ${CYPRESS_CACHE_FOLDER="./node_modules/.cache/CypressBinary"}
   export CYPRESS_CACHE_FOLDER
 
-  if [ -f package.json ]
-  then
-    if [ "$NODE_ENV" == "production" ]
-    then
+  if [ -f package.json ];then
+    if [ "$NODE_ENV" == "production" ];then
       warn "The environment variable 'NODE_ENV' is set to 'production'. Any 'devDependencies' in package.json will not be installed"
     fi
 
-    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
-    then
-      run_yarn $YARN_VERSION
+    restore_home_cache ".node/corepack" "corepack dependencies"
+
+    if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
+      local pkgManager=$(echo "$buildInfo" | jq -r '.packageManager.name')
+      case $pkgManager in
+        "yarn")
+          run_yarn "$YARN_VERSION" "$featureFlags"
+          ;;
+        "pnpm")
+          run_pnpm "$PNPM_VERSION" "$featureFlags"
+          ;;
+        *)
+          run_npm "$featureFlags"
+          ;;
+      esac
     else
-      run_npm "$featureFlags"
-    fi
+      # feature flag turned off use the old detection
+      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]); then
+        run_yarn $YARN_VERSION "$featureFlags"
+      elif [ "$NETLIFY_USE_PNPM" = "true" ] || ([ "$NETLIFY_USE_PNPM" != "false" ] && [ -f pnpm-lock.yaml ]); then
+        run_pnpm $PNPM_VERSION "$featureFlags"
+      else
+        run_npm "$featureFlags"
+      fi
+    fi # end ifelse feature flag
   fi
 
   # Bower Dependencies
-  if [ -f bower.json ]
-  then
+  if [ -f bower.json ];then
     if ! [ $(which bower) ]
     then
       if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
@@ -572,8 +676,7 @@ install_dependencies() {
   fi
 
   # Leiningen
-  if [ -f project.clj ]
-  then
+  if [ -f project.clj ]; then
     restore_home_cache ".m2" "maven dependencies"
     if install_deps project.clj $JAVA_VERSION $NETLIFY_CACHE_DIR/project-clj-sha
     then
@@ -707,6 +810,8 @@ cache_artifacts() {
     cache_cwd_directory_fast_copy "target" "rust compile output"
   fi
 
+  cache_home_directory ".node/corepack" "corepack cache"
+  cache_home_directory ".pnpm-store" "pnpm cache"
   cache_home_directory ".yarn_cache" "yarn cache"
   cache_home_directory ".cache/pip" "pip cache"
   cache_home_directory ".cask" "emacs cask dependencies"
@@ -917,7 +1022,7 @@ install_go() {
     GIMME_ENV_PREFIX=$HOME/.gimme/env GIMME_VERSION_PREFIX=$HOME/.gimme/versions gimme $resolvedGoVersion
     if [ $? -eq 0 ]
     then
-      source $HOME/.gimme/env/go$resolvedGoVersion.linux.amd64.env
+      source $HOME/.gimme/env/go$resolvedGoVersion.linux.$(dpkg --print-architecture).env
     else
       echo "Failed to install Go version '$resolvedGoVersion'"
       exit 1

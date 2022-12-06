@@ -376,8 +376,8 @@ RUN case "$TARGETARCH" in \
       "arm64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-ARM64.deb" ;; \
       "amd64") HUGO_FILE="hugo_extended_${HUGO_VERSION}_Linux-64bit.deb" ;; \
     esac && \
-    wget -nv --quiet https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILE} && \
-    dpkg -i ${HUGO_FILE}
+    wget -nv --quiet "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILE}" && \
+    dpkg -i "${HUGO_FILE}"
 
 ################################################################################
 #
@@ -458,7 +458,7 @@ ENV PATH "$PATH:/opt/buildhome/.gimme/bin"
 ENV GOPATH "/opt/buildhome/.gimme_cache/gopath"
 ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
-ENV GIMME_GO_VERSION "1.17.x"
+ENV GIMME_GO_VERSION "1.19.x"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
 RUN gimme | bash
 
@@ -551,11 +551,11 @@ FROM build-image as build-image-test
 USER buildbot
 SHELL ["/bin/bash", "-c"]
 
-COPY --chown=buildbot:buildbot package.json /opt/buildhome/test-env/package.json
+COPY --chown=buildbot:buildbot package.json package-lock.json /opt/buildhome/test-env/
 
 # We need to install with `--legacy-peer-deps` because of:
 # https://github.com/bats-core/bats-assert/issues/27
-RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i --legacy-peer-deps &&\
+RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm ci --legacy-peer-deps &&\
     ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
     ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
 

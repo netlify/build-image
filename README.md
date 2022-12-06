@@ -8,10 +8,9 @@ If you're having problems with your build, you can also use these tools to test 
 
 Netlify maintains multiple build images for testing new development as well as supporting legacy builds. Each image uses a different version of Ubuntu Linux, with a slightly different list of included language and software versions.
 
-The following images are currently available:
+The following image is currently available:
 
 - `focal` - Default build image for all new sites; Running Ubuntu 20.04 and [this software](https://github.com/netlify/build-image/blob/focal/included_software.md)
-- `xenial` - Build image for existing sites; running Ubuntu 16.04 and [this software](https://github.com/netlify/build-image/blob/xenial/included_software.md)
 
 Each image name above corresponds to a branch in this repository.
 
@@ -67,6 +66,14 @@ Here is an example that sets `NODE_VERSION` and `NODE_ENV` before running a buil
 
 ```
 export NODE_VERSION=8 NODE_ENV=production ; build npm run build
+```
+
+### Testing it for a mono repository
+
+If you like to run a debugging build for your mono repository you need to pass the **Base directory** like in the Netlify UI.
+
+```
+./test-tools/test-build.sh path/to/site/repo base/directory 'your build command'
 ```
 
 ### Testing locally with cache

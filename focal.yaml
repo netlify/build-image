@@ -5,7 +5,7 @@ metadataTest:
   cmd: ["bash"]
   workdir: "/"
   user: "buildbot"
-  env:
+  envVars:
     - key: TARGETARCH
       value: "^(amd64|arm64)$"
       isRegex: true

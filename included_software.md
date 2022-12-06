@@ -23,7 +23,7 @@ The specific patch versions included will depend on when the image was last buil
   * 8.0 (default)
   * 8.1
 * Go - `GO_VERSION`
-  * 1.17 (default)
+  * latest 1.19.x (default)
   * Any version available on the [Go downloads page](https://golang.org/dl/)
 * Java
   * 8 (default)

@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM ubuntu:20.04 as build-image
+FROM ubuntu:20.04 as build-base
 
 ARG TARGETARCH
 ENV TARGETARCH "${TARGETARCH}"
@@ -15,7 +15,6 @@ ENV NF_IMAGE_NAME "${NF_IMAGE_NAME:-focal}"
 ENV LANGUAGE en_US:en
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-ENV PANDOC_VERSION 2.13
 
 LABEL maintainer Netlify
 
@@ -34,12 +33,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     echo 'LANGUAGE="en_US:en"' >> /etc/default/locale && \
     locale-gen en_US.UTF-8 && \
     update-locale en_US.UTF-8 && \
-    apt-key adv --fetch-keys https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc && \
     add-apt-repository -y ppa:ondrej/php && \
-    add-apt-repository -y ppa:openjdk-r/ppa && \
     add-apt-repository -y ppa:git-core/ppa && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt-add-repository -y 'deb https://packages.erlang-solutions.com/ubuntu focal contrib' && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
         advancecomp \
@@ -53,7 +48,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         doxygen \
         elixir \
         emacs-nox \
-        esl-erlang \
         expect \
         file \
         fontconfig \
@@ -170,7 +164,17 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         php8.0-curl \
         php8.0-zip \
         php8.0-intl \
+        php8.1 \
+        php8.1-xml \
+        php8.1-mbstring \
+        php8.1-gd \
+        php8.1-sqlite3 \
+        php8.1-curl \
+        php8.1-zip \
+        php8.1-intl \
         pngcrush \
+        # procps is needed for homebrew on linux arm
+        procps \
         python-setuptools \
         python3-setuptools \
         python3.8-dev \
@@ -190,23 +194,34 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
         xvfb \
         zip \
         zstd \
-# dotnet core dependencies
-	libunwind8-dev \
-	libicu-dev \
-	liblttng-ust0 \
-	libkrb5-3 \
-        && \
+      # dotnet core dependencies
+        libunwind8-dev \
+        libicu-dev \
+        liblttng-ust0 \
+        libkrb5-3 && \
+    # install erlang
+    wget --quiet https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && \
+    dpkg -i erlang-solutions_2.0_all.deb && \
+    apt-get -y update && \
+    apt-get install -y --no-install-recommends \
+        esl-erlang && \
+    # Clean up
     /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     apt-get autoremove -y && \
     unset DEBIAN_FRONTEND
 
+FROM build-base as build-image
+
+ARG TARGETARCH
 ################################################################################
 #
 # Pandoc & Wkhtmltopdf
 #
 ################################################################################
+
+ENV PANDOC_VERSION 2.13
 
 RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
     dpkg -i wkhtmltox_0.12.6-1.focal_$TARGETARCH.deb && \
@@ -217,7 +232,6 @@ RUN wget -nv --quiet https://github.com/wkhtmltopdf/packaging/releases/download/
     dpkg -i pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     rm pandoc-$PANDOC_VERSION-1-$TARGETARCH.deb && \
     pandoc -v
-
 
 ################################################################################
 #
@@ -268,29 +282,50 @@ USER root
 #
 ################################################################################
 
-
+# this installer is needed for older node versions where no corepack is available
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
-ENV NVM_VERSION=0.38.0
+ENV NVM_VERSION=0.39.1
 
-# Install node.js, yarn, grunt, bower and elm
+# Install node.js, yarn, grunt, bower
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd ~/.nvm && \
     git checkout v$NVM_VERSION && \
     cd /
 
-ENV ELM_VERSION=0.19.1-5
-ENV YARN_VERSION=1.22.10
+ENV YARN_VERSION=1.22.19
+ENV PNPM_VERSION=7.13.4
 
 ENV NETLIFY_NODE_VERSION="16"
 
+# We install an "internal" yarn v1 executable to be used only for workspace detection. We can remove it once we have a better
+# strategy in place
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
          npm install -g grunt-cli bower && \
-             bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
-         nvm alias default node && nvm cache clear"
-ENV PATH "/opt/buildhome/.yarn/bin:$PATH"
+         nvm alias default node && \
+         bash /usr/local/bin/yarn-installer.sh --version $YARN_VERSION && \
+         nvm cache clear && \
+         corepack enable && \
+         corepack prepare yarn@$YARN_VERSION --activate && \
+         corepack prepare pnpm@$PNPM_VERSION --activate"
+
+USER root
+
+################################################################################
+#
+# Deno
+#
+################################################################################
+
+RUN if [ "$TARGETARCH" = "amd64" ] ; then curl -o- -L https://deno.land/x/install/install.sh > /usr/local/bin/deno-installer.sh; fi
+ENV DENO_VERSION=v1.25.4
+
+USER buildbot
+
+RUN if [ "$TARGETARCH" = "amd64" ] ; then /bin/bash /usr/local/bin/deno-installer.sh $DENO_VERSION; fi
+ENV PATH "/opt/buildhome/.deno/bin:$PATH"
 
 USER root
 
@@ -328,7 +363,7 @@ ENV BINRC_VERSION 0.2.9
 
 RUN mkdir /opt/binrc && cd /opt/binrc && \
     curl -sL https://github.com/netlify/binrc/releases/download/v${BINRC_VERSION}/binrc_${BINRC_VERSION}_Linux-64bit.tar.gz | tar zxvf - && \
-    ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_${TARGETARCH}/binrc_${BINRC_VERSION}_linux_${TARGETARCH} /usr/local/bin/binrc
+    ln -s /opt/binrc/binrc_${BINRC_VERSION}_linux_amd64/binrc_${BINRC_VERSION}_linux_amd64 /usr/local/bin/binrc
 
 # Create a place for binrc to link/persist installs to the PATH
 USER buildbot
@@ -345,8 +380,12 @@ USER root
 
 ENV HUGO_VERSION 0.85.0
 
-RUN binrc install gohugoio/hugo ${HUGO_VERSION} -c /opt/buildhome/.binrc | xargs -n 1 -I{} ln -s {} /usr/local/bin/hugo_${HUGO_VERSION} && \
-    ln -s /usr/local/bin/hugo_${HUGO_VERSION} /usr/local/bin/hugo
+RUN case "$TARGETARCH" in \
+      "arm64") HUGO_FILE="hugo_${HUGO_VERSION}_Linux-ARM64.deb" ;; \
+      "amd64") HUGO_FILE="hugo_extended_${HUGO_VERSION}_Linux-64bit.deb" ;; \
+    esac && \
+    wget -nv --quiet "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILE}" && \
+    dpkg -i "${HUGO_FILE}"
 
 ################################################################################
 #
@@ -427,7 +466,7 @@ ENV PATH "$PATH:/opt/buildhome/.gimme/bin"
 ENV GOPATH "/opt/buildhome/.gimme_cache/gopath"
 ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
-ENV GIMME_GO_VERSION "1.17.x"
+ENV GIMME_GO_VERSION "1.19.x"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
 RUN gimme | bash
 
@@ -520,11 +559,11 @@ FROM build-image as build-image-test
 USER buildbot
 SHELL ["/bin/bash", "-c"]
 
-COPY --chown=buildbot:buildbot package.json /opt/buildhome/test-env/package.json
+COPY --chown=buildbot:buildbot package.json package-lock.json /opt/buildhome/test-env/
 
 # We need to install with `--legacy-peer-deps` because of:
 # https://github.com/bats-core/bats-assert/issues/27
-RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm i --legacy-peer-deps &&\
+RUN cd /opt/buildhome/test-env && . ~/.nvm/nvm.sh && npm ci --legacy-peer-deps &&\
     ln -s /opt/build-bin/run-build-functions.sh /opt/buildhome/test-env/run-build-functions.sh &&\
     ln -s /opt/build-bin/build /opt/buildhome/test-env/run-build.sh
 

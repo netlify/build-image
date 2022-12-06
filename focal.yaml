@@ -5,9 +5,10 @@ metadataTest:
   cmd: ["bash"]
   workdir: "/"
   user: "buildbot"
-  env:
+  envVars:
     - key: TARGETARCH
-      value: amd64
+      value: "^(amd64|arm64)$"
+      isRegex: true
     - key: NF_IMAGE_NAME
       value: focal
     - key: NF_IMAGE_TAG
@@ -28,7 +29,7 @@ metadataTest:
         /opt/buildhome/.swiftenv/shims:\
         /opt/buildhome/.php:\
         /opt/buildhome/.binrc/bin:\
-        /opt/buildhome/.yarn/bin:\
+        /opt/buildhome/.deno/bin:\
         /usr/local/rvm/bin:\
         /usr/local/sbin:\
         /usr/local/bin:\
@@ -55,7 +56,6 @@ fileExistenceTests:
   - name: Functions install script
     path: "/opt/build-bin/run-build-functions.sh"
     shouldExist: true
-    permissions: "-rwxrwxr-x"
 
   - name: "NVM install script"
     path: "/opt/buildhome/.nvm/nvm.sh"
@@ -65,11 +65,6 @@ fileExistenceTests:
     gid: 2500 # buildbot
 
 commandTests:
-  - name: "Elm compiler"
-    command: "elm"
-    args: ["--version"]
-    expectedOutput: ["0.19.1"]
-
   - name: "zstd compression library"
     command: "zstd"
     args: ["--version"]
@@ -95,16 +90,18 @@ commandTests:
         echo "Node: $(node --version)"
         echo "Yarn: $(yarn --version)"
         echo "NPM: $(npm --version)"
+        echo "PNPM: $(pnpm --version)"
     expectedOutput:
-      - "Node: v16.16.0"
-      - "NVM: 0.38.0"
-      - "Yarn: 1.22.10"
-      - "NPM: 8.11.0"
+      - "Node: v16.*.*"
+      - "NVM: 0.39.1"
+      - "Yarn: 1.22.*"
+      - "NPM: 8.*.*"
+      - "PNPM: 7.*.*"
 
   - name: hugo
     command: "hugo"
     args: ["version"]
-    expectedOutput: ["hugo v0.85.0-724D5DB5"]
+    expectedOutput: ["hugo v0.85.0"]
 
   - name: lz4 compression
     command: "lz4"
@@ -127,7 +124,7 @@ commandTests:
         install_go 1.18 > /dev/null
         go version
     expectedOutput:
-      - "go version go1.18 linux/amd64"
+      - go version go1.18 linux/(amd64|arm64)
 
   - name: "DOTNet version 6.0 is installed and available at startup"
     command: "dotnet"
@@ -138,12 +135,6 @@ commandTests:
     command: "swiftenv"
     args: ["--version"]
     expectedOutput: ["swiftenv 1.5.0"]
-
-  - name: "Homebrew"
-    command: "brew"
-    args: ["--version"]
-    expectedOutput:
-      - Homebrew 3\.5\.\d+
 
   - name: "Rustup"
     command: "rustup"

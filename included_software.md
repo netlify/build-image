@@ -21,8 +21,9 @@ The specific patch versions included will depend on when the image was last buil
 * PHP - `PHP_VERSION`
   * 7.4
   * 8.0 (default)
+  * 8.1
 * Go - `GO_VERSION`
-  * 1.17 (default)
+  * latest 1.19.x (default)
   * Any version available on the [Go downloads page](https://golang.org/dl/)
 * Java
   * 8 (default)
@@ -44,7 +45,7 @@ The specific patch versions included will depend on when the image was last buil
 
 * Node.js
   * Yarn - `YARN_VERSION`
-    * 1.22.10 (default)
+    * 1.22.19 (default)
     * Any version available via their installer.
   * NPM - `NPM_VERSION`
     * Version corresponding with Node.js version. (default)
@@ -65,11 +66,9 @@ The specific patch versions included will depend on when the image was last buil
   * Boot
     * 2.5.2
 * Hugo - `HUGO_VERSION`
-  * 0.82 extended (default)
+  * 0.85.0 extended (default)
   * Any version installable via `binrc`.
-* Gutenburg - `GUTENBERG_VERSION`
-  * Any version installable via `binrc`.
-* Zola - `ZOLA_VERSION`
+* Zola - `ZOLA_VERSION` (formerly Gutenberg - `GUTENBERG_VERSION`)
   * Any version installable via `binrc`.
 * [jq](https://stedolan.github.io/jq/) - 1.6
 * [ImageMagick](https://www.imagemagick.org) - 6.9.10 (default)

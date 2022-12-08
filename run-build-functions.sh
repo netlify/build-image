@@ -106,34 +106,45 @@ install_deps() {
 }
 
 restore_node_modules() {
-  local workspace_output
-  local workspace_exit_code
   local installer=$1
-  # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
-  # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
-  # we can actually use this command for npm workspaces as well
-  workspace_output="$(YARN_IGNORE_PATH=1 "$INTERNAL_YARN_PATH/yarn" workspaces --json info 2>/dev/null)"
-  workspace_exit_code=$?
-  if [ $workspace_exit_code -eq 0 ]
-  then
-    echo "$installer workspaces detected"
-    local package_locations
-    # Extract all the packages and respective locations. .data will be a JSON object like
-    # {
-    #   "my-package-1": {
-    #     "location": "packages/blog-1",
-    #     "workspaceDependencies": [],
-    #     "mismatchedWorkspaceDependencies": []
-    #   },
-    #   (...)
-    # }
-    # We need to cache all the node_module dirs, or we'll always be installing them on each run
-    mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
-    restore_js_workspaces_cache "${package_locations[@]}"
-  else
-    echo "No $installer workspaces detected"
-    restore_cwd_cache node_modules "node modules"
-  fi
+
+  if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
+    local workspaces=($(echo "$buildInfo" | jq -r '.jsWorkspaces | join(" ")'))
+
+    if [ "$workspaces" ]; then
+      echo "$installer workspaces detected"
+      restore_js_workspaces_cache "${workspaces[@]}"
+    else
+      echo "No $installer workspaces detected"
+      restore_cwd_cache node_modules "node modules"
+    fi
+	else
+    # YARN_IGNORE_PATH will ignore the presence of a local yarn executable (i.e. yarn 2) and default
+    # to using the global one (which, for now, is always yarn 1.x). See https://yarnpkg.com/configuration/yarnrc#ignorePath
+    # we can actually use this command for npm workspaces as well
+    workspace_output="$(YARN_IGNORE_PATH=1 "$INTERNAL_YARN_PATH/yarn" workspaces --json info 2>/dev/null)"
+    workspace_exit_code=$?
+    if [ $workspace_exit_code -eq 0 ]
+    then
+      echo "$installer workspaces detected"
+      local package_locations
+      # Extract all the packages and respective locations. .data will be a JSON object like
+      # {
+      #   "my-package-1": {
+      #     "location": "packages/blog-1",
+      #     "workspaceDependencies": [],
+      #     "mismatchedWorkspaceDependencies": []
+      #   },
+      #   (...)
+      # }
+      # We need to cache all the node_module dirs, or we'll always be installing them on each run
+      mapfile -t package_locations <<< "$(echo "$workspace_output" | jq -r '.data | fromjson | to_entries | .[].value.location')"
+      restore_js_workspaces_cache "${package_locations[@]}"
+    else
+      echo "No $installer workspaces detected"
+      restore_cwd_cache node_modules "node modules"
+    fi
+  fi # end feature flag if
 }
 
 run_yarn() {
@@ -365,7 +376,8 @@ install_dependencies() {
   local defaultPnpmVersion=$4 # 7.13.4
   local installGoVersion=$5 # 1.16.4
   local defaultPythonVersion=$6 # 3.8
-  local featureFlags="$7"
+  local buildInfo="$7" # the build info json
+  local featureFlags="$8"
 
   # Python Version
   if [ -f runtime.txt ]
@@ -611,26 +623,40 @@ install_dependencies() {
   : ${CYPRESS_CACHE_FOLDER="./node_modules/.cache/CypressBinary"}
   export CYPRESS_CACHE_FOLDER
 
-  if [ -f package.json ]
-  then
+  if [ -f package.json ];then
     if [ "$NODE_ENV" == "production" ];then
       warn "The environment variable 'NODE_ENV' is set to 'production'. Any 'devDependencies' in package.json will not be installed"
     fi
 
     restore_home_cache ".node/corepack" "corepack dependencies"
 
-    if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]); then
-      run_yarn $YARN_VERSION "$featureFlags"
-    elif [ "$NETLIFY_USE_PNPM" = "true" ] || ([ "$NETLIFY_USE_PNPM" != "false" ] && [ -f pnpm-lock.yaml ]); then
-      run_pnpm $PNPM_VERSION "$featureFlags"
+    if has_feature_flag "$featureFlags" "build-image_use_new_package_manager_detection"; then
+      local pkgManager=$(echo "$buildInfo" | jq -r '.packageManager.name')
+      case $pkgManager in
+        "yarn")
+          run_yarn "$YARN_VERSION" "$featureFlags"
+          ;;
+        "pnpm")
+          run_pnpm "$PNPM_VERSION" "$featureFlags"
+          ;;
+        *)
+          run_npm "$featureFlags"
+          ;;
+      esac
     else
-      run_npm "$featureFlags"
-    fi
+      # feature flag turned off use the old detection
+      if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ]); then
+        run_yarn $YARN_VERSION "$featureFlags"
+      elif [ "$NETLIFY_USE_PNPM" = "true" ] || ([ "$NETLIFY_USE_PNPM" != "false" ] && [ -f pnpm-lock.yaml ]); then
+        run_pnpm $PNPM_VERSION "$featureFlags"
+      else
+        run_npm "$featureFlags"
+      fi
+    fi # end ifelse feature flag
   fi
 
   # Bower Dependencies
-  if [ -f bower.json ]
-  then
+  if [ -f bower.json ];then
     if ! [ $(which bower) ]
     then
       if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
@@ -655,8 +681,7 @@ install_dependencies() {
   fi
 
   # Leiningen
-  if [ -f project.clj ]
-  then
+  if [ -f project.clj ]; then
     restore_home_cache ".m2" "maven dependencies"
     if install_deps project.clj $JAVA_VERSION $NETLIFY_CACHE_DIR/project-clj-sha
     then

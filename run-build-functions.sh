@@ -281,6 +281,10 @@ run_npm() {
   export PATH=$(npm bin):$PATH
 }
 
+run_composer() {
+  composer install ${COMPOSER_FLAGS:+$COMPOSER_FLAGS}
+}
+
 install_node() {
   local defaultNodeVersion=$1
   local featureFlags=$2
@@ -749,7 +753,7 @@ install_dependencies() {
   if [ -f composer.json ]
   then
     restore_home_cache ".composer" "composer dependencies"
-    composer install ${COMPOSER_FLAGS:+$COMPOSER_FLAGS}
+    run_composer
   fi
 
   install_go $installGoVersion

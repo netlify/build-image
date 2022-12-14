@@ -27,7 +27,7 @@ Emulating Netlify's buildbot on your local machine requires the following:
 Open your Docker terminal, and run the following command to pull the default image:
 
 ```
-docker pull netlify/build:xenial
+docker pull netlify/build:focal
 or
 docker pull netlify/build:v3.0.2 # replace the version with a git tag of the specific version you want to test
 ```

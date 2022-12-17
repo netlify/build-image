@@ -21,6 +21,7 @@ The specific patch versions included will depend on when the image was last buil
 * PHP - `PHP_VERSION`
   * 7.4
   * 8.0 (default)
+  * 8.1
 * Go - `GO_VERSION`
   * latest 1.19.x (default)
   * Any version available on the [Go downloads page](https://golang.org/dl/)

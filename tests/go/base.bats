@@ -15,7 +15,17 @@ setup() {
   run install_go
   assert_success
   # we can't specify which patch version because it will change
-  assert_output --partial "Installing Go version 1.19."
+  # Also no message about installation will be shown because it is the default already installed version
+  refute_output --partial "Installing Go version 1.19."
+  assert_output --partial "go version go1.19."
+}
+
+@test 'go version 1.19 at the latest patch is installed and available at startup by default when specifying default version' {
+  run install_go $GIMME_GO_VERSION
+  assert_success
+  # we can't specify which patch version because it will change
+  # Also no message about installation will be shown because it is the default already installed version
+  refute_output --partial "Installing Go version 1.19."
   assert_output --partial "go version go1.19."
 }
 

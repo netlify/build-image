@@ -29,6 +29,14 @@ setup() {
   assert_output --partial "go version go1.19."
 }
 
+@test 'an unresolvable go version fails script' {
+  run install_go "notaversion"
+  assert_failure
+  assert_output --partial "Failed to resolve Go version 'notaversion'"
+  refute_output --partial "Installing Go version"
+  refute_output --partial "go version go"
+}
+
 @test 'install custom go version' {
   local customGoVersion=1.16.4
   run install_go $customGoVersion

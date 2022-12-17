@@ -1014,8 +1014,15 @@ install_go() {
       installGoVersion="$goVersion"
     fi
   fi
+
   # Cache known version for 7days (604800 seconds)
-  resolvedGoVersion=$(GIMME_KNOWN_CACHE_MAX=604800 gimme --resolve $installGoVersion)
+  resolvedGoVersion="$(GIMME_KNOWN_CACHE_MAX=604800 gimme --resolve $installGoVersion)"
+  if [ $? -ne 0 ]
+  then
+    echo "Failed to resolve Go version '$installGoVersion'"
+    exit 1
+  fi
+
   gimmeEnvFile=$HOME/.gimme/env/go$resolvedGoVersion.linux.$(dpkg --print-architecture).env
 
   # Check if the version is already installed by gimme

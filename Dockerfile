@@ -468,6 +468,8 @@ ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
 ENV GIMME_GO_VERSION "1.19.x"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
+ENV GIMME_VERSION_PREFIX "/opt/buildhome/.gimme/versions"
+ENV GIMME_TYPE "binary"
 RUN gimme | bash
 
 ################################################################################

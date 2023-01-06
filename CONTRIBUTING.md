@@ -68,7 +68,7 @@ For further install instructions please visit the [official installation guide](
 
 ### Testing dynamic Versions
 
-To test Golang or Node versions, which are dynamically downloaded via a script on startup we have a set of automated tests in [./tests](./tests). These are [bats](https://github.com/bats-core/bats-core) tests that we use to make assertions not only on the correct functioning of our bash/shell scripts, but also of the software provided by our Docker image. For an overview on how [bats works see here](https://bats-core.readthedocs.io/en/stable/).
+To test Golang or Node.js versions, which are dynamically downloaded via a script on startup we have a set of automated tests in [./tests](./tests). These are [bats](https://github.com/bats-core/bats-core) tests that we use to make assertions not only on the correct functioning of our bash/shell scripts, but also of the software provided by our Docker image. For an overview on how [bats works see here](https://bats-core.readthedocs.io/en/stable/).
 
 To run those tests you can run the following command which will load the tests in the image and executes them.
 

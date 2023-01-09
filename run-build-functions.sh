@@ -61,6 +61,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
+mkdir -p $NETLIFY_CACHE_DIR/.node/corepack
 mkdir -p $NETLIFY_CACHE_DIR/.cache/pip
 mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.emacs.d
@@ -394,6 +395,8 @@ install_dependencies() {
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]
   then
+    # It might be a file or a broken symlink, so let's remove it before creating it
+    rm -rf "$PWD/.netlify"
     mkdir "$PWD/.netlify"
   fi
   restore_cwd_cache ".netlify/plugins" "build plugins"

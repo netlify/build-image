@@ -13,9 +13,9 @@ Explain the **motivation** for making this change. What existing problem does th
 For us to review and ship your PR efficiently, please perform the following steps:
 
 - [ ] Open a [bug/issue](https://github.com/netlify/build-image/issues/new/choose) before writing your code 🧑‍💻. This ensures we can discuss the changes and get feedback from everyone that should be involved. If you\`re fixing a typo or something that\`s on fire 🔥 (e.g. incident related), you can skip this step.
-- [ ] Read the [contribution guidelines](../CONTRIBUTING.md) 📖. This ensures your code follows our style guide and passes our tests.
+- [ ] Read the [contribution guidelines](https://github.com/netlify/build-image/blob/focal/CONTRIBUTING.md) 📖. This ensures your code follows our style guide and passes our tests.
 - [ ] Update or add tests (if any source code was changed or added) 🧪
-- [ ] Update the [included software doc](../included_software.md) (if you updated included software) 📄
+- [ ] Update the [included software doc](https://github.com/netlify/build-image/blob/focal/included_software.md) (if you updated included software) 📄
 - [ ] Update or add documentation (if features were changed or added) 📝
 - [ ] Make sure the status checks below are successful ✅
 

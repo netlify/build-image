@@ -61,6 +61,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
+mkdir -p $NETLIFY_CACHE_DIR/.node/corepack
 mkdir -p $NETLIFY_CACHE_DIR/.cache/pip
 mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.emacs.d

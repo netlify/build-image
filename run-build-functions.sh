@@ -394,6 +394,8 @@ install_dependencies() {
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]
   then
+    # It might be a file or a broken symlink, so let's remove it before creating it
+    rm -rf "$PWD/.netlify"
     mkdir "$PWD/.netlify"
   fi
   restore_cwd_cache ".netlify/plugins" "build plugins"

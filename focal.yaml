@@ -86,17 +86,17 @@ commandTests:
       - "-c"
       - |
         source /opt/buildhome/.nvm/nvm.sh
-        echo "NVM: $(nvm --version)"
-        echo "Node: $(node --version)"
+        echo "nvm: $(nvm --version)"
+        echo "Node.js: $(node --version)"
         echo "Yarn: $(yarn --version)"
-        echo "NPM: $(npm --version)"
-        echo "PNPM: $(pnpm --version)"
+        echo "npm: $(npm --version)"
+        echo "pnpm: $(pnpm --version)"
     expectedOutput:
-      - "Node: v16.*.*"
-      - "NVM: 0.39.1"
+      - "Node.js: v16.*.*"
+      - "nvm: 0.39.1"
       - "Yarn: 1.22.*"
-      - "NPM: 8.*.*"
-      - "PNPM: 7.*.*"
+      - "npm: 8.*.*"
+      - "pnpm: 7.*.*"
 
   - name: hugo
     command: "hugo"

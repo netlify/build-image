@@ -282,12 +282,12 @@ USER root
 #
 ################################################################################
 
-# this installer is needed for older node versions where no corepack is available
+# this installer is needed for older Node.js versions where Corepack isn't available
 RUN curl -o- -L https://yarnpkg.com/install.sh > /usr/local/bin/yarn-installer.sh
 
 ENV NVM_VERSION=0.39.1
 
-# Install node.js, yarn, grunt, bower
+# Install Node.js, Yarn, Grunt, Bower
 USER buildbot
 RUN git clone https://github.com/creationix/nvm.git ~/.nvm && \
     cd ~/.nvm && \
@@ -299,7 +299,7 @@ ENV PNPM_VERSION=7.13.4
 
 ENV NETLIFY_NODE_VERSION="16"
 
-# We install an "internal" yarn v1 executable to be used only for workspace detection. We can remove it once we have a better
+# We install an "internal" Yarn v1 executable to be used only for workspace detection. We can remove it once we have a better
 # strategy in place
 RUN /bin/bash -c ". ~/.nvm/nvm.sh && \
          nvm install --no-progress $NETLIFY_NODE_VERSION && \
@@ -468,6 +468,8 @@ ENV GOCACHE "/opt/buildhome/.gimme_cache/gocache"
 # Install the default version
 ENV GIMME_GO_VERSION "1.19.x"
 ENV GIMME_ENV_PREFIX "/opt/buildhome/.gimme/env"
+ENV GIMME_VERSION_PREFIX "/opt/buildhome/.gimme/versions"
+ENV GIMME_TYPE "binary"
 RUN gimme | bash
 
 ################################################################################

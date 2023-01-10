@@ -38,7 +38,7 @@ teardown() {
   local newPnpmVersion=6.32.20
   run run_pnpm $newPnpmVersion
   assert_success
-  assert_output --partial "Installing NPM modules using PNPM version $newPnpmVersion"
+  assert_output --partial "Installing npm packages using pnpm version $newPnpmVersion"
   assert_dir_exist '/opt/buildhome/.pnpm-store'
 
   # The cache dir is actually being used
@@ -50,5 +50,5 @@ teardown() {
 
   run bash -c ". '/opt/build-bin/run-build-functions.sh' && install_node 12 && run_pnpm $newPnpmVersion"
   assert_failure
-  assert_output --partial "Error while installing PNPM $newPnpmVersion"
+  assert_output --partial "Error while installing pnpm $newPnpmVersion"
 }

@@ -61,6 +61,7 @@ mkdir -p $NETLIFY_CACHE_DIR/.netlify/plugins
 
 # HOME caches
 mkdir -p $NETLIFY_CACHE_DIR/.yarn_cache
+mkdir -p $NETLIFY_CACHE_DIR/.node/corepack
 mkdir -p $NETLIFY_CACHE_DIR/.cache/pip
 mkdir -p $NETLIFY_CACHE_DIR/.cask
 mkdir -p $NETLIFY_CACHE_DIR/.emacs.d
@@ -162,13 +163,13 @@ run_yarn() {
     fi
 
     if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]; then
-        echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
+        echo "Found Yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
         rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
         npm uninstall yarn -g
     fi
 
     if ! [ $(which yarn) ]; then
-      echo "Installing yarn at version $yarn_version"
+      echo "Installing Yarn version $yarn_version"
       rm -rf $HOME/.yarn
       bash /usr/local/bin/yarn-installer.sh --version $yarn_version
       mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
@@ -177,14 +178,14 @@ run_yarn() {
   else
     # if corepack is installed use it for changing the yarn version
     if [ "$(yarn --version)" != "$yarn_version" ]; then
-      echo "Installing yarn at version $yarn_version"
+      echo "Installing Yarn version $yarn_version"
       corepack prepare yarn@$yarn_version --activate
     fi
   fi
 
   restore_node_modules "yarn"
 
-  echo "Installing NPM modules using Yarn version $(yarn --version)"
+  echo "Installing npm packages using Yarn version $(yarn --version)"
 
   # Remove the cache-folder flag if the user set any.
   # We want to control where to put the cache
@@ -196,7 +197,7 @@ run_yarn() {
 
   if yarn install --cache-folder "$HOME/.yarn_cache" ${yarn_local:+$yarn_local}
   then
-    echo "NPM modules installed using Yarn"
+    echo "npm packages installed using Yarn"
   else
     echo "Error during Yarn install"
     exit 1
@@ -211,9 +212,9 @@ run_pnpm() {
   restore_home_cache ".pnpm-store" "pnpm cache"
 
   if ! [ $(which corepack) ] || has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
-    echo "Error while installing PNPM $pnpm_version"
-    echo "We cannot install the expected version of PNPM ($pnpm_version) as your required Node.js version $NODE_VERSION does not allow that"
-    echo "Please ensure that you use at least Node Version 14.19.0 or greater than 16.9.0"
+    echo "Error while installing pnpm $pnpm_version"
+    echo "We cannot install the expected version of pnpm ($pnpm_version) as your required Node.js version $NODE_VERSION does not allow that"
+    echo "Please ensure that you use at least Node.js version 14.19.0 or greater than 16.9.0"
 
     exit 1
   fi
@@ -227,12 +228,12 @@ run_pnpm() {
 
   restore_node_modules "pnpm"
 
-  echo "Installing NPM modules using PNPM version $(pnpm --version)"
+  echo "Installing npm packages using pnpm version $(pnpm --version)"
   if pnpm install ${PNPM_FLAGS:+$PNPM_FLAGS}
   then
-    echo "NPM modules installed using PNPM"
+    echo "npm packages installed using pnpm"
   else
-    echo "Error during PNPM install"
+    echo "Error during pnpm install"
     exit 1
   fi
 
@@ -248,12 +249,12 @@ run_npm() {
     if [ "$(npm --version)" != "$NPM_VERSION" ]
     then
       echo "Found npm version ($(npm --version)) that doesn't match expected ($NPM_VERSION)"
-      echo "Installing npm at version $NPM_VERSION"
+      echo "Installing npm version $NPM_VERSION"
       if npm install -g npm@$NPM_VERSION
       then
-        echo "NPM installed successfully"
+        echo "npm installed successfully"
       else
-        echo "Error installing NPM"
+        echo "Error installing npm"
         exit 1
       fi
     fi
@@ -262,24 +263,24 @@ run_npm() {
   if has_feature_flag "$featureFlags" "buildbot_bypass_module_cache"
   then
     echo "Bypassing sha validation. Running pre & post install scripts"
-    echo "Installing NPM modules using NPM version $(npm --version)"
+    echo "Installing npm packages using npm version $(npm --version)"
     if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
     then
-      echo "NPM modules installed"
+      echo "npm packages installed"
     else
-      echo "Error during NPM install"
+      echo "Error during npm install"
       exit 1
     fi
   else
     if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
     then
-      echo "Installing NPM modules using NPM version $(npm --version)"
+      echo "Installing npm packages using npm version $(npm --version)"
 
       if npm install ${NPM_FLAGS:+$NPM_FLAGS}
       then
-        echo "NPM modules installed"
+        echo "npm packages installed"
       else
-        echo "Error during NPM install"
+        echo "Error during npm install"
         exit 1
       fi
 
@@ -301,11 +302,11 @@ install_node() {
   # restore only non-existing cached versions
   if [[ $(ls $NETLIFY_CACHE_DIR/node_version/) ]]
   then
-    echo "Started restoring cached node version"
+    echo "Started restoring cached Node.js version"
     rm -rf "$NVM_DIR/versions/node"
     mkdir "$NVM_DIR/versions/node"
     cp -p -r $NETLIFY_CACHE_DIR/node_version/* $NVM_DIR/versions/node/
-    echo "Finished restoring cached node version"
+    echo "Finished restoring cached Node.js version"
   fi
 
   if [ -f ".nvmrc" ]
@@ -328,13 +329,13 @@ install_node() {
       env
     fi
   else
-    echo "Failed to install node version '$NODE_VERSION'"
+    echo "Failed to install Node.js version '$NODE_VERSION'"
     exit 1
   fi
 
   # if Node.js Corepack is available enable it
   if [ $(which corepack) ] && ! has_feature_flag "$featureFlags" "build-image-disable-node-corepack"; then
-    echo "Enabling node corepack"
+    echo "Enabling Node.js Corepack"
     corepack enable
   fi
 
@@ -361,7 +362,7 @@ check_python_version() {
 read_node_version_file() {
   local nodeVersionFile="$1"
   NODE_VERSION="$(cat "$nodeVersionFile")"
-  echo "Attempting node version '$NODE_VERSION' from $nodeVersionFile"
+  echo "Attempting Node.js version '$NODE_VERSION' from $nodeVersionFile"
 }
 
 install_dependencies() {
@@ -388,12 +389,14 @@ install_dependencies() {
     check_python_version "the PYTHON_VERSION environment variable"
   fi
 
-  # Node version
+  # Node.js version
   install_node "$defaultNodeVersion" "$featureFlags"
 
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]
   then
+    # It might be a file or a broken symlink, so let's remove it before creating it
+    rm -rf "$PWD/.netlify"
     mkdir "$PWD/.netlify"
   fi
   restore_cwd_cache ".netlify/plugins" "build plugins"
@@ -408,9 +411,9 @@ install_dependencies() {
   if [ -f .ruby-version ]
   then
     druby=$(cat .ruby-version)
-    echo "Attempting ruby version ${druby}, read from .ruby-version file"
+    echo "Attempting Ruby version ${druby}, read from .ruby-version file"
   else
-    echo "Attempting ruby version ${druby}, read from environment"
+    echo "Attempting Ruby version ${druby}, read from environment"
   fi
 
   rvm use ${druby} > /dev/null 2>&1
@@ -420,13 +423,13 @@ install_dependencies() {
   local fulldruby="ruby-${druby}"
   if [ -d $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} ] && [ -d $NETLIFY_CACHE_DIR/ruby_version_gems/${fulldruby} ]
   then
-    echo "Started restoring cached ruby version"
+    echo "Started restoring cached Ruby version"
     rm -rf $RVM_DIR/rubies/${fulldruby}
     cp -p -r $NETLIFY_CACHE_DIR/ruby_version/${fulldruby} $RVM_DIR/rubies/
 
     rm -rf $RVM_DIR/gems/${fulldruby}
     cp -p -r $NETLIFY_CACHE_DIR/ruby_version_gems/${fulldruby} $RVM_DIR/gems/
-    echo "Finished restoring cached ruby version"
+    echo "Finished restoring cached Ruby version"
   fi
 
   rvm --create use ${druby} > /dev/null 2>&1
@@ -434,15 +437,15 @@ install_dependencies() {
   then
     local crv=$(rvm current)
     export RUBY_VERSION=${crv#ruby-}
-    echo "Using ruby version ${RUBY_VERSION}"
+    echo "Using Ruby version ${RUBY_VERSION}"
   else
     if rvm_install_on_use_flag=1 rvm --quiet-curl --create use ${druby}
     then
       local crv=$(rvm current)
       export RUBY_VERSION=${crv#ruby-}
-      echo "Using ruby version ${RUBY_VERSION}"
+      echo "Using Ruby version ${RUBY_VERSION}"
     else
-      echo "Failed to install ruby version '${druby}'"
+      echo "Failed to install Ruby version '${druby}'"
       exit 1
     fi
   fi
@@ -456,7 +459,7 @@ install_dependencies() {
 
   if ! [ -z "$bundler_version" ]
   then
-      echo "Using bundler version $bundler_version from Gemfile.lock"
+      echo "Using Bundler version $bundler_version from Gemfile.lock"
   fi
 
   if ! gem list -i "^bundler$" -v "$bundler_version" > /dev/null 2>&1
@@ -470,7 +473,7 @@ install_dependencies() {
       fi
       if ! gem install "$bundler_gem_name" --no-document
       then
-          echo "Error installing bundler"
+          echo "Error installing Bundler"
           exit 1
       fi
   fi
@@ -592,11 +595,11 @@ install_dependencies() {
   # SPM dependencies
   if [ -f Package.swift ]
   then
-    echo "Building Swift Package"
+    echo "Building Swift package"
     restore_cwd_cache ".build" "swift build"
     if swift build
     then
-      echo "Swift package Built"
+      echo "Swift package built"
     else
       echo "Error building Swift package"
       exit 1
@@ -612,7 +615,7 @@ install_dependencies() {
     brew bundle
   fi
 
-  # NPM Dependencies
+  # npm Dependencies
   : ${YARN_VERSION="$defaultYarnVersion"}
   : ${PNPM_VERSION="$defaultPnpmVersion"}
   : ${CYPRESS_CACHE_FOLDER="./node_modules/.cache/CypressBinary"}
@@ -656,21 +659,21 @@ install_dependencies() {
     then
       if [ "$NETLIFY_USE_YARN" = "true" ] || ([ "$NETLIFY_USE_YARN" != "false" ] && [ -f yarn.lock ])
       then
-        echo "Installing bower with Yarn"
+        echo "Installing Bower with Yarn"
         yarn add bower
       else
-        echo "Installing bower with NPM"
+        echo "Installing Bower with npm"
         npm install bower
       fi
       export PATH=$(npm bin):$PATH
     fi
     restore_cwd_cache bower_components "bower components"
-    echo "Installing bower components"
+    echo "Installing Bower packages"
     if bower install --config.interactive=false
     then
-      echo "Bower components installed"
+      echo "Bower packages installed"
     else
-      echo "Error installing bower components"
+      echo "Error installing Bower packages"
       exit 1
     fi
   fi
@@ -831,7 +834,7 @@ cache_artifacts() {
   chmod -R +rw $HOME/.gimme_cache
   cache_home_directory ".gimme_cache" "go dependencies"
 
-  # cache the version of node installed
+  # cache the version of Node.js installed
   if ! [ -d $NETLIFY_CACHE_DIR/node_version/$NODE_VERSION ]
   then
     rm -rf $NETLIFY_CACHE_DIR/node_version
@@ -839,7 +842,7 @@ cache_artifacts() {
     mv $NVM_DIR/versions/node/* $NETLIFY_CACHE_DIR/node_version/
   fi
 
-  # cache the version of ruby installed
+  # cache the version of Ruby installed
   if [[ "$CUSTOM_RUBY" -ne "0" ]]
   then
     if ! [ -d $NETLIFY_CACHE_DIR/ruby_version/ruby-$RUBY_VERSION ] || ! [ -d $NETLIFY_CACHE_DIR/ruby_version_gems/ruby-$RUBY_VERSION ]
@@ -847,7 +850,7 @@ cache_artifacts() {
       rm -rf $NETLIFY_CACHE_DIR/ruby_version
       mkdir $NETLIFY_CACHE_DIR/ruby_version
       mv $RVM_DIR/rubies/ruby-$RUBY_VERSION $NETLIFY_CACHE_DIR/ruby_version/
-      echo "Cached ruby version $RUBY_VERSION"
+      echo "Cached Ruby version $RUBY_VERSION"
 
       rm -rf $NETLIFY_CACHE_DIR/ruby_version_gems
       mkdir $NETLIFY_CACHE_DIR/ruby_version_gems
@@ -1015,28 +1018,27 @@ install_go() {
     fi
   fi
 
-  if [ "$GIMME_GO_VERSION" != "$installGoVersion" ]
+  # Cache known version for 7days (604800 seconds)
+  resolvedGoVersion="$(GIMME_KNOWN_CACHE_MAX=604800 gimme --resolve $installGoVersion)"
+  if [ $? -ne 0 ]
   then
-    resolvedGoVersion=$(gimme --resolve $installGoVersion)
+    echo "Failed to resolve Go version '$installGoVersion'"
+    exit 1
+  fi
+
+  gimmeEnvFile=$HOME/.gimme/env/go$resolvedGoVersion.linux.$(dpkg --print-architecture).env
+
+  # Check if the version is already installed by gimme
+  if [ ! -f $gimmeEnvFile ]
+  then
     echo "Installing Go version $resolvedGoVersion (requested $installGoVersion)"
     GIMME_ENV_PREFIX=$HOME/.gimme/env GIMME_VERSION_PREFIX=$HOME/.gimme/versions gimme $resolvedGoVersion
-    if [ $? -eq 0 ]
+    if [ $? -ne 0 ]
     then
-      source $HOME/.gimme/env/go$resolvedGoVersion.linux.$(dpkg --print-architecture).env
-    else
       echo "Failed to install Go version '$resolvedGoVersion'"
-      exit 1
-    fi
-  else
-    gimme | bash
-    if [ $? -eq 0 ]
-    then
-      source $HOME/.gimme/env/go$GIMME_GO_VERSION.linux.amd64.env
-    else
-      echo "Failed to install Go version '$GIMME_GO_VERSION'"
       exit 1
     fi
   fi
 
+  source $gimmeEnvFile
 }
-

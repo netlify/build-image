@@ -296,6 +296,7 @@ install_node() {
   local defaultNodeVersion=$1
   local featureFlags=$2
 
+
   source $NVM_DIR/nvm.sh
   : ${NODE_VERSION="$defaultNodeVersion"}
 
@@ -390,7 +391,7 @@ install_dependencies() {
   fi
 
   # Node.js version
-  install_node "$defaultNodeVersion" "$featureFlags"
+  # install_node "$defaultNodeVersion" "$featureFlags"
 
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]

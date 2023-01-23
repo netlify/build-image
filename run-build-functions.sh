@@ -264,7 +264,7 @@ run_npm() {
   then
     echo "Bypassing sha validation. Running pre & post install scripts"
     echo "Installing npm packages using npm version $(npm --version)"
-    if npm install ${NPM_FLAGS:+"$NPM_FLAGS"}
+    if npm install ${NPM_FLAGS:+$NPM_FLAGS}
     then
       echo "npm packages installed"
     else

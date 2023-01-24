@@ -260,33 +260,13 @@ run_npm() {
     fi
   fi
 
-  if has_feature_flag "$featureFlags" "buildbot_bypass_module_cache"
+  echo "Installing npm packages using npm version $(npm --version)"
+  if npm install ${NPM_FLAGS:+$NPM_FLAGS}
   then
-    echo "Bypassing sha validation. Running pre & post install scripts"
-    echo "Installing npm packages using npm version $(npm --version)"
-    if npm install ${NPM_FLAGS:+$NPM_FLAGS}
-    then
-      echo "npm packages installed"
-    else
-      echo "Error during npm install"
-      exit 1
-    fi
+    echo "npm packages installed"
   else
-    if install_deps package.json $NODE_VERSION $NETLIFY_CACHE_DIR/package-sha
-    then
-      echo "Installing npm packages using npm version $(npm --version)"
-
-      if npm install ${NPM_FLAGS:+$NPM_FLAGS}
-      then
-        echo "npm packages installed"
-      else
-        echo "Error during npm install"
-        exit 1
-      fi
-
-      echo "Creating package sha"
-      echo "$(shasum package.json)-$NODE_VERSION" > "$NETLIFY_CACHE_DIR/package-sha"
-    fi
+    echo "Error during npm install"
+    exit 1
   fi
 
   export PATH=$(npm bin):$PATH

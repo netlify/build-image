@@ -1,5 +1,5 @@
 [lfs]
-	fetchinclude = *.jpg,*.png,*.jpeg,*.svg,*.gif,*.pdf,*.mp4,*.bmp,*.webp
+	fetchinclude = *.jpg,*.png,*.jpeg,*.svg,*.gif,*.pdf,*.mp4,*.bmp,*.webp,*.webm
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f

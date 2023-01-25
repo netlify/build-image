@@ -45,6 +45,8 @@ mkdir -p $NETLIFY_CACHE_DIR/node_version
 mkdir -p $NETLIFY_CACHE_DIR/ruby_version
 mkdir -p $NETLIFY_CACHE_DIR/swift_version
 
+source $NVM_DIR/nvm.sh
+
 # pwd caches
 NETLIFY_JS_WORKSPACES_CACHE_DIR="$NETLIFY_CACHE_DIR/js-workspaces"
 
@@ -296,7 +298,7 @@ install_node() {
   local defaultNodeVersion=$1
   local featureFlags=$2
 
-  source $NVM_DIR/nvm.sh
+
   : ${NODE_VERSION="$defaultNodeVersion"}
 
   # restore only non-existing cached versions
@@ -390,7 +392,7 @@ install_dependencies() {
   fi
 
   # Node.js version
-  install_node "$defaultNodeVersion" "$featureFlags"
+  # install_node "$defaultNodeVersion" "$featureFlags"
 
   # Automatically installed Build plugins
   if [ ! -d "$PWD/.netlify" ]

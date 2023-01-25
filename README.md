@@ -20,7 +20,7 @@
 >
 > We updated our documentation page to reflect an accurate list of all the languages and software that is currently available in our builds.
 >
-> You can check it out at [our docs page](docs.netlify.app/configure-builds/available-software-at-build-time/).
+> You can check it out at [our docs page](https://docs.netlify.com/configure-builds/available-software-at-build-time/).
 
 This repository contains the tools to make the build image that Netlify's continuous deployment buildbot uses to build a site from a connected Git repository.
 

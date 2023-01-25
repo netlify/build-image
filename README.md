@@ -1,5 +1,27 @@
 # Netlify Build Image
 
+> ### Archive note
+>
+> We have archived this repository and moved the code to a private repository. This decision was made to provide shorter development cycles and allow us to react faster on issues.
+>
+> Sadly, this change comes with the bittersweet price of not having this repository open source anymore.
+>
+> We apologize for this inconvenience and still want to hear from you on issues you encounter or feature requests.
+>
+> To support your troubleshooting, we will still publish the `build-image` to Docker Hub for now. We would love to make troubleshooting easier for you, but first we need to understand your unique situation.
+>
+> Since we would love to understand the troubleshooting issues you’re encountering, we kindly ask you to reach out to our Support team in the Forums. Again, we would love to make troubleshooting easier for you, but first we need to understand your unique situation.
+>
+> ### How to report features and bugs?
+>
+> To build a better web, we still need your valuable input and feedback! Help us build a better web by reporting issues or proposing feature requests to our build system through our [Support Forum](https://answers.netlify.com/c/features/50).
+>
+> ### Find out which software & version is available inside your builds
+>
+> We updated our documentation page to reflect an accurate list of all the languages and software that is currently available in our builds.
+>
+> You can check it out at [our docs page](https://docs.netlify.com/configure-builds/available-software-at-build-time/).
+
 This repository contains the tools to make the build image that Netlify's continuous deployment buildbot uses to build a site from a connected Git repository.
 
 If you're having problems with your build, you can also use these tools to test locally.
